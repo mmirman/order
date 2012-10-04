@@ -8,15 +8,17 @@ data Type : Set where
   _⨀_ : Type -> Type -> Type
   T : Type
 
-data Context : Set where
-  _,_ : Type -> Context -> Context
-  ∙ : Context
+data List (A : Set) : Set where
+  _,_ : A -> List A -> List A
+  ∙ : List A
+
+Context : Set
+Context = List Type
 
 infixr 1 _+_
-_+_ : Context -> Context -> Context
+_+_ : ∀ { A } -> List A -> List A -> List A
 ∙ + a = a
 (v , l) + a = v , (l + a)
-
 
 infix 1 _⊢_
 data Seq : Set where
@@ -69,6 +71,7 @@ data _==t_ : Type -> Type -> Set where
        -> A ⨀ B ==t A' ⨀ B'
   =T : T ==t T
   =A : ∀ {A} -> A ==t A
+
 infixr 0 _==c_  
 data _==c_ : Context -> Context -> Set where
   =, : ∀ {A Γ} {A' Γ'}
@@ -110,5 +113,6 @@ data _==p_ : ∀{A} -> ⟨ A ⟩ -> ∀{B} -> ⟨ B ⟩ -> Set where
      -> A ==p A'
      -> ⨀L {Γ₁} {Γ₂} {a} {b} {c} A ==p ⨀L {Γ₁'} {Γ₂'} {a'} {b'} {c'} A'
 
-postulate undefined : ∀ {A : Set} -> A
+postulate undefined : {A : Set} -> A
+
 
