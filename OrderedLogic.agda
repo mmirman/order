@@ -53,6 +53,41 @@ data ⟨_⟩ : Seq -> Set where
      -> ⟨ Γ₁ + a , b , Γ₂ ⊢ c ⟩
      -> ⟨ Γ₁ + a ⨀ b , Γ₂ ⊢ c ⟩
 
+{-
+Isorecursive Types:  
+ 
+ Γ ⊢ A : [α / μα.T] T
+-----------------------
+  Γ ⊢ roll A : μα.T
+
+     Γ ⊢ A : μα.T
+-----------------------------
+Γ ⊢ unroll A : [α / μα.T] T
+
+
+     Γ, A ; · ⊢  A
+    ---------------- fix
+      Γ ; · ⊢  A
+
+     
+ Γ, u:A ; · ⊢ P : A
+--------------------- fix
+Γ ; · ⊢ fix[u] P : A
+
+
+or
+
+    u:A ⊢ P : A
+--------------------- fix
+ · ⊢ fix[u] P : A
+
+!thus ensuring only a single recursive instance!
+
+
+-}
+
+
+
 infix 5 _==t_
 data _==t_ : Type -> Type -> Set where
   =~>> : ∀ { A B } {A' B'}
@@ -109,6 +144,4 @@ data _==p_ : ∀{A} -> ⟨ A ⟩ -> ∀{B} -> ⟨ B ⟩ -> Set where
   =⨀L : ∀ {Γ₁ Γ₂ a b c A}{Γ₁' Γ₂' a' b' c' A'}
      -> A ==p A'
      -> ⨀L {Γ₁} {Γ₂} {a} {b} {c} A ==p ⨀L {Γ₁'} {Γ₂'} {a'} {b'} {c'} A'
-
-postulate undefined : ∀ {A : Set} -> A
 
