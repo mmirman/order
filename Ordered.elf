@@ -4,11 +4,6 @@ tp : type.
 * : tp -> tp -> tp. %infix right 0 *.
 
 
-
-ctx : type.
-# : ctx.
-, : tp -> ctx -> ctx. %infix left 0 ,.
-
 tm : type.
 ap>> : tm -> tm -> tm.
 >ap> : tm -> tm -> tm.
