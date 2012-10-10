@@ -1,0 +1,225 @@
+tp : type.
+->> : tp -> tp -> tp. %infix right 0 ->>.
+>-> : tp -> tp -> tp. %infix right 0 >->.
+* : tp -> tp -> tp. %infix right 0 *.
+
+
+
+ctx : type.
+# : ctx.
+, : tp -> ctx -> ctx. %infix left 0 ,.
+
+tm : type.
+ap>> : tm -> tm -> tm.
+>ap> : tm -> tm -> tm.
+lam>> : (tm -> tm) -> tm.
+>lam> : (tm -> tm) -> tm.
+
+tensor : tm -> tm -> tm.
+lett : tm -> (tm -> tm -> tm) -> tm.
+
+closed : tm -> type.
+closed/const : closed C.
+%worlds () (closed _).
+
+nat : type.
+z : nat.
+s : nat -> nat.
+
+add : nat -> nat -> nat -> type.
+%mode add +A +B -C.
+add/z : add z A A.
+add/s : add (s A) B (s C) <- add A B C.
+%worlds () (add _ _ _).
+%total {A} (add A _ _).
+
+sub : nat -> nat -> nat -> type.
+%mode sub +A +B -C.
+sub/z : sub A z A.
+sub/s : sub (s A) (s B) C <- sub A B C.
+%worlds () (sub _ _ _).
+
+size-ctx : tm -> nat -> type.
+%mode size-ctx +A -B.
+
+%abbrev assm-1 = [x] size-ctx x (s z).
+%abbrev assm-0 = [x] size-ctx x z.
+
+size-ctx/ap>> : size-ctx (ap>> A B) C 
+             <- size-ctx B N1 
+             <- size-ctx A N2
+             <- add N1 N2 C.
+
+size-ctx/>ap> : size-ctx (>ap> A B) C 
+             <- size-ctx B N1 
+             <- size-ctx A N2
+             <- add N1 N2 C.
+size-ctx/lam>> : size-ctx (lam>> F) N 
+              <- {x} assm-0 x -> size-ctx (F x) N.
+size-ctx/>lam> : size-ctx (>lam> F) N 
+              <- {x} assm-0 x -> size-ctx (F x) N.
+
+%block assm-0-bl : block {x}{_:assm-0 x}.
+%block assm-1-bl : block {x}{_:assm-1 x}.
+%block assm-bl = (assm-0-bl | assm-1-bl).
+
+%worlds (assm-bl) (size-ctx _ _).
+
+head : nat -> (tm -> tm) -> type.
+%mode head -A +B.
+
+head/var : head z ([x] x).
+head/ap>> : head N ([x] ap>> (F x) G) 
+         <- head N F.
+
+head/ap>>oth : head N ([x] ap>> F (G x)) 
+            <- size-ctx F N'
+            <- head N-N' G
+            <- add N' N-N' N.
+
+head/>ap> : head N ([x] >ap> F (G x)) 
+         <- head N G.
+head/>ap>oth : head N ([x] >ap> (F x) G) 
+            <- size-ctx G N'
+            <- head N-N' F
+            <- add N' N-N' N.
+
+head/lam>> : head N ([x] lam>> (F x)) 
+          <- {y} assm-1 y -> head N ([x] F y x).
+head/>lam> : head N ([x] >lam> (F x)) 
+          <- {y} assm-1 y -> head (s N) ([x] F y x).
+
+head/tensor : head N ([x] tensor (F x) G) 
+           <- head N F.
+
+head/tensor-oth : head N ([x] tensor F (G x)) 
+               <- size-ctx F N'
+               <- head N-N' G
+               <- add N' N-N' N.
+
+head/lettR : head N ([z] lett P ([x][y] F x y z))
+         <- size-ctx P S_P
+         <- ({x} assm-1 x -> {y} assm-1 y -> head N' ([z] F x y z))
+         <- add S_P N' N.
+head/lettL : head N ([z] lett P ([x][y] F x y z))
+          <- ({x} assm-1 x -> {y} assm-1 y -> head N ([z] F x y z)).
+head/lettP : head N ([z] lett (P z) F)
+          <- ({y} assm-1 y -> head S_L ([x] F x y))
+          <- head N' P
+          <- add S_L N' N.
+%worlds (assm-bl) (head _ _).
+
+tail : nat -> (tm -> tm) -> type.
+%mode tail -N +G.
+
+tail/var : tail z ([x] x).
+tail/>ap> : tail N ([x] >ap> (F x) G) 
+         <- tail N F.
+tail/>ap>oth : tail N ([x] >ap> F (G x)) 
+          <- size-ctx F N'
+          <- tail N-N' G
+	  <- add N' N-N' N.
+tail/ap>> : tail N ([x] ap>> F (G x)) 
+         <- tail N G.
+tail/ap>>oth : tail N ([x] ap>> (F x) G) 
+            <- size-ctx G N'
+            <- tail N-N' F
+	    <- sub N' N-N' N.
+tail/>lam> : tail N ([x] >lam> (F x)) 
+          <- {y} assm-1 y -> tail N ([x] F y x).
+tail/lam>> : tail N ([x] lam>> (F x)) 
+          <- {y} assm-1 y -> tail (s N) ([x] F y x).
+
+tail/tensor : tail N ([x] tensor G (F x)) 
+           <- tail N F.
+
+tail/tensor-oth : tail N ([x] tensor (G x) F) 
+               <- size-ctx F N'
+               <- tail N-N' G
+	       <- add N' N-N' N.
+
+tail/lettL : tail N ([z] lett P ([x][y] F x y z))
+          <- size-ctx P S_P
+          <- ({x} assm-1 x -> {y} assm-1 y -> tail N' ([z] F x y z))
+	  <- add S_P N' N.
+tail/lettR : tail N ([z] lett P ([x][y] F x y z))
+          <- ({x} assm-1 x -> {y} assm-1 y -> tail N ([z] F x y z)).
+tail/lettP : tail N ([z] lett (P z) F)
+          <- ({x} assm-1 x -> tail S_R ([y] F x y))
+          <- tail N' P
+          <- add S_R N' N.
+
+%worlds (assm-bl) (tail _ _).
+
+together : (tm -> tm -> tm) -> type.
+%mode together +A.
+together/bth : together ([x][y] F x y)
+            <- ({x} assm-0 x -> {y} assm-0 y -> size-ctx (F x y) N)
+            <- ({y} assm-1 y -> head H ([x] F x y))
+            <- ({x} assm-1 x -> tail T ([y] F x y))
+            <- add H T N.
+
+%worlds (assm-bl) (together _).
+
+; : tm -> tp -> type. %infix right 0 ;.
+;/lam>> : ({x} assm-1 x -> x ; A -> F x ; B)
+       -> tail z F
+       -> lam>> F ; A ->> B.
+
+;/>lam> : ({x} assm-1 x -> x ; A -> F x ; B)
+       -> head z F
+       -> >lam> F ; A >-> B.
+
+;/ap>> : F ; A ->> B 
+      -> V ; A
+      -> ap>> F V ; B.
+
+;/>ap> : F ; A >-> B 
+      -> V ; A
+      -> >ap> F V ; B.
+
+;/tensor : P ; A
+        -> Q ; B
+        -> tensor P Q ; A * B.
+
+;/lett : T ; A * B
+       -> ({x} assm-1 x -> x ; A -> {y} assm-1 y -> y ; B -> F x y ; C )
+       -> together F
+       -> lett T F ; C.
+%block tp-bl : some {A} block {x}{_: assm-1 x}{_: x ; A}.
+%worlds (tp-bl) (; _ _).
+
+%{
+
+   x |- y           y |- x
+  -------------------------
+     x,y |- >ap> x y : B
+
+ L |- F : A ->> B   R |- G : A
+------------------------------- ->> I
+      L,R |- ap>> F G : B
+
+  L |- G : A   R |- F : A >-> B  
+-------------------------------- >-> I
+      L,R |- >ap> F G : B
+
+
+    L, x:A |- C : B
+-------------------------- ->> E
+ L |- lam>> x . C : A ->> B
+
+    x:A, R |- C : B
+---------------------------- >-> E
+  R |- >lam> x . C : A >-> B
+
+
+L |- A       R |- B
+--------------------
+  L,R |- A * B 
+
+
+M |- P : A * B   L,x:A,y:B,R |- F : C
+--------------------------------------
+ L,M, R |- lett P (x.y.F) : C
+
+}%
