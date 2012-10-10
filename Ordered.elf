@@ -93,15 +93,21 @@ head/tensor-oth : head N ([x] tensor F (G x))
                <- add N' N-N' N.
 
 head/lettR : head N ([z] lett P ([x][y] F x y z))
+	 <- ({z} assm-1 z -> {y} assm-1 y -> head S_L ([x] F x y z))
          <- size-ctx P S_P
          <- ({x} assm-1 x -> {y} assm-1 y -> head N' ([z] F x y z))
-         <- add S_P N' N.
+         <- add S_P N' N
+         <- sub N' S_L _.
 head/lettL : head N ([z] lett P ([x][y] F x y z))
-          <- ({x} assm-1 x -> {y} assm-1 y -> head N ([z] F x y z)).
+  	  <- ({z} assm-1 z -> {y} assm-1 y -> head S_L ([x] F x y z))
+          <- ({x} assm-1 x -> {y} assm-1 y -> head N ([z] F x y z))
+          <- sub S_L N _.
+
 head/lettP : head N ([z] lett (P z) F)
           <- ({y} assm-1 y -> head S_L ([x] F x y))
           <- head N' P
           <- add S_L N' N.
+
 %worlds (assm-bl) (head _ _).
 
 tail : nat -> (tm -> tm) -> type.
@@ -134,11 +140,16 @@ tail/tensor-oth : tail N ([x] tensor (G x) F)
 	       <- add N' N-N' N.
 
 tail/lettL : tail N ([z] lett P ([x][y] F x y z))
+          <- ({z} assm-1 z -> {x} assm-1 x -> tail S_R ([y] F x y z))
           <- size-ctx P S_P
           <- ({x} assm-1 x -> {y} assm-1 y -> tail N' ([z] F x y z))
-	  <- add S_P N' N.
+	  <- add S_P N' N
+          <- sub N' S_R _.
 tail/lettR : tail N ([z] lett P ([x][y] F x y z))
-          <- ({x} assm-1 x -> {y} assm-1 y -> tail N ([z] F x y z)).
+          <- ({z} assm-1 z -> {x} assm-1 x -> tail S_R ([y] F x y z))
+          <- ({x} assm-1 x -> {y} assm-1 y -> tail N ([z] F x y z))
+          <- sub S_R N _.
+
 tail/lettP : tail N ([z] lett (P z) F)
           <- ({x} assm-1 x -> tail S_R ([y] F x y))
           <- tail N' P
