@@ -1,0 +1,91 @@
+nm : type.
+
+tm : type.
+
+| : tm -> tm -> tm. %infix none 1 |.
+new : (nm -> tm) -> tm.
+out : nm -> nm -> tm -> tm.
+in : nm -> (nm -> tm) -> tm.
+0 : tm.
+! : tm -> tm. 
+<-> : nm -> nm -> tm. %infix none 1 <->.
+
+== : tm -> tm -> type. %infix none 0 ==.
+==/com  : P == P' <- P' == P.
+==/par/com  : P | Q == Q | P.
+==/par/tran : (P | Q) | R == P | (Q | R).
+==/par/0 : P | 0 == P.
+==/res/com : (new [x] new [y] F x y) == (new [y] new [x] F x y).
+==/res/0 : (new [x] 0) == 0.
+==/rep : ! P == P | ! P.
+==/res-par : (new [x] P x | Q) == (new [x] P x) | Q.
+
+==/eq : P == P.
+==/new : (new [x] P x) == (new [x] P' x) 
+      <- {x} P x == P' x.
+==/par : P | Q == P' | Q'
+    <- Q == Q'
+    <- P == P'.
+==/out : out X Y P == out X Y P' 
+      <- P == P'.
+==/in : in X P == in X P' 
+      <- {x} P x == P' x. 
+==/rep : ! P == ! P' 
+      <- P == P'.
+
+=> : tm -> tm -> type. %infix none 0 =>.
+
+=>/eq : P == P' 
+     -> P' => Q'
+     -> Q' == Q 
+     -> P => Q.
+
+=>/red/l : out X Y P | in X F => P | F Y.
+=>/red/r : in X F | out X Y P => F Y | P.
+
+=>/par/l : P | R => P' | R 
+        <- P => P'.
+
+=>/par/r : P | R => P | R' 
+        <- R => R'.
+
+=>/new : (new [x] P x ) => (new [x] P' x)
+      <- {x} P x => P' x.
+
+
+linear : (nm -> tm) -> type.
+linear/par/l : linear P 
+            -> linear [x] P x | Q. 
+linear/par/r : linear Q 
+            -> linear [x] P | Q x.
+linear/new : linear ([x] new [y] F y x)
+          <- {y} linear [x] F y x.
+linear/in/use : linear [x] in X F.
+linear/in/other : linear ([x] in Y (F x))
+              <- {y} linear [x] F y x.
+linear/out/use1 : linear F -> linear [x] out x Y (F x).
+
+linear/out/use2 : linear [x] out X x F.
+linear/out/other : linear F 
+                -> linear [x] out X Y (F x).
+linear/out/<-> : linear [x] (x <-> Y).
+
+
+tp : type.
+
+-o : tp -> tp -> tp. %infix right 0 -o.
+
+assm : nm -> tp -> type.
+
+is : tm -> nm -> tp -> type.
+
+is/id : is (Y <-> X) X A
+     <- assm Y B.
+
+is/-oR : is (in X F) X (A -o B)
+      <- linear F
+      <- {y} assm y A -> is (F y) X B.
+
+is/-oL : is P Y A
+      -> ({x} assm x B -> is (Q x) Z C)
+      -> ({x} assm x (A -o B) -> is (new [y] out x y (P | Q x)) Z C).
