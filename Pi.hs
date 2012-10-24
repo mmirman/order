@@ -112,12 +112,12 @@ class Embedable p => LLSemantics p where
   getLeft  :: p ->  p
   getRight :: p ->  p
   
-data LinLam = LinLam {runLinLam :: forall a . LLSemantics a => a }
+
+
 instance Embedable (Nu EChan -> IO ()) where
   embed a _ = a
   
 var y = \y' -> forward y y'
-
 instance LLSemantics (Nu EChan -> IO ()) where
   lam f x = inn x $ \y -> f (var y) x
   (#) m n w = new $ \x -> m x ||| (new $ \y -> out x y (n y ||| forward x w))
@@ -134,3 +134,34 @@ instance LLSemantics (Nu EChan -> IO ()) where
   getLeft m w = new $ \x -> m x ||| piInL x (forward x w)
   getRight m w = new $ \x -> m x ||| piInR x (forward x w)
   
+  inLeft p x = piInL x (p x)
+  inRight p x = piInR x (p x)
+  caseOf p f f' z = new $ \x -> p x ||| piCase x (f (var z) x, f' (var z) x)
+data LinLam = LinLam { runLinLam :: forall a . LLSemantics a => a }
+              
+runLL :: LinLam -> IO ()
+runLL (LinLam t) = new $ \n -> t n
+
+  
+{-  
+ G |- P : A
+---------------------
+G |- inLeft P : A + B
+
+ G |- E : A + B   G' , x : A |- F : C     G' , y : B |- F' : C
+-------------------------------------------------------------
+          G,G' |- caseOf E (\x.F) (\y.F') :: C
+
+                             G', x:A |- P::z:C   G', x:B |- Q::z:C
+                            ---------------------------------------
+ G |- R :: x : A + B         G, x : A + B |- x.case(P,Q) :: z : C
+-----------------------------------------------------------------
+           G,G' |- #x.(R |x.case(P,Q) ) :: z : C
+
+
+       G |- P :: x : A
+  ---------------------------
+  G |- x.inl; P :: x : A + B
+
+
+-}
