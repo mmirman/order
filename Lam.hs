@@ -4,33 +4,169 @@
  RankNTypes,
  UndecidableInstances, 
  DataKinds,
- TypeFamilies
+ TypeFamilies,
+ GeneralizedNewtypeDeriving
  #-}
 module Lam where
+import Control.Monad
+
+import qualified Pi as Pi
 
 infixr 0 :->
 infixr 0 :+
-data Tp = Tp :-> Tp | Unit deriving Eq
+data Tp = Top 
+        | One
+        | Zero
+        | Bang Tp
+        | Tp :-> Tp 
+        | Tp :*: Tp
+        | Tp :+: Tp
+        | Tp :&: Tp
+        deriving (Eq, Show)
 data InC = F Tp | U deriving Eq
 data C = InC :+ C | End
 
+data K = Bin String | Mon String | Un String deriving (Eq)
+-- until the GHC gets proper pattern matching for type families, this output the cases for IfEq
+produce :: IO ()
+produce = do
+  let tps = (map Bin [":+:", ":*:", ":&:", ":->"])++(map Mon ["Top", "One", "Zero"])++(map Un ["Bang"])
+      pairs = [ (t,t') | t <- tps, t' <- filter (t /=) tps]
+      
+      display (Bin f) s = "(a"++s++" "++f++" b"++s++")"
+      display (Un f) s = "("++f++" a"++s++")"
+      display (Mon f) _ = f
+  forM_ pairs $ \(t,t') -> 
+    putStrLn $ "type instance IfEq "++display t ""++" "++display t' "'"++" f s = s"
+
+
 type family IfEq (a :: Tp) (a' :: Tp) (f :: C) (s :: C) :: C 
-type instance IfEq Unit Unit f s = f
-type instance IfEq (a :-> b) Unit f s = s
-type instance IfEq Unit (a :-> b) f s = s
+type instance IfEq Top Top f s = f
+type instance IfEq Zero Zero f s = f
+type instance IfEq One One f s = f
 type instance IfEq (a :-> b) (a' :-> b') f s = IfEq a a' (IfEq b b' f s) s
+type instance IfEq (a :&: b) (a' :&: b') f s = IfEq a a' (IfEq b b' f s) s
+type instance IfEq (a :+: b) (a' :+: b') f s = IfEq a a' (IfEq b b' f s) s
+type instance IfEq (a :*: b) (a' :*: b') f s = IfEq a a' (IfEq b b' f s) s
+type instance IfEq (a :+: b) (a' :*: b') f s = s
+type instance IfEq (a :+: b) (a' :&: b') f s = s
+type instance IfEq (a :+: b) (a' :-> b') f s = s
+type instance IfEq (a :+: b) Top f s = s
+type instance IfEq (a :+: b) One f s = s
+type instance IfEq (a :+: b) Zero f s = s
+type instance IfEq (a :+: b) (Bang a') f s = s
+type instance IfEq (a :*: b) (a' :+: b') f s = s
+type instance IfEq (a :*: b) (a' :&: b') f s = s
+type instance IfEq (a :*: b) (a' :-> b') f s = s
+type instance IfEq (a :*: b) Top f s = s
+type instance IfEq (a :*: b) One f s = s
+type instance IfEq (a :*: b) Zero f s = s
+type instance IfEq (a :*: b) (Bang a') f s = s
+type instance IfEq (a :&: b) (a' :+: b') f s = s
+type instance IfEq (a :&: b) (a' :*: b') f s = s
+type instance IfEq (a :&: b) (a' :-> b') f s = s
+type instance IfEq (a :&: b) Top f s = s
+type instance IfEq (a :&: b) One f s = s
+type instance IfEq (a :&: b) Zero f s = s
+type instance IfEq (a :&: b) (Bang a') f s = s
+type instance IfEq (a :-> b) (a' :+: b') f s = s
+type instance IfEq (a :-> b) (a' :*: b') f s = s
+type instance IfEq (a :-> b) (a' :&: b') f s = s
+type instance IfEq (a :-> b) Top f s = s
+type instance IfEq (a :-> b) One f s = s
+type instance IfEq (a :-> b) Zero f s = s
+type instance IfEq (a :-> b) (Bang a') f s = s
+type instance IfEq Top (a' :+: b') f s = s
+type instance IfEq Top (a' :*: b') f s = s
+type instance IfEq Top (a' :&: b') f s = s
+type instance IfEq Top (a' :-> b') f s = s
+type instance IfEq Top One f s = s
+type instance IfEq Top Zero f s = s
+type instance IfEq Top (Bang a') f s = s
+type instance IfEq One (a' :+: b') f s = s
+type instance IfEq One (a' :*: b') f s = s
+type instance IfEq One (a' :&: b') f s = s
+type instance IfEq One (a' :-> b') f s = s
+type instance IfEq One Top f s = s
+type instance IfEq One Zero f s = s
+type instance IfEq One (Bang a') f s = s
+type instance IfEq Zero (a' :+: b') f s = s
+type instance IfEq Zero (a' :*: b') f s = s
+type instance IfEq Zero (a' :&: b') f s = s
+type instance IfEq Zero (a' :-> b') f s = s
+type instance IfEq Zero Top f s = s
+type instance IfEq Zero One f s = s
+type instance IfEq Zero (Bang a') f s = s
+type instance IfEq (Bang a) (a' :+: b') f s = s
+type instance IfEq (Bang a) (a' :*: b') f s = s
+type instance IfEq (Bang a) (a' :&: b') f s = s
+type instance IfEq (Bang a) (a' :-> b') f s = s
+type instance IfEq (Bang a) Top f s = s
+type instance IfEq (Bang a) One f s = s
+type instance IfEq (Bang a) Zero f s = s
 
 type family Use (a :: Tp) (b :: C) :: C
 type instance Use a (F a':+ h) = IfEq a a' (U :+ h) (F a' :+ (Use a h))
 type instance Use a (U :+ h) = U :+ (Use a h)
 
-class Semantics (rep :: C -> C -> Tp -> *) where
-  app :: rep hi h (a :-> b) -> rep h ho a -> rep hi ho b
-  nil :: rep hi hi Unit
+class LinLam (rep :: C -> C -> Tp -> *) where
+  (#) :: rep hi h (a :-> b) -> rep h ho a -> rep hi ho b
+  zero :: rep hi hi Zero
   lam :: ((forall h . rep h (Use a h) a) -> rep (F a :+ hi) (U :+ ho) b) 
          -> rep hi ho (a :-> b)
     
-data LL a = LL { runLam :: forall rep. Semantics rep => rep End End a}
+  bang :: rep End End a -> rep End End (Bang a) 
 
-test :: LL ((Unit :-> Unit) :-> Unit :-> Unit)
-test = LL $ lam $ \f -> lam $ \y -> app f y
+  letBang :: rep hi h (Bang a)
+          -> ((forall h . rep h h a) -> rep h ho b) 
+          ->  rep hi ho b
+
+  (*) :: rep hi h a 
+      -> rep h ho b
+      -> rep hi ho (a :*: b)
+
+  lett :: rep hi h (a :*: b) 
+       -> ((forall h . rep h (Use a h) a) -> (forall h . rep h (Use b h) b) -> rep (F a :+ F b :+ h) (U :+ U :+ ho) c)
+       -> rep hi ho c
+          
+  embed :: IO () -> rep h h One
+  
+  
+  inLeft :: rep hi ho a -> rep hi ho (a :+: b)
+  inRight :: rep hi ho b -> rep hi ho (a :+: b)
+
+  caseOf :: rep hi h (a :+: b) 
+         -> ((forall h . rep h (Use a h) a) -> rep (F a :+ h) (U :+ ho) c) 
+         -> ((forall h . rep h (Use b h) b) -> rep (F b :+ h) (U :+ ho) c) 
+         -> rep hi ho c
+  {-      
+  (&) :: p -> p -> p
+  getLeft  :: p ->  p
+  getRight :: p ->  p
+-}
+
+newtype Fantom p (a :: C) (b :: C) (c :: Tp) = Fantom { toLL :: p } 
+
+instance Pi.LLSemantics p => LinLam (Fantom p) where
+  a # b = Fantom $ toLL a Pi.# toLL b
+  zero = Fantom $ Pi.zero
+  lam f = Fantom $ Pi.lam $ \x -> toLL $ f $ Fantom x
+  bang p = Fantom $ Pi.bang $ toLL p
+  letBang p f = Fantom $ Pi.letBang (toLL p) $ \x -> toLL $ f $ Fantom x
+  a * b = Fantom $ toLL a Pi.* toLL b
+  lett p f = Fantom $ Pi.lett (toLL p) $ \x y -> toLL $ f (Fantom x) (Fantom y)
+  embed io = Fantom $ Pi.embed io
+  
+  inLeft p = Fantom $ Pi.inLeft $ toLL p
+  inRight p = Fantom $ Pi.inRight $ toLL p
+  caseOf p fL fR = Fantom $ Pi.caseOf (toLL p) (\x -> toLL $ fL (Fantom x)) (\x -> toLL $ fR (Fantom x))
+  
+  
+
+data LL a = LL { runLam :: forall rep. LinLam rep => rep End End a}
+
+runLL :: LL Top -> IO ()
+runLL s = Pi.new $ \n -> (toLL $ runLam s) n
+
+test :: LL ((Top :-> Top) :-> Top :-> Top)
+test = LL $ lam $ \f -> lam $ \y -> f # y

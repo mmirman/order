@@ -94,9 +94,9 @@ run :: Pi -> IO ()
 run (Pi p) = p
          
 type Nm = Integer
-  
+
 class Embedable p => LLSemantics p where
-  lam :: (p ->  p) -> p
+  lam :: (p -> p) -> p
   (#) :: p -> p ->  p
   bang :: p -> p
   letBang :: p -> (p -> p) ->  p
@@ -112,7 +112,7 @@ class Embedable p => LLSemantics p where
   getLeft  :: p ->  p
   getRight :: p ->  p
   
-
+  zero :: p
 
 instance Embedable (Nu EChan -> IO ()) where
   embed a _ = a
@@ -125,8 +125,6 @@ instance LLSemantics (Nu EChan -> IO ()) where
   bang m x = rep $ inn x $ \y -> m y
   letBang m n w = new $ \x -> m x ||| n (var x) w
   
-  letBang m n w = new $ \x -> m x ||| n (var x) w
-  
   (*) m n x = new $ \y -> out x y $ m y ||| n x
   lett m n w = new $ \x -> m x ||| (inn x $ \y -> n (var y) (var x) w)
   
@@ -137,6 +135,8 @@ instance LLSemantics (Nu EChan -> IO ()) where
   inLeft p x = piInL x (p x)
   inRight p x = piInR x (p x)
   caseOf p f f' z = new $ \x -> p x ||| piCase x (f (var z) x, f' (var z) x)
+  
+  zero _ = nil
 data LinLam = LinLam { runLinLam :: forall a . LLSemantics a => a }
               
 runLL :: LinLam -> IO ()
