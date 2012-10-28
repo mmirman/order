@@ -139,11 +139,16 @@ class LinLam (rep :: C -> C -> Tp -> *) where
          -> ((forall h . rep h (Use a h) a) -> rep (F a :+ h) (U :+ ho) c) 
          -> ((forall h . rep h (Use b h) b) -> rep (F b :+ h) (U :+ ho) c) 
          -> rep hi ho c
-  {-      
-  (&) :: p -> p -> p
-  getLeft  :: p ->  p
-  getRight :: p ->  p
--}
+
+  (&) :: rep hi ho a
+      -> rep hi ho b
+      -> rep hi ho (a :&: b)
+
+  getLeft  :: rep hi ho (a :&: b)
+           -> rep hi ho a
+  getRight :: rep hi ho (a :&: b)
+           -> rep hi ho b
+
 
 newtype Fantom p (a :: C) (b :: C) (c :: Tp) = Fantom { toLL :: p } 
 
@@ -161,7 +166,10 @@ instance Pi.LLSemantics p => LinLam (Fantom p) where
   inRight p = Fantom $ Pi.inRight $ toLL p
   caseOf p fL fR = Fantom $ Pi.caseOf (toLL p) (\x -> toLL $ fL (Fantom x)) (\x -> toLL $ fR (Fantom x))
   
-  
+  a & b = Fantom $ toLL a Pi.& toLL b
+  getLeft p = Fantom $ Pi.getLeft $ toLL p
+  getRight p = Fantom $ Pi.getRight $ toLL p
+
 
 data LL a = LL { runLam :: forall rep. LinLam rep => rep End End a}
 
