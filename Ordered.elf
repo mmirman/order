@@ -195,6 +195,15 @@ together/bth : together ([x][y] F x y)
 %block tp-bl : some {A} block {x}{_: assm-1 x}{_: x ; A}.
 %worlds (tp-bl) (; _ _).
 
+subst : Ev ; T 
+     -> ({x} x ; T -> Ef x ; T')
+     -> Ef Ev ; T'
+     -> type.
+%mode subst +EvT +EfTT' -EfEvT.
+- : subst EvT EfTT' (EfTT' E1 EvT).
+%worlds (tp-bl) (subst _ _ _).
+%total {} (subst _ _ _).
+
 %{
 
    x |- y           y |- x
@@ -229,3 +238,4 @@ M |- P : A * B   L,x:A,y:B,R |- F : C
  L,M, R |- lett P (x.y.F) : C
 
 }%
+

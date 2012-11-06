@@ -1,0 +1,99 @@
+world : type.
+empty : world.
+** : world -> world -> world. %infix right 3 **.
+
+
+== : world -> world -> type. %infix right 0 ==.
+==/assoc : (P ** Q) ** R == P ** (Q ** R).
+==/empty/l : P ** empty == P.
+==/empty/r : empty ** P == P.
+==/comm : P == P'
+       <- P' == P.
+
+kind : type.
+tp : type.
+tm : type.
+spine : type.
+assm : tm -> tp -> type.
+
+
+kPi : tp -> (tm -> kind) -> kind.
+kType : kind.
+k\-/ : (world -> kind) -> kind.
+
+t@ : tp -> world -> tp. %infix right 1 t@.
+t\-/ : (world -> tp) -> tp.
+t| : (world -> tp) -> tp.
+tPi : tp -> (tm -> tp) -> tp.
+a* : tp -> spine -> tp. %infix right 1 a*.
+
+ap : tm -> tm -> tm.
+x* : tm -> spine -> tm. %infix right 1 x*.
+lam : (tm -> tm) -> tm.
+
+nil : spine.
+; : tm -> spine -> spine. %infix right 0 ;.
+
+%block bl-assm : some {A} block {x}{_: assm x A}.
+%block bl-world : block {_: world}.
+%block context = (bl-assm | bl-world).
+
+tp-wo : type.
+@| : tp -> world -> tp-wo. %infix left 0 @|.
+
+of : tm -> tp-wo -> type.
+ofTy : tp -> type.
+ofSup : spine -> tp-wo -> tp-wo -> type.
+
+of/Eq : of (X x* S) (A a* S @| Q)
+     <- P == Q
+     <- of (X x* S) (A a* S @| P).
+
+of/Equant : of M (A Q @| P)
+        <- of M (t\-/ A @| P).
+of/Iquant : of M (t\-/ A @| P)
+         <- {a} of M (A a @| P).
+
+of/Ebind : of M (A P @| P)
+        <- of M (t| A @| P).
+of/Ibind : of M (t| A @| P)
+        <- of M (A P @| P).
+
+
+of/Eat : of M (A t@ P @| Q)
+      <- of M (A @| P).
+of/Iat : of M (A @| P)
+      <- of M (A t@ P @| Q).
+
+of/Isub : ofSup S (A @| empty) (C @| R)
+      -> assm X A
+      -> of (X x* S) (C @| R).
+
+ofSup/nil : ofSup nil (A a* S @| P) (A a* S @| P).
+ofSup/; : of M (A @| empty)
+       -> ofSup S (Bf M @| P) (C @| R)
+       -> ofSup (M ; S) (tPi A Bf @| P) (C @| R).
+
+ofSup/\-/ : ofSup S (B Q @| P) (C @| R)
+         -> ofSup S (t\-/ B @| P) (C @| R).
+ofSup/| : ofSup S (B P @| P) (C @| R)
+       -> ofSup S (t| B  @| P) (C @| R).
+ofSup/@ : ofSup S (A @| Q) (C @| R)
+       -> ofSup S (A t@ Q @| P) (C @| R).
+
+%worlds (context) (== _ _) (of _ _) (ofTy _) (ofSup _ _ _) (assm _ _).
+
+%{
+of/lam : of (lam T F) (T ~> T') P
+      <- {x} of x T empty -> of (F x) T' P.
+
+of/ap : of (ap F V) T' P
+     <- of F (T ~> T') P
+     <- of V T empty.
+
+of/equiv : of M A P
+        <- of M A P'
+        <- P == P'.
+
+
+}%

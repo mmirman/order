@@ -1,0 +1,109 @@
+%{
+contextual process trees (transducer language)
+C ::= #x.T, C | (y), C | * 
+P ::= 0 | x.P | x<y>.P
+T ::= P]C[P
+
+Pl ] Ct,#x.T,Cb [ Pr
+means x is bound in T, Cb Pl and Pr but not Ct
+
+Pl ] Ct,(x),Cb [ Pr
+means x is bound in Cb, Pl and Pr but not Ct, but we get it's value from either Pl or Pr
+
+    Pl'] #x.(Pl] (y),O [x.Pr) , #y.Pm, O' [x<y>Pr'
+==> Pl'] #x.(Pl] #y.Pm , O [Pr), O' [ Pr'   
+==> Pl'] #y.Pm , #x.(Pl] O [Pr), O' [ Pr'  stronger, since y is now bound in O', Pl' and Pr'.
+
+this depends on whether Pm has an x or O'/Pl'/Pr' has a y! 
+to make it not depend on this fact: 
+==> Pl'] #y,#x, Pm, (Pl] O [Pr), O' [ Pr'
+}%
+
+
+nm : type.
+
+process : type.
+tree : type.
+
+end : process -> process -> tree.
+new : (nm -> tree) -> tree.
+inn : (nm -> tree) -> tree.
+| : tree -> tree -> tree. %infix right 1 |.
+
+0 : process.
+from : nm -> process -> process.
+out : nm -> nm -> process -> process.
+
+
+outLeft : nm -> tree -> nm -> tree -> type.
+outLeft/end : outLeft X (end (out X Y L) R) Y (end L R).
+outLeft/bind/new : outLeft X (new T2) Y (new T2')
+                <- {z} outLeft X (T2 z) Y (T2' z).
+outLeft/bind/inn : outLeft X (inn T2) Y (inn T2')
+                <- {z} outLeft X (T2 z) Y (T2' z).
+outLeft/bind/sub : outLeft X (T1 | T2) Y (T1 | T2')
+                <- outLeft X T2 Y T2'.
+
+outRight : nm -> tree -> nm -> tree -> type.
+outRight/end : outRight X (end L (out X Y R)) Y (end L R).
+outRight/bind/new : outRight X (new T2) Y (new T2')
+                <- {z} outRight X (T2 z) Y (T2' z).
+outRight/bind/inn : outRight X (inn T2) Y (inn T2')
+                <- {z} outRight X (T2 z) Y (T2' z).
+outRight/bind/sub : outRight X (T1 | T2) Y (T1 | T2')
+                <- outRight X T2 Y T2'.
+
+
+fromLeft : tree -> nm -> tree -> type.
+fromLeft/end : fromLeft (end (from X L) R) X (end L R).
+fromLeft/bind/new : fromLeft (new T2) Y (new T2')
+                 <- {z} fromLeft (T2 z) Y (T2' z).
+fromLeft/bind/inn : fromLeft (inn T2) Y (inn T2')
+                 <- {z} fromLeft (T2 z) Y (T2' z).
+fromLeft/bind/sub : fromLeft (T1 | T2) Y (T1 | T2')
+                 <- fromLeft T2 Y T2'.
+
+fromRight : tree -> nm -> tree -> type.
+fromRight/end : fromRight (end L (from X R)) X (end L R).
+fromRight/bind/new : fromRight (new T2) Y (new T2')
+                 <- {z} fromRight (T2 z) Y (T2' z).
+fromRight/bind/inn : fromRight (inn T2) Y (inn T2')
+                 <- {z} fromRight (T2 z) Y (T2' z).
+fromRight/bind/sub : fromRight (T1 | T2) Y (T1 | T2')
+                 <- fromRight T2 Y T2'.
+
+
+
+
+
+=> : tree -> tree -> type. %infix right 0 =>.
+
+=>/sendL : (inn TO | (new [y] Pm y | TI y))
+        => (new [y] (Pm y | TO' y | TI' y))
+         <- ({Y} outLeft X (TI Y) Y (TI' Y))
+         <- ({Y} fromLeft (TO Y) X (TO' Y)).
+
+=>/sendR : (inn TO | (new [y] Pm y | TI y))
+        => (new [y] (Pm y | TO' y | TI' y))
+         <- ({Y} outRight X (TI Y) Y (TI' Y))
+         <- ({Y} fromRight (TO Y) X (TO' Y)).
+
+=>/new : new T => new T'
+       <- {y} T y => T' y.
+=>/subL : A | B => A' | B
+       <- A => A'.
+=>/subR : A | B => A | B'
+       <- B => B'.
+
+=>/move-new1 : (new [x] new [y] T x y) => (new [y] new [x] T' x y).
+=>/move-new2 : (new [x] new [y] T y x) => (new [y] new [x] T' y x).
+=>/move-procL1 : (new [x] Pl x | Pr) => (new [x] Pl x) | Pr.
+=>/move-procL2 : (new [x] Pl x) | Pr => (new [x] Pl x | Pr).
+=>/move-procR1 : (new [x] Pl | Pr x) => Pl | (new [x] Pr x).
+=>/move-procR2 : Pl | (new [x] Pr x) => (new [x] Pl | Pr x).
+
+=>* : tree -> tree -> type. %infix right 0 =>*.
+=>*/done : A =>* A.
+=>*/step : A =>* A'' <- A => A' <- A' =>* A''.
+
+

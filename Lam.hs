@@ -5,7 +5,8 @@
  UndecidableInstances, 
  DataKinds,
  TypeFamilies,
- GeneralizedNewtypeDeriving
+ GeneralizedNewtypeDeriving,
+ GADTs
  #-}
 module Lam where
 import Control.Monad
@@ -22,8 +23,20 @@ data Tp = Top
         | Tp :*: Tp
         | Tp :+: Tp
         | Tp :&: Tp
-        deriving (Eq, Show)
-data InC = F Tp | U deriving Eq
+        | Forall (Tp -> Tp)
+
+data Type (a :: Tp) where
+  T_Top :: Type Top
+  T_One :: Type One
+  T_Zero :: Type Zero
+  T_Bang :: Type a -> Type (Bang a)
+  (::->) :: Type a -> Type b -> Type (a :-> b)
+  (::*:) :: Type a -> Type b -> Type (a :*: b)
+  (::&:) :: Type a -> Type b -> Type (a :&: b)
+  (::+:) :: Type a -> Type b -> Type (a :+: b)
+  T_Forall :: (forall a . Type a -> Type (f a)) -> Type (Forall f)
+
+data InC = F Tp | U
 data C = InC :+ C | End
 
 data K = Bin String | Mon String | Un String deriving (Eq)
@@ -131,7 +144,6 @@ class LinLam (rep :: C -> C -> Tp -> *) where
           
   embed :: IO () -> rep h h One
   
-  
   inLeft :: rep hi ho a -> rep hi ho (a :+: b)
   inRight :: rep hi ho b -> rep hi ho (a :+: b)
 
@@ -149,7 +161,17 @@ class LinLam (rep :: C -> C -> Tp -> *) where
   getRight :: rep hi ho (a :&: b)
            -> rep hi ho b
 
+  gen :: (forall a . rep hi ho (f a)) 
+      -> Type (Forall f)
+      -> rep hi ho (Forall f)
+  (!) :: rep hi ho t
+      -> Type t
+      -> rep hi ho t
+  (!>) :: rep hi ho (Forall f)
+       -> Type a
+       -> rep hi ho (f a)
 
+  
 newtype Fantom p (a :: C) (b :: C) (c :: Tp) = Fantom { toLL :: p } 
 
 instance Pi.LLSemantics p => LinLam (Fantom p) where
@@ -170,7 +192,9 @@ instance Pi.LLSemantics p => LinLam (Fantom p) where
   getLeft p = Fantom $ Pi.getLeft $ toLL p
   getRight p = Fantom $ Pi.getRight $ toLL p
 
-
+  a ! t = a
+  
+  
 data LL a = LL { runLam :: forall rep. LinLam rep => rep End End a}
 
 runLL :: LL Top -> IO ()

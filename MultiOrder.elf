@@ -1,0 +1,51 @@
+dir : type.
+r : dir.
+l : dir.
+
+dlst : type.
+last : dir -> dlst.
+,, : dir -> dlst -> dlst. %infix right 0 ,,.
+
+
+tp : type.
+~> : tp -> tp -> dlst -> tp. %infix right 0 ~>.
+
+ctx : type.
+
+lctx : type.
+
+>l< : lctx.
+, : ctx -> lctx -> lctx. %infix none 0 ,.
+l< : tp -> lctx.
+
+>c< : ctx.
+node : ctx -> lctx -> ctx -> ctx.
+c< : tp -> ctx = [x] node (>c<) (l< x) (>c<).
+
+append : lctx -> ctx -> lctx -> type.
+%mode append +L +S -Tree.
+
+place : dlst -> (ctx -> ctx) -> ctx -> tp -> ctx -> type.
+%mode place +L +S +Tree +Tp -O.
+
+place/last/l : place (last l) ST (node Cl M Cr) A (ST (node (c< A) (Cl , M) Cr)).
+place/last/r : place (last r) ST (node Cl M Cr) A (ST (node Cl M' (c< A)))
+            <- append M Cr M'.
+
+place/last/nil : place (last _) ST >c< A (ST (c< A)).
+
+place/>c</l : place (l ,, D) ST >c< A CT'
+           <- place D ([x] ST (node >c< >l< x)) >c< A CT'.
+place/>c</r : place (r ,, D) ST >c< A CT'
+           <- place D ([x] ST (node x >l< >c<)) >c< A CT'.
+
+place/,,/l : place (l ,, D) ST (node CTl Cm CTr) A CT'
+         <- place D ([x] ST (node x Cm CTr)) CTl A CT'.
+
+place/,,/r : place (r ,, D) ST (node CTl Cm CTr) A CT'
+         <- place D ([x] ST (node CTl Cm x)) CTr A CT'.
+%{
+%worlds () (place _ _ _ _ _).
+%unique place +L +S +Tree +Tp -1O.
+%total {A B} (place A _ B _ _).
+}%

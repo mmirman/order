@@ -28,7 +28,7 @@ class Embedable p => PiSemantics p where
   piCase :: Name p -> (p, p) -> p
   piInL :: Name p -> p -> p
   piInR :: Name p -> p -> p
-  
+    
 newtype Nu f = Nu { nu :: f (Nu f)}   
 
 type MWrite a = MVar (a -> IO ())
@@ -137,6 +137,8 @@ instance LLSemantics (Nu EChan -> IO ()) where
   caseOf p f f' z = new $ \x -> p x ||| piCase x (f (var z) x, f' (var z) x)
   
   zero _ = nil
+  
+
 data LinLam = LinLam { runLinLam :: forall a . LLSemantics a => a }
               
 runLL :: LinLam -> IO ()

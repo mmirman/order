@@ -1,0 +1,37 @@
+tp : type.
+~> : tp -> tp -> tp. %infix right 0 ~>.
+unit : tp.
+
+inC : type.
+f : tp -> inC.
+u : inC.
+
+c : type.
++ : inC -> c -> c. %infix right 0 +.
+end : c.
+
+use : tp -> c -> c -> type.
+use/a : use A (f A + C) (u + C). 
+use/s : use A (A' + C) (A' + C')
+     <- use A C C'. 
+
+
+ls : c -> c -> tp -> type.
+
+assm : tp -> type.
+
+var : use A H H' 
+   -> assm A
+   -> ls H H' A.
+
+app : ls HI H (A ~> B) 
+   -> ls H HO A
+   -> ls HI HO B.
+
+lam : (assm A -> ls (f A + HI) (u + HO) B)
+     -> ls HI HO (A ~> B).
+
+final : ls end end A -> type.
+final/is : {A} final A.
+
+%solve lst : final (lam [a] lam [b] app (var _ a) (var _ b)).
