@@ -54,45 +54,14 @@ Gr' |- Pm :: y : A      Gl', y : A |- Pl] O [Pr :: x : B
   Gl,Gl',Gr',Gr |- Pl' ] #x.(Pl] #y.Pm, O [Pr), O' [ Pr' :: z : C
 
 
-this depends on whether Pm has an x or O'/Pl'/Pr' has a y! 
-to make it not depend on this fact: 
-    Pl'] #x,(Pl] (y),O [x.Pr) , #y,Pm, O' [x<y>Pr'
-==> Pl'] #x,#y,Pm,(Pl] O [Pr), O' [ Pr'
+these are all members of the following transformation family.
+     Pl'] Ol,#y.Tm, #x.(Pl] (y),O [x.Pr) , Or [x<y>Pr'  
+===> Pl'] Ol,#y.Tm,#x.(Pl] O [Pr), O' [ Pr' 
+
+even though these transformations aren't general enough to apply always, they can be derived in the cases where
+the expression is well typed.  
+
+Doesn't this mean there is no cut reduction theorem with transformation semantics? No 
+- if we have a cut form that matches one of the other cases, we can reduce it using the move-new rule.
 
 
-Gm |- Pm :: x : A      Gl,x:A,Gr |- Pl]Ol,Or[Pr :: z : C
------------------------------------------------------------------ cut 
-  Gl,Gm,Gr |- Pl]Ol, #x.Pm,Or[Pr :: z : C
-
-===========================================================================================================
-
-
- Gl', y : A |- Pl]O[Pr :: x : B            Gr' |- Pm :: y : A             Gl, x : B , Gr |- Pl']Ol,Or[ Pr' :: z : C
--------------------------------------      ------------------------------------------------------------------------
-Gl' |- Pl](y),O [x.Pr :: x : A ->> B           Gl, x:A ->> B, Gr' , Gr |- Pl'] Ol,#y,Pm,Or [x<y>.Pr' :: z : C
---------------------------------------------------------------------------------------------------------------
-       Gl,Gl',Gr',Gr |-  Pl'] Ol,#x,(Pl] (y),O [x.Pr) , #y,Pm, Or [x<y>Pr'  :: z : C
-
------>
-
-                         Gl', y : A |- Pl] O [Pr :: x : B    Gl, x : B , Gr |- Pl']Ol,Or[ Pr' :: z : C
-                        ----------------------------------------------------------------------------
-Gr' |- Pm :: y : A          Gl, Gl', y : A, Gr |- Pl'] Ol,#x,(Pl] O [Pr), Or [ Pr' :: z : C
-------------------------------------------------------------------------------------------
-    Gl,Gl',Gr',Gr |-  Pl'] Ol,#x,#y,Pm,(Pl] O [Pr), O' [ Pr' :: z : C
-
-
-
- Gl', y : A |- Pl]O[Pr :: x : B            Gr' |- Pm :: y : A             Gl, x : B , Gr |- Pl']Ol,Or[ Pr' :: z : C
--------------------------------------      ------------------------------------------------------------------------
-Gl' |- Pl] (y),O [x.Pr :: x : A ->> B           Gl, x:A ->> B, Gr' , Gr |- Pl'] Ol,#y,Pm,Or [x<y>.Pr' :: z : C
---------------------------------------------------------------------------------------------------------------
-       Gl,Gl',Gr',Gr |-  Pl'] Ol,#y,Pm,#x,(Pl] (y),O [x.Pr) , Or [x<y>Pr'  :: z : C
-
------>
-
-                         Gl', y : A |- Pl] O [Pr :: x : B    Gl, x : B , Gr |- Pl']Ol,Or[ Pr' :: z : C
-                        ----------------------------------------------------------------------------
-Gr' |- Pm :: y : A          Gl, Gl', y : A, Gr |- Pl'] Ol,#x,(Pl] O [Pr), Or [ Pr' :: z : C
-------------------------------------------------------------------------------------------
-    Gl,Gl',Gr',Gr |-  Pl'] Ol,#y,Pm,#x,(Pl] O [Pr), O' [ Pr' :: z : C

@@ -1,8 +1,10 @@
 %{
 contextual process trees (transducer language)
-C ::= #x.T, C | (y), C | * 
+C ::= #x, C | T, C | (y), C | * 
 P ::= 0 | x.P | x<y>.P
 T ::= P]C[P
+
+x,x<y>,0] #y,#z,(y,0]*[z,x<z>,0), #t   [ y,y<t>,z,0
 
 Pl ] Ct,#x.T,Cb [ Pr
 means x is bound in T, Cb Pl and Pr but not Ct
@@ -10,15 +12,13 @@ means x is bound in T, Cb Pl and Pr but not Ct
 Pl ] Ct,(x),Cb [ Pr
 means x is bound in Cb, Pl and Pr but not Ct, but we get it's value from either Pl or Pr
 
-    Pl'] #x.(Pl] (y),O [x.Pr) , #y.Pm, O' [x<y>Pr'
-==> Pl'] #x.(Pl] #y.Pm , O [Pr), O' [ Pr'   
-==> Pl'] #y.Pm , #x.(Pl] O [Pr), O' [ Pr'  stronger, since y is now bound in O', Pl' and Pr'.
+    Pl'] (Pl] (y') , C [x,Pr) , #y , Tm , C' [x<y>,Pr'
+==> Pl'] #y , Tm , [y/y'](Pl] C [Pr) , C' [ Pr'
 
 this depends on whether Pm has an x or O'/Pl'/Pr' has a y! 
 to make it not depend on this fact: 
 ==> Pl'] #y,#x, Pm, (Pl] O [Pr), O' [ Pr'
 }%
-
 
 nm : type.
 
@@ -72,10 +72,6 @@ fromRight/bind/inn : fromRight (inn T2) Y (inn T2')
 fromRight/bind/sub : fromRight (T1 | T2) Y (T1 | T2')
                  <- fromRight T2 Y T2'.
 
-
-
-
-
 => : tree -> tree -> type. %infix right 0 =>.
 
 =>/sendL : (inn TO | (new [y] Pm y | TI y))
@@ -105,5 +101,3 @@ fromRight/bind/sub : fromRight (T1 | T2) Y (T1 | T2')
 =>* : tree -> tree -> type. %infix right 0 =>*.
 =>*/done : A =>* A.
 =>*/step : A =>* A'' <- A => A' <- A' =>* A''.
-
-
