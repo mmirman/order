@@ -1,0 +1,5 @@
+The type system for caledon is a pure type system \citep{mckinna1993pure} 
+extended with explicit recursive types and implicit types.
+Pure type systems are generalizations of the lambda cube
+\citep{barendregt1991introduction} Which allow for arbitrary relationships between 
+terms and types.
