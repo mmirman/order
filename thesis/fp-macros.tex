@@ -1,0 +1,99 @@
+\renewcommand{\rmdefault}{ppl}
+\renewcommand{\sfdefault}{phv}
+
+\usepackage{dashrule}
+\usepackage{proof-dashed}
+\usepackage{verbatim}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\newenvironment{proof}{\trivlist \item[\hskip \labelsep{\bf
+Proof:}]}{\hfill$\Box$ \endtrivlist}
+\newenvironment{attempt}{\trivlist \item[\hskip \labelsep{\bf
+Proof attempt:}]}{\hfill$\Diamond$ \endtrivlist}
+
+\newcommand{\ednote}[1]{\footnote{\it #1}\message{ednote!}}
+\newenvironment{note}{\begin{quote}\message{note!}\it}{\end{quote}}
+\newcommand{\highlight}[1]{\par\vspace{\abovedisplayskip}%
+\framebox{\addtolength{\linewidth}{-1em}\begin{minipage}{\linewidth}#1\end{minipage}}%
+\par\vspace{\belowdisplayskip}}
+
+
+
+\usepackage{latexsym}
+\usepackage{amssymb}            % for \multimap (-o)
+\usepackage{stmaryrd}           % for \binampersand (&), \bindnasrepma (\paar)
+
+\newcommand{\m}[1]{\mathsf{#1}}
+\newcommand{\f}[1]{\framebox{#1}}
+\newcommand{\DD}{\mathcal{D}}
+\newcommand{\EE}{\mathcal{E}}
+\newcommand{\FF}{\mathcal{F}}
+\newcommand{\palign}[1]{\raisebox{-0.75em}{#1}}
+\newcommand{\ih}[1]{\mbox{i.h.}(#1)}
+
+% judgments of linear logic
+\newcommand{\eph}{\mathit{eph}}
+\newcommand{\pers}{\mathit{pers}}
+\newcommand{\um}[1]{\underline{\m{#1}}}
+
+\newcommand{\seq}{\vdash}
+\newcommand{\cfseq}{\Rightarrow}
+\newcommand{\cseq}{\rightarrow}
+\newcommand{\semi}{\mathrel{;}}
+\newcommand{\lequiv}{\mathrel{\dashv\vdash}}
+\newcommand{\cut}{\m{cut}}
+\newcommand{\cutbang}{\m{cut}{!}}
+\newcommand{\id}{\m{id}}
+\newcommand{\defeq}{\triangleq}
+\newcommand{\vvdash}{\mathrel{\vdash\kern-0.8ex\vdash}}
+
+% symbols of linear logic
+\newcommand{\lolli}{\multimap}
+\newcommand{\tensor}{\otimes}
+\newcommand{\with}{\mathbin{\binampersand}}
+\newcommand{\paar}{\mathbin{\bindnasrepma}}
+\newcommand{\one}{\mathbf{1}}
+\newcommand{\zero}{\mathbf{0}}
+\newcommand{\bang}{{!}}
+\newcommand{\whynot}{{?}}
+\newcommand{\bilolli}{\mathrel{\raisebox{1pt}{\ensuremath{\scriptstyle\circ}}{\lolli}}}
+% \oplus, \top, \bot
+
+% symbols of pi-calculus
+\newcommand{\FN}{\mathsf{fn}} % free names
+% \mid for parallel composition
+\newcommand{\recv}[2]{#1(#2)}
+\newcommand{\send}[2]{\overline{#1}\langle #2\rangle}
+% \newcommand{\zero}{\boldsymbol{0}} % already above
+\newcommand{\fwd}{\leftrightarrow}
+\newcommand{\case}{\mathsf{case}}
+\newcommand{\inl}{\mathsf{inl}}
+\newcommand{\inr}{\mathsf{inr}}
+
+% symbols of linear lambda-calculus
+\newcommand{\pair}[2]{\langle #1, #2\rangle}
+\newcommand{\llet}{\m{let}\;}
+\newcommand{\iin}{\mathrel{\m{in}}}
+\newcommand{\ccase}{\m{case}\;}
+\newcommand{\oof}{\mathrel{\m{of}}}
+\newcommand{\unit}{\langle\,\rangle}
+\newcommand{\abort}{\m{abort}}
+
+% substructural operational semantics
+\newcommand{\eval}{\m{eval}}
+\newcommand{\retn}{\m{retn}}
+\newcommand{\cont}{\m{cont}}
+\newcommand{\hole}{\mbox{\tt\char`\_}}
+\newcommand{\rep}[1]{\ulcorner #1\urcorner}
+
+% ordered logic
+\newcommand{\gnab}{\mbox{!`}}
+\newcommand{\fuse}{\bullet}
+\newcommand{\esuf}{\circ}
+\newcommand{\rimp}{\twoheadrightarrow}
+\newcommand{\limp}{\rightarrowtail}
