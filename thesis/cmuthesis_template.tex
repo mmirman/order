@@ -27,7 +27,10 @@
 \usepackage{fullpage}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\input{fp-macros}
+
 \usepackage[numbers,sort]{natbib}
+
 \usepackage[backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
 %pdfborder=0 0 0,  %removes outlines around hyper links in online display
 ]{hyperref}
@@ -40,6 +43,8 @@
 
 % Provides a draft mark at the top of the document. 
 \draftstamp{\today}{DRAFT}
+
+
 
 \begin {document} 
 \frontmatter
@@ -65,7 +70,8 @@ Someone from a strange and faraway land %% TODO: REMOVE
 \disclaimer{}
 
 \keywords{Logic Programming, Pure Type System, 
-Type Inference, Higher Order Unification, Caledon Language}
+Type Inference, Higher Order Unification, Caledon Language, Higher Order Abstract Syntax,
+Metaprogramming, Universe Checking}
 
 \maketitle
 
