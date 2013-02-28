@@ -120,13 +120,34 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
 %
 % Other than that, just make it look good...
 
+\chapter{Introduction}
+    \input{introduction.tex}
 
-\input{introduction.tex}
-\input{background.tex}
-\input{language.tex}
-\input{metaprogramming.tex}
-\input{conclusion.tex}
+\chapter{Background}
+    \input{background/logic.tex}
+    \input{background/puretypes.tex}
+    \input{background/hou.tex}
+    \input{background/search.tex}
+    \input{background/inference.tex}
 
+\chapter{Caledon Language}
+    \input{language/specification.tex}
+    \input{language/substitution.tex}
+    \input{language/houi.tex}
+    \input{language/searchi.tex}
+
+\chapter{Metaprogramming with Caledon}
+
+    \input{metaprogramming/typeclasses.tex}
+    \input{metaprogramming/flexsyntax.tex}
+    \input{metaprogramming/transform.tex}
+    \input{metaprogramming/dsl.tex}
+
+
+\chapter{Conclusion}
+   \input{conclusion/results.tex}
+   \input{conclusion/futurework.tex}
+   
 \appendix
 \include{appendix}
 
