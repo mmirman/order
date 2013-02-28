@@ -1,7 +1,7 @@
 {-# LANGUAGE
  KindSignatures,
  TypeOperators,
- RankNTypes,
+ Rank2Types,
  UndecidableInstances, 
  DataKinds,
  TypeFamilies,
@@ -125,13 +125,13 @@ type instance Use a (U :+ h) = U :+ (Use a h)
 class LinLam (rep :: C -> C -> Tp -> *) where
   (#) :: rep hi h (a :-> b) -> rep h ho a -> rep hi ho b
   zero :: rep hi hi Zero
-  lam :: ((forall h . rep h (Use a h) a) -> rep (F a :+ hi) (U :+ ho) b) 
+  lam :: (rep h (Use a h) a -> rep (F a :+ hi) (U :+ ho) b) 
          -> rep hi ho (a :-> b)
     
   bang :: rep End End a -> rep End End (Bang a) 
 
   letBang :: rep hi h (Bang a)
-          -> ((forall h . rep h h a) -> rep h ho b) 
+          -> (rep h' h' a -> rep h ho b) 
           ->  rep hi ho b
 
   (*) :: rep hi h a 
@@ -139,7 +139,7 @@ class LinLam (rep :: C -> C -> Tp -> *) where
       -> rep hi ho (a :*: b)
 
   lett :: rep hi h (a :*: b) 
-       -> ((forall h . rep h (Use a h) a) -> (forall h . rep h (Use b h) b) -> rep (F a :+ F b :+ h) (U :+ U :+ ho) c)
+       -> (rep h' (Use a h') a -> rep h'' (Use b h'') b -> rep (F a :+ F b :+ h) (U :+ U :+ ho) c)
        -> rep hi ho c
           
   embed :: IO () -> rep h h One
@@ -148,8 +148,8 @@ class LinLam (rep :: C -> C -> Tp -> *) where
   inRight :: rep hi ho b -> rep hi ho (a :+: b)
 
   caseOf :: rep hi h (a :+: b) 
-         -> ((forall h . rep h (Use a h) a) -> rep (F a :+ h) (U :+ ho) c) 
-         -> ((forall h . rep h (Use b h) b) -> rep (F b :+ h) (U :+ ho) c) 
+         -> (rep h' (Use a h') a -> rep (F a :+ h) (U :+ ho) c) 
+         -> (rep h' (Use b h') b -> rep (F b :+ h) (U :+ ho) c) 
          -> rep hi ho c
 
   (&) :: rep hi ho a
@@ -202,3 +202,6 @@ runLL s = Pi.new $ \n -> (toLL $ runLam s) n
 
 test :: LL ((Top :-> Top) :-> Top :-> Top)
 test = LL $ lam $ \f -> lam $ \y -> f # y
+
+test2 :: LL ((Top :-> Top) :-> (Top :-> Top) :-> Top :-> Top)
+test2 = LL $ lam $ \f -> lam $ \g -> lam $ \y -> g # (f # y)
