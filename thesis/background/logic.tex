@@ -1,1 +1,138 @@
 \section{Logic Programming}
+
+Logic programming languages such as Prolog and Twelf were initialy proposed as tools for AI.  
+It was later discovered that when properly constrained, these languages merely represented an alternate
+formulation of imperative code with powerful pattern matching, and backtracking tools.  The Caledon language
+is a logic programming language in the style of Twelf.  In this section I present some basic intution of logic 
+programming, rather than explaining it technically, and demonstrate the descriptive
+power of the system implemented in Caledon.
+
+\subsection{Basics}
+Let us start out by defining addition on unary numbers in Caledon, ignoring types for the moment.
+
+\begin{lstlisting}
+defn add : nat -> nat -> nat -> prop
+  >| addZ = add zero A A
+  >| addS = add (succ A) B (succ C) 
+             <- add A B C
+\end{lstlisting}
+
+You might notice that this definition is incredibly similar to its Haskell counterpart.
+
+\begin{lstlisting}
+add :: nat -> nat -> nat
+add Zero a = a
+add (Succ a) b = Succ c
+   where c = add a b
+\end{lstlisting}
+
+We can read the logic programming definition as we would read the functional definition with pattern
+matching, knowing that an intelligent compiler would be able to convert the first into the second.  
+
+Of course there are exceptions to the rule, as generalized pattern matching and 
+goal search allows one to define essentially nondeterministic programs.  A common use for logic programming
+has been to search for solutions to combinitorial games such as tic-tac-toe, without the programmer worrying about the order
+of the search.  As this tends to produce inneficient code, this use style is discouraged.  Rather, a more imperative 
+view of logic programming is encouraged where pattern match and search is performed in the order it appears.  
+
+In this view, a program of the form
+
+\begin{lstlisting}
+query prg = p t1 ... tn
+
+defn p : T_1 -> ... -> T_r -> prop
+  >| n1 = p T_1 ... T_r <- p_1,1 ... <- p_1,k_1
+...
+  >| nN = p T_1 ... T_r <- p_n,1 ... <- p_n,k_n
+\end{lstlisting}
+
+should be considered a program which first attempts to prove using axiom n1 by matching prg with ``p T1 ... Tr'' and then
+attempting to prove $p_{1,1}$ and so on.    With enough understanding of this reading of a logic program, generalizations might be made
+to allow for more control of the search.  In the following snippet of the code, the distinction between breadth first and depth first
+queries are used to emulate the concept of concurrency and cause the program to have more complex behavior.
+
+\begin{lstlisting}
+query main = runBoth false
+
+defn runBoth : bool -> prop
+  >| run0 = runBoth A 
+             <- putStr ``ttt ``
+             <- A =:= true
+
+   | run1 = runBoth A
+             <- putStr ``vvvv''
+             <- A =:= true
+
+   | run2 = runBoth A
+             <- putStr ``qqqq''
+             <- A =:= true
+
+  >| run3 = runBoth A
+             <- putStr `` jjj''
+             <- A =:= false
+\end{lstlisting}
+
+In this example, the query main should print to the screen something similar to ``ttt vqvqvqvq jjj''.  This is because
+despite proof search failing on the first three axioms due to an incorrect match, 
+the fail is defered until after io has been performed.  The middle axioms, run1 and run2 are declared to be
+breadth first axioms while run0 and run3 are declared to be depth first axioms.  
+
+
+\subsection{Higher Order Abstract Syntax}
+
+Just as imperative programs benefit from the addition of higher order functions, logic programs benefit from the addition of both
+higher order predicates and patterns.  
+
+A common request by functional programming language users is that they would like to be able to abstract patterns even more than just over
+arguments.  
+
+Examine the following example:
+
+\begin{lstlisting}
+func (Var a) = code1
+func (Forall var val) = Exists var code
+func (Forall var val) = Forall var code
+func (And a b) = code2
+\end{lstlisting}
+
+A serious amount of code is repeated in lines 2 and 3, but in common languages it is impossible to simplify this.
+What a programmer would actually like to express is the following:
+
+\begin{lstlisting}
+func (Var a) = code1
+func (f var val) = f var code
+func (And a b) = code2
+\end{lstlisting}
+
+where $f$ is a constructor in strong head normal form.  
+
+In higher order logic programming languages like $\lambda$ Prolog, this is possible to express:
+
+\begin{lstlisting}
+defn func : term -> term -> prop 
+  | f1 = func (var A) R <- [code1]
+  | f2 = func (F Var Val) (f Var R) <- [code]
+  | f3 = func (and A B) R <- [code2]
+\end{lstlisting}
+
+
+\subsection{Higher Order Programming}
+
+Fortunately, higher order functions need not be restricted to patterns.  Lisp style macros provide even further ways
+to generalize code.  
+
+A great example is the function application operator from Haskell.  
+We can define this in Caledon as follows.
+
+\begin{lstlisting}
+fixity right 0 $
+defn $ : {at bt:prop} (at -> bt) -> at -> bt
+  as ?\ at bt . \ f . \ a . f a
+
+defn func : term -> term -> prop 
+  | f1 = func (var A) R <- [code1]
+  | f2 = func (F Var Val) $ f Var R <- [code]
+  | f3 = func (and A B) R <- [code2]
+\end{lstlisting}
+
+In many cases, allowing these macros allows for significant simplification of syntax.

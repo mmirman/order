@@ -11,6 +11,14 @@ With proper selection of constants, sorts, axioms, and relations
 pure type systems can embed the calculus of constructions \citep{coquand1986calculus}
 and almost any other type system one could imagine.
 
+As generalizations these systems are important, as it has been proven by Jutting \citep{jutting1993typing} that 
+type checking for pure type systems with finite axiom sets are decidable.  Thus, by showing how a system is a pure type system, 
+you get decidability of type checking nearly for free.
+
+It has also been shown that these systems have utility.  
+Roorda \citep{roorda2001pure} gave an implementation of a functional programming language with 
+pure type system and demonstrated its utility.
+
 A pure type system is a set $S$ of sorts, 
 $A\subseteq S \times S$ of axioms, and a relation 
 $R \subseteq S \times S \times S$ along with the following grammar and inference rules:
@@ -127,15 +135,21 @@ In the simplest example, the only axioms chosen are $(*,\Box)$ along with
 the single relationship $(*,*,*)$. This system describes the simply typed lambda calculus, 
 where only terms can depend on terms.  We say that $A \rightarrow B \equiv \Pi x : A . B$ iff $ x \notin FV(B)$.
 
-Geuvers and Nederhof \citep{geuvers1991modular} proved subject reduction for any calculus on the $\lambda$ cube 
-and also gave a simple proof of strong normalization for any system on the $\lambda$ cube.  
+\begin{theorem} 
+Subject Reduction: If $\Gamma \vdash A : T$ and $A \equiv_\beta B$ then $\Gamma \vdash B : T$
+\end{theorem}
+
+Geuvers and Nederhof \citep{geuvers1991modular} proved subject reduction for any calculus on the $\lambda$ cube.
+This property can be proved syntactically by induction on the structure of terms $A$ and 
+there exists Twelf and Agda verified proofs of this property.  Note that this is a usefull property 
+to maintain even in the face of inconsistency of a system as it at the very least allows 
+for a consistent understanding of typing terms.
+
+\begin{theorem}
+Uniqueness of Types: If $\Gamma \vdash A : T$ and $\Gamma \vdash A : T'$ then $T \equiv_\beta T'$
+\end{theorem}
+
 The beta reducable uniqueness of types has also been shown for any system on the $\lambda$ cube.  
 This last property is important to showing the decidability of type inference in 
 the caledon language without implicits.
-
-Jutting \citep{jutting1993typing} gave a proof that both typechecking and inference
-in a pure type system with a finite axiom set is decidable.
-
-Roorda \citep{roorda2001pure} gave an implementation of a functional programming language with 
-pure type system and demonstrated its utility.
 

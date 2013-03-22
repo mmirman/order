@@ -27,6 +27,7 @@
 \usepackage{fullpage}
 \usepackage{graphicx}
 \usepackage{amsmath}
+
 \input{fp-macros}
 
 \usepackage[numbers,sort]{natbib}
@@ -35,6 +36,29 @@
 %pdfborder=0 0 0,  %removes outlines around hyper links in online display
 ]{hyperref}
 \usepackage{subfigure}
+  
+
+\usepackage{color}
+\usepackage{listings}
+\lstset{ %
+language=Haskell,               % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,           % adds a frame around the code
+tabsize=2,          % sets default tabsize to 2 spaces
+captionpos=b,           % sets the caption-position to bottom
+breaklines=true,        % sets automatic line breaking
+breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}          % if you want to add a comment within your code
+}
+
 
 % Approximately 1" margins, more space on binding side
 %\usepackage[letterpaper,twoside,vscale=.8,hscale=.75,nomarginpar]{geometry}
@@ -120,16 +144,18 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
 %
 % Other than that, just make it look good...
 
+  
 \chapter{Introduction}
     \input{introduction.tex}
 
 \chapter{Background}
     \input{background/logic.tex}
     \input{background/puretypes.tex}
+    \input{background/coc.tex}
     \input{background/hou.tex}
     \input{background/search.tex}
     \input{background/inference.tex}
-
+    
 \chapter{Caledon Language}
     \input{language/specification.tex}
     \input{language/substitution.tex}
@@ -137,9 +163,8 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
     \input{language/searchi.tex}
 
 \chapter{Metaprogramming with Caledon}
-
+       
     \input{metaprogramming/typeclasses.tex}
-    \input{metaprogramming/flexsyntax.tex}
     \input{metaprogramming/transform.tex}
     \input{metaprogramming/dsl.tex}
 
