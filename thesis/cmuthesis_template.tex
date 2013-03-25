@@ -144,31 +144,46 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
 %  - Use a nice serif font, such as Times Roman.  Sans serif looks bad.
 %
 % Other than that, just make it look good...
- 
-  
 \chapter{Introduction}
-    \input{introduction.tex}
- 
-\chapter{Background}
+    \input{background/introduction.tex}
     \input{background/logic.tex}
-    \input{background/puretypes.tex}
-    \input{background/coc.tex}
-    \input{background/hou.tex}
-    \input{background/search.tex}
-    \input{background/inference.tex}
-    
-\chapter{Caledon Language}
-    \input{language/specification.tex}
-    \input{language/substitution.tex}
-    \input{language/houi.tex}
-    \input{language/searchi.tex}
+
+\chapter{Type System}
+    \input{types/types.tex}
+    \input{types/puretypes.tex}
+    \input{types/coc.tex}
+
+\chapter{Implicit Arguments}
+    \input{types/implicit_coc.tex}
+    \input{types/icc.tex}
+    \input{types/bcc.tex}
+    \input{types/cicc.tex}
+
+\chapter{Semantics}
+    \input{semantics/semantics.tex}
+    \input{semantics/hou.tex}
+    \input{semantics/search.tex}
+
+    \input{semantics/substitution.tex}
+    \input{semantics/houi.tex}
+    \input{semantics/searchi.tex}
+
+    \input{semantics/io.tex}
+    \input{semantics/nondet.tex}
+
+\chapter{Implementation Details}
+    \input{language/language.tex}
+    \input{language/inference.tex}
+    \input{language/implicits.tex}
+    \input{language/families.tex} 
+    \input{language/macros.tex}
+    \input{language/sorting.tex}
 
 \chapter{Metaprogramming with Caledon}
        
     \input{metaprogramming/typeclasses.tex}
     \input{metaprogramming/transform.tex}
     \input{metaprogramming/dsl.tex}
-
 
 \chapter{Conclusion}
    \input{conclusion/results.tex}
