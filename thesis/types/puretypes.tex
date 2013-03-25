@@ -1,0 +1,180 @@
+\section{Pure Type Systems}
+
+The type system for caledon is a pure type system \citep{mckinna1993pure} 
+extended with explicit recursive types and implicit types.  In this section
+I discuss what a pure type system is and what it's properties are.
+
+Pure type systems are generalizations of the lambda cube
+\citep{barendregt1991introduction} which allow for arbitrary 
+relationships between terms and types.
+With proper selection of constants, sorts, axioms, and relations
+pure type systems can embed the calculus of constructions \citep{coquand1986calculus}
+and almost any other type system one could imagine.
+
+As generalizations these systems are important, as it has been proven by Jutting \citep{jutting1993typing} that 
+type checking for pure type systems with finite axiom sets are decidable.  Thus, by showing how a system is a pure type system, 
+you get decidability of type checking nearly for free.
+
+It has also been shown that these systems have utility.  
+Roorda \citep{roorda2001pure} gave an implementation of a functional programming language with 
+pure type system and demonstrated its utility.
+
+A pure type system is a set $S$ of sorts, 
+$A\subseteq S \times S$ of axioms, and a relation 
+$R \subseteq S \times S \times S$ along with the following grammar and inference rules:
+
+\begin{figure}[h]
+\[ 
+E ::=  V 
+ \orr S 
+ \orr E\;E 
+ \orr \lambda V : E . E 
+ \orr \Pi V : E . E 
+\]
+\caption{Syntax of PTS}
+\label{pt:syntax}
+\end{figure}
+
+\begin{figure}[h]
+\[
+\infer[\m{axioms}]
+{
+\Gamma \vdash c : s
+}
+{
+(c,s) \in A
+}
+\]
+
+\[
+\infer[\m{start}]
+{
+\Gamma,x:A \vdash x :A
+}
+{
+\Gamma \vdash A:s
+&
+s \in S
+}
+\]
+
+\[
+\infer[\m{weakening}]
+{
+\Gamma,x:C \vdash A:B
+}
+{
+\Gamma \vdash A:B
+&
+\Gamma \vdash C:s
+&
+s \in S
+}
+\]
+
+
+\[
+\infer[\m{product}]
+{
+\Gamma \vdash (\Pi x : A . B) : s_3
+}
+{
+\Gamma \vdash A : s_1
+&
+\Gamma,x:A \vdash B : s_2
+&
+(s_1,s_2,s_3) \in R
+}
+\]
+
+\[
+\infer[\m{application}]
+{
+\Gamma \vdash F V : [V/x] B
+}
+{
+\Gamma \vdash F : (\Pi x : A . B)
+&
+\Gamma \vdash V : A
+&
+\text{x is free for V in B}
+}
+\]
+
+\[
+\infer[\m{abstraction}]
+{
+\Gamma \vdash (\lambda x : A . F) : (\Pi x : A . B)
+}
+{
+\Gamma , x : A\vdash F : B
+&
+\Gamma \vdash (\Pi x : A . B) : s
+&
+s \in S
+}
+\]
+
+\[
+\infer[\m{conversion}]
+{
+\Gamma \vdash A : B'
+}
+{
+\Gamma \vdash A : B
+&
+\Gamma \vdash B \equiv_{\beta\eta\nu*} B'
+&
+\Gamma \vdash B' : s
+&
+s \in S
+}
+\]
+\caption{Typing rules of the Calculus of Constructions}
+\label{pt:typing}
+\end{figure}
+
+
+As Barendgregt points out, the common type theories can be recast as pure type systems
+by choice of axioms.  
+In the simplest example, the only axioms chosen are $(*,\Box)$ along with 
+the single relationship $(*,*,*)$. This system describes the simply typed lambda calculus, 
+where only terms can depend on terms.  We say that $A \rightarrow B \equiv \Pi x : A . B$ iff $ x \notin FV(B)$.
+
+\begin{theorem} 
+Subject Reduction: If $\Gamma \vdash A : T$ and $A \equiv_\beta B$ then $\Gamma \vdash B : T$
+\end{theorem}
+
+Geuvers and Nederhof \citep{geuvers1991modular} proved subject reduction for any calculus on the $\lambda$ cube.
+This property can be proved syntactically by induction on the structure of terms $A$ and 
+there exists Twelf and Agda verified proofs of this property.  Note that this is a usefull property 
+to maintain even in the face of inconsistency of a system as it at the very least allows 
+for a consistent understanding of typing terms.
+
+\begin{theorem}
+Uniqueness of Types: If $\Gamma \vdash A : T$ and $\Gamma \vdash A : T'$ then $T \equiv_\beta T'$
+\end{theorem}
+
+The beta reducable uniqueness of types has also been shown for any system on the $\lambda$ cube.  
+This last property is important to showing the decidability of type inference in 
+the caledon language without implicits.
+
+
+
+\begin{lemma}
+Strengthening
+\[
+\infer-[\m{strength}]
+{
+\Gamma \vdash M : U
+}
+{
+\Gamma , x : T \vdash M : U
+&
+x \notin FV(M) \cup FV(U)
+}
+\]
+\end{lemma}
+
+As it turns out, the strengthening lemma has important implications to the generation of bindings 
+during proof search.

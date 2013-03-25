@@ -1,0 +1,268 @@
+\section{The Calculus of Constructions}
+
+The type system for caledon is based on the Calculus of Constructions as defined by Coquand \citep{coquand1986calculus}.
+Since caledon might extend the calculus of constructions, it is important to view it as a pure type system. 
+As Barendgregt points out, the common type theories can be recast as pure type systems
+by choice of axioms. 
+
+Jutting \citep{jutting1993typing} gave a proof that both typechecking and inference
+in a pure type system with a finite axiom set is decidable.
+
+Roorda \citep{roorda2001pure} gave an implementation of a functional programming language with 
+pure type system and demonstrated its utility.
+
+This is the pure type system where.
+
+\begin{definition}
+Pure Type System for the calculus of Constructions
+\end{definition}
+\[
+A = \{ *, \Box \}
+\]
+\[
+S = \{ (* : \Box) \}
+\]
+\[ 
+R = \{ (*,*,*),(*,\Box,\Box),(\Box,\Box,\Box),(\Box,*,*)\}
+\]  
+
+In this sytem, terms can depend on terms and types, 
+and types can depend on types and terms.  
+
+It has the well known strong normalization property, implying the termination of 
+all lambda terms typable by CC \citep{Geuvers94ashort} \citep{geuvers1991modular}.
+
+\begin{definition}
+Calculus of Constructions:
+
+\[
+K ::= * | \Box
+\]
+
+\[ 
+E ::= 
+V 
+| K
+| E\;E 
+| \lambda V : E . E 
+| \Pi V : E . E 
+\]
+
+\[
+\infer[\m{axiom}]
+{
+\Gamma \vdash * : \Box
+}
+{
+}
+\]
+
+\[
+\infer[\m{start}]
+{
+\Gamma,x:A \vdash x :A
+}
+{
+\Gamma \vdash A:K
+}
+\]
+
+
+\[
+\infer[\m{weakening}]
+{
+\Gamma,x:C \vdash A:B
+}
+{
+\Gamma \vdash A:B
+&
+\Gamma \vdash C:K
+}
+\]
+
+
+\[
+\infer[\m{product}]
+{
+\Gamma \vdash (\Pi x : A . B) : K_1
+}
+{
+\Gamma,x:A \vdash B : K_2
+&
+\Gamma \vdash A : K_1
+}
+\]
+
+\[
+\infer[\m{application}]
+{
+\Gamma \vdash F V : [V/x] B
+}
+{
+\Gamma \vdash F : (\Pi x : A . B)
+&
+\Gamma \vdash V : A
+&
+\text{x is free for V in B}
+}
+\]
+
+\[
+\infer[\m{abstraction}]
+{
+\Gamma \vdash (\lambda x : A . F) : (\Pi x : A . B)
+}
+{
+\Gamma , x : A\vdash F : B
+&
+\Gamma \vdash (\Pi x : A . B) : K
+}
+\]
+
+\[
+\infer[\m{conversion}]
+{
+\Gamma \vdash A : B'
+}
+{
+\Gamma \vdash A : B
+&
+\Gamma \vdash B \equiv_{\beta\eta\alpha*} B'
+&
+\Gamma \vdash B' : K
+}
+\]
+\end{definition}
+
+It is to care of the types of equalities allowed in the conversion rule, as with more allowed equalities, certain proofs
+become significantly more complex.  For example, if $\eta$ reduction is permited, the church rosser theorem becomes no longer
+easily provable.
+
+\begin{definition}
+If $\Gamma \vdash P : T : K$ means $\Gamma \vdash P : T$ and $\Gamma \vdash T : K$
+\end{definition}
+
+
+\subsection{Consistency of the Calculus of Constructions}
+
+It is useful to first describe a few theorems and definitions relevant to CC.  
+
+It is important to show that we can classify \citep{Geuvers94ashort} terms of CC.
+
+\begin{definition}
+Classifications:
+
+\[
+\m{Kind} := \{ A | \exists \Gamma . \Gamma \vdash A : \Box \}
+\]
+
+\[
+\m{Type} := \{ A | \exists \Gamma . \Gamma \vdash A : * \}
+\]
+
+\[
+\m{Constr} := \{ A | \exists T,\Gamma . \Gamma \vdash A : T:\Box \}
+\]
+
+\[
+\m{Obj} := \{ A | \exists T,\Gamma . \Gamma \vdash A : T:* \}
+\]
+
+\end{definition}
+
+\begin{theorem}
+Classification:
+$\m{Kind}\cap \m{Type} = \emptyset$ 
+and
+$\m{Constr}\cap \m{Obj} = \emptyset$ 
+\end{theorem}
+
+Write proof here.
+
+As Geuvers points out, this can also proved using the Church-Rosser theorem, 
+Subject Reduction and Uniqueness of Types theorem.  
+The theorem defines an important technique for breaking down judgements into
+different cases.
+
+\begin{theorem}
+Strong Normalization:
+$\forall M \in \m{Term}. SN(M)$
+\end{theorem}
+
+The easiest to digest proof is also due to Geuvers \citep{Geuvers94ashort} 
+but other proofs have also been proposed.  Geuvers' proof has the convenient
+property that it does not depend too much on the definition of the set $SN$ 
+(strongly normalizing). The only properties required are that $S \subseteq SN$ 
+where $S$ is the set of sorts in the system. In the case of CC $\Box,* \in SN$.
+It also requires that $\Pi x : A . B \in SN$, and $\lambda x : A . B \in SN$ 
+for any $A,B$.  Lastly it requires that saturated subsets of $SN$ are closed under
+arbitrary intersection, and function space generation.
+
+However, this proof is restricted to normalization in the calculus where only $\beta$ reduction 
+is considered and not $\eta$ conversion.  The proof for the calculus with full reduction properties is due
+to Abel \citep{abel2010towards}.  While evaluation of terms in Caledon without considering proof search does
+not involve $\eta$ conversion, unification makes significant use of $\eta$ reduction and it is important to note
+the consistency of the calculus of constructions even when $\eta$ reduction is considered.  
+It is also important to note that in the Curry style calculus where types are omited from lambda abstractions, 
+the church rosser theorem under $\eta$ conversion appears essentially for free\citep{miquel2001implicit}. Strong normalization 
+follows, and by replacement of types, strong normalization follows for the Tarski style calculus.
+
+
+\subsection{Impredicativity in the Calculus of Constructions}
+
+It is also important to note that while the term language of the calculus of constructions is strongly normalizing, 
+the predicates in the calculus of constructions are impredicative, meaning that small types can be generalized over all small types.
+This adds yet another layer of computation into the Caledon language which might not terminate.  
+Furthermore, the predicate language is insufficient to prove properties of larger types. 
+Harper \citep{harper1991type} solves this by introducing universes.  Agda, Idris, CoQ,
+and Plastic \citep{callaghan2001implementation} all implement this teqchnique. 
+Idris implementation uses a topological sort to allow for implicit universes
+and thus does not allow the universes to become an annoyance in code. 
+As Caledon is not intended to be a theorem prover, the impredicativity of the theorem layer is ignored and no 
+predicative universe heirarchy is provided to construct metatheorems natively.
+
+While the addition of a universe heirachy is possible without too much added difficulty, 
+the implementation and implications are out of the scope of this thesis, and are the subject of future work.  
+However, do note that with the addition of inconsistent impredicative inductive types, it is possible to provide an implementation 
+of the universe heirachy as a higher order datatype who's inhabitants are consistent.  This kind of implementation 
+allows for metatheorem verification in a restricted subset of the language, albeit with the loss of 
+simple cumulative universe inference.
+
+\begin{lstlisting}
+fixity pre 1 %* $\diamond$ *)
+fixity lambda %* $\Pi$ *)
+fixity lambda lam
+unsound tm : {S : tm ty} tm S %* $\rightarrow$ *) prop
+   | ty  = tm ty
+   | %* $\diamond $ *)   = tm ty %* $\rightarrow$ *) tm ty
+   | %* $\Pi$ *)   = [T : tm ty] (tm T %* $\rightarrow$ *) tm T) %* $\rightarrow$ *) tm $ %* $\diamond $ *) T
+   | lam = [T : tm ty][F : tm T %* $\rightarrow$ *) tm T] tm {S = %* $\diamond$ *) T} (%* $\Pi$ *) A : T . F A)
+   | raise = tm T %* $\rightarrow$ *) tm $ %* $\diamond$ *) T
+\end{lstlisting}
+
+\subsection{Theorems in Caledon}
+
+It is important to note that in the programming language caledon, programs might not terminate.  
+The search language itself is not consistent, and is not a theorem verification language like twelf.  
+Rather, it is language for writing theorem proving programs.  
+
+\begin{definition}
+In the Caledon language, $\m{prop} = *$ and $\m{type} = \Box$
+\end{definition}
+
+It is important to note that in Caledon code, $\m{type}$ will never appear.  This is because $\m{type} : T$ for any $T$
+is not provable in the Calculus of Constructions, and every term that appears in the language must have a provable type.
+
+\begin{definition}
+If $\Gamma \vdash P : T : \m{prop}$ in the caledon language, then $T$ is a theorem, and $P$ is a proof.
+\end{definition}
+
+Terms can be considered this way since the consistency of the calculus of constructions implies the strong normalization
+of terms such as $P$.  No unbounded proof search is necessary to evaluate $P$.
+
+When the calculus of constructions was first developed, therems were proven and generated by explicitly defining
+constructors and destructors for records and sum types.  Later, the inductive calculus of constructions was developed 
+\citep{coquand1990inductively} which more accurately forms the basis of the CoQ programming language.  These types of inductive
+constructions have been omited from Caledon to allow the addition of inductively defined, universally quantified predicates.
+This omits the confusion that would be generated from having both inductively defined data and predicates in the system, as 
+dependently typed logic programming treats predicates as both data and code.

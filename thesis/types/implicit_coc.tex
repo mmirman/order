@@ -1,0 +1,48 @@
+The Implicit Calculus of Constructions (ICC) \citep{pollack1990implicit}, 
+is an extention to the standard Calculus of Constructions which allows
+for declaration that in all uses of a function, the argument be omitted 
+and chosen during typechecking based on a provability relation.
+
+Standard CC, and even standard LF 
+can be an unnecessarily verbose languages as seen in the example \ref{code:long}.
+
+\begin{figure}[h]
+\begin{lstlisting}
+defn churchList : prop -> prop
+  as \ A : prop . [lst : prop -> prop] ([C] lst C) -> (A -> [C] lst C -> lst C) -> [C] lst C
+
+defn mapCL : [A : prop] [B : prop] (A -> B) -> churchList A -> churchList B
+  as \ A    : prop                    . 
+     \ B    : prop                    .
+     \ F    : A -> B                  . 
+     \ cl   : churchList A            .
+     \ lst  : prop -> prop            .
+     \ nil  : [B] lst B               .
+     \ cons : B -> [B] lst B -> lst B .
+
+          cl lst nil (\v . cons (F v))
+
+defn mapResult : churchList natural
+  as mapCL natural boolean (\ a : natural . isZero a) someList
+
+\end{lstlisting}
+\caption{Maping over the church encoding of a list}
+\label{code:long}
+\end{figure}
+
+Ideally, one would like to omit the types that valuesa are parameterized over when they are redundant
+and can be infered from context. 
+
+Omiting these types gives rise to the notion of an implicit type system.  
+The Hindley-Milner \citep{hindley1969principal} system for inferring principle types in system F
+is a special case of the system where implicit universally quantified type variables are automatically
+resolved.
+
+The type system of caledon is based on three different formalisms for working with implicit arguments:  
+the Bicolored Calculus of Constructions ($CC^{Bi}$) \citep{luther2001more}, 
+the Implicit Calculus of Constructions (ICC) \citep{miquel2001implicit}, 
+and the Caledon Implicit Calculus of Constructions (CICC).
+
+The last is intended to be a combination of the first two, or a partial 
+erasure system for the Bicolored Calculus of Constructions, 
+which allows for optional specialization.

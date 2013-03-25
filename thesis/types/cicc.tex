@@ -1,0 +1,169 @@
+\section{Caledon Implicit Calculus of Constructions}
+
+Caledon's type system is a varient of ICC and $CC^{Bi}$, 
+which for the rest of the paper I will refer to as CICC.  
+This sytem contains two products and two binders - one each for implicit and explicit arguments. 
+Unlike ICC, there is no rule that allows for an unmarked value to obtain an implicit product type, which
+makes type checking somewhat simpler.  
+In addition, there is a new form of application to allow for the explicit
+selection of an implicit argument to constrain.
+
+\begin{figure}[h]
+\[ 
+E ::= 
+V 
+| S 
+| E\;E 
+| \lambda V . E 
+| ?\lambda V . E 
+| \Pi V : E . E 
+| ?\Pi V : E . E 
+| E \{ V := E \}
+\]
+
+\caption{Syntax of CICC}
+\label{cicc:syntax}
+\end{figure}
+
+The \textit{non-dependent} explicit and implicit products are written $T \rightarrow T$ 
+and $T \Rightarrow T$ respectively.
+
+
+Note, that in CICC system, $?\lambda x . A \neg\equiv_\alpha ?\lambda y . [x / y] A$ 
+and $?\Pi x . A \neg\equiv_\alpha ?\Pi y . [x / y] A$  if $x \neq y$.  This implies that the 
+behavior of caledon's implicit argument is something akin to a structural dependent product.  
+
+
+Before the typing rules of this system can be given, the notion of a constrained name of a term must be defined.
+
+\begin{definition}
+The constrained names on a term, written $CN(M)$ is a set defined as follows:
+
+\[ 
+CN(M \{ x := E \}) = \{ x \} \cup CN(M)
+\]
+
+\[ 
+CN(\m{otherwise}) = \emptyset
+\]
+
+\end{definition}
+
+\begin{definition}
+The generalized names for a term, written $GN(M)$ is a set defined as follows:
+
+\[ 
+GN(?\Pi x . M) = \{ x \} \cup CN(M)
+\]
+
+\[ 
+GN(\m{otherwise}) = \emptyset
+\]
+
+\end{definition}
+
+\begin{definition}
+The bound names for a term, written $GN(M)$ is a set defined as follows:
+
+\[ 
+GN(?\lambda x . M) = \{ x \} \cup CN(M)
+\]
+
+\[ 
+GN(\m{otherwise}) = \emptyset
+\]
+
+\end{definition}
+
+
+\begin{figure}[h]
+
+\[
+\infer[\m{gen}]
+{
+\Gamma \vdash ?\lambda x . M : (?\Pi x : T . U)
+}
+{
+\Gamma , x : T \vdash M : U
+&
+\Gamma \vdash (?\Pi x : T . U) : s
+&
+s \in S
+&
+x \notin FV(M) \cup BN(M) \cup GN(U)
+}
+\]
+
+
+\[
+\infer[\m{inst-free}]
+{
+\Gamma \vdash M : U [N/x]
+}
+{
+\Gamma \vdash M : ?\Pi x :T . U
+&
+\Gamma \vdash N : T
+& x \notin CN(M)
+}
+\]
+
+
+\[
+\infer[\m{inst-bound}]
+{
+\Gamma \vdash M \{ x := N \} : U [N/x]
+}
+{
+\Gamma \vdash M : ?\Pi x :T . U
+&
+\Gamma \vdash N : T
+& 
+x \notin GN(M)
+&
+x \notin BN(U)
+}
+\]
+
+
+\[
+\infer[\m{imp-prod}]
+{
+\Gamma \vdash (\forall x : A . B) : s_3
+}
+{
+\Gamma \vdash A : s_1
+&
+\Gamma,x:A \vdash B : s_2
+&
+(s_1,s_2,s_3) \in R
+}
+\]
+
+
+\[
+\infer[\m{strength}]
+{
+\Gamma \vdash M : U
+}
+{
+\Gamma , x : T \vdash M : U
+&
+x \notin FV(M) \cup FV(U)
+}
+\]
+
+\[
+\infer[\m{ext}]
+{
+\Gamma \vdash M : T
+}
+{
+\Gamma\vdash \lambda x . (M x)  : T 
+&
+x \notin FV(M)
+}
+\]
+\caption{Typing for ICC}
+\label{cicc:typing}
+\end{figure}

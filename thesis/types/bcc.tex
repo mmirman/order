@@ -1,12 +1,7 @@
 \section{Bicolored Calculus of Constructions}
 
-His system is based on the bicolored calculus of constructions, where two product operators exist to 
-differentiate between arguments that need to be provided explicitely and explicitly.  
-Miquel \citep{miquel2001implicit} provides the more general system, ICC to allow for implicit arguments.
-Here, I will briefly explain the system and some of the relevant theoretical results that have been obtained.
-As maintaining the flexibility of the system is important to future extentions of the Caledon language, 
-I will present the implicit calculus in terms of Pure Type Systems.
-
+The Bicolored Calculus of Constructions \citep{luther2001more}
+can be considered 
 \begin{figure}[h]
 \[ 
 E ::= V 
@@ -20,3 +15,11 @@ E ::= V
 \caption{Syntax of ICC}
 \label{icc:syntax}
 \end{figure}
+
+The usefullness of $CC^{Bi}$ comes from the fact that the
+consistency of the $CC^{Bi}$ is a direct result of the consistency of CC.
+Because of this, one can use $CC^{Bi}$ as a target language for the result of implicit argument 
+generation of a system with omitted implicit types, and obtain consistency of 
+the underlying monochromatic $\lambda$ calculus from the conversion,
+given that reductions are not typed in this calculus.
+
