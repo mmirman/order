@@ -1,0 +1,15 @@
+\section{History}
+
+Miller \citep{miller1986higher} gave the first semidesicion algorithm for unification of 
+terms in the lambda calculus.  
+Later, it was proven by Pfenning \citep{pfenning1988partial} \citep{pfenning1988higher} 
+that for terms in the pattern fragment of the lambda calculus, unification was decidable.  
+Elliott\citep{elliott1989higher} gave a more efficient algorithm for unification in the context 
+of dependent types, and later Pfenning \citep{pfenning1991unification}
+did the same thing for unification in the Calculus of Constructions, although without a mixed prefix.  
+The most succinct presentation comes from the 1991 paper describing the workings of Twelf 
+\citep{pfenning1991logic}.  While the unification algorithm implemented in the interpreter for Caledon is 
+an extention of that presented in Pfenning's 1991 paper on unification for 
+the Calculus of Constructions\citep{pfenning1991unification}, 
+I will briefly cover the main ideas from the presentation of the paper describing the workings of Twelf, 
+and extend them later.

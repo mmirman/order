@@ -1,1 +1,183 @@
-\section{Substitution with Implicits}
+\section{Substitution}
+
+\subsection{Untyped Substitution}
+
+\begin{definition}
+Hereditary Substitution is defined by the following mutual recurrence
+
+\[ \begin{array}[3]{llr}
+[ S / x ] x := S
+&
+[S / x] y := y
+&
+[S / x] P\;T := \m{H}([S/x] P, [S/x]T)
+\end{array} \]
+
+\[
+[S / x] \lambda v : T . P := \lambda v' : [S/x]T . [S/x][v'/v]P
+\;
+\text{  where $v'$ is new.}
+\]
+
+\[ 
+\m{H}(\lambda v : T . P , A) := [A/v] P
+\]
+
+\[ \begin{array}[2]{lr}
+\m{H}(P A_1 , A_2) := P\;A_1\;A_2
+&
+\m{H}(V , A) := V\; A
+\end{array} \]
+
+\label{def:hered}
+\end{definition}
+
+It is important to note the alpha conversion in the $\lambda$ case, as alpha conversion will be lost on 
+some terms when implicits are added.
+
+Hereditary Substitution has the unfortunate property that it is not necessarily a complete function:
+
+\[
+[(\lambda x . x\; x) / x ] ( x \; (\lambda x . x\; x) )
+\]
+
+is not defined, as it expands to the well known $\m{H}(\lambda x . x \; x , \lambda x . x \; x)$.
+
+Fortunately, if the pattern and substitution are well typed terms in the calculus of constructions, by 
+strong normalization, hereditary substitution is total.
+
+\begin{theorem} Substitution Theorem:
+
+If $\Gamma,x : T \vdash A : T' : \m{prop}$  and $\Gamma \vdash S : T : \m{prop}$ then
+$ \Gamma \vdash [S/x]_o A : [S/x]_o T' : \m{prop}$
+\end{theorem}
+
+By consistency, $[S/x]_o A $ can be normalized to strong head normal form.  Thus, the 
+hereditary substitution $[S/x] A$ is defined.
+
+
+
+\subsection{Typed Substitution}
+
+Performing substitutions that maintain long $\beta\eta$-normal 
+form is important to ensuring decidability of unification.  
+Unfortunately this is not possible without some type information, 
+as arbitrary $\eta$ expansion has no stop condition. \ref{def:tyhered} solves this by performing
+a typed substitution under a context, generating type information.
+
+\begin{definition}
+Typed Hereditary Substitution
+
+\[
+[S / x]^n_{\Gamma \vdash A} P := \m{E}_A([S / x]^r_{\Gamma \vdash A} P)
+\]
+
+\[
+[S / x]^n_{\Gamma \vdash A} (\lambda y : B . N) := \lambda y:B ([S / x ]^n_{\Gamma, y: B \vdash A} N)
+\]
+
+\[
+\m{E}_A(R \Rightarrow A) := \eta^{-1}_A (R)
+\]
+
+\[
+\eta^{-1}_{\Pi x : A . B}(R) := (\lambda x : A . R x)
+\]
+
+\[
+\m{E}^M_A(M : P) := M
+\]
+
+\[ \begin{array}{lr}
+[ S / x ]^r_{\Gamma \vdash A} x := S : A
+&
+[S / x]^r_{\Gamma \vdash A} y := y \Rightarrow \Gamma(x)
+\end{array} \] 
+
+\[
+[S / x]^r_{\Gamma \vdash A} R\;N := 
+\m{H}_{\Gamma \vdash A} ([S/x]^r_{\Gamma \vdash A} R, [S/x]^n_{\Gamma \vdash A} N) 
+\]
+
+\[
+\m{H}_{\Gamma \vdash A} ((\lambda v : A_1 . M) : \Pi v : A_1 . A_2 , R) 
+:= 
+[R/v]^n_{\Gamma \vdash A_1} M : A_2
+\]
+
+\[
+\m{H}_{\Gamma \vdash A}(R \Rightarrow \Pi y : B_1 . B_2 , N) 
+:= 
+R\; N \Rightarrow [N/y]_{\Gamma,\vdash B_1}B_2
+\]
+
+\label{def:tyhered}
+\end{definition}
+
+In general, it is possible to prove that for any PTS that is strongly normalizing for $\beta$ reduction and 
+$\eta$ expansion, this algorithm will terminate and substitution will be defined. 
+
+
+
+\subsection{Substitution With Implicits}
+
+The formulation of hereditary substitution in the presence of 
+implicit arguments is not that unlike the presentation of
+heredetary substitution without implicit arguments, 
+but for additional checks required.
+The main difficulty is the notion of an acceptable substitution. 
+Because implicit bindings are not $\alpha$ convertable, 
+certain substitutions are not permited.  
+Because as many substitions should be permitted as possible, 
+the situation becomes significantly more complex in the 
+hereditary case, where substitutions might not carry types.  
+The easiest way to define substitution in this case is with an ``illegal'' alpha substitution, 
+which maps implicitly bound variables to fresh names, 
+and produces a memory to map them back.
+
+In this case, we can say that a substitution $[S/x] M$ is legal if 
+$FV(S) \subseteq FV(\alpha_I^-1( [\alpha_I(S)/x] M) )$.
+
+\begin{definition}
+Implicit Hereditary Substitution
+
+\[ \begin{array}[3]{llr}
+[ S / x ] x := S
+&
+[S / x] y := y
+&
+[S / x] P\;T := \m{H}([S/x] P, [S/x]T)
+\end{array} \]
+
+\[
+[S / x] \lambda v : T . P := \lambda v' : [S/x]T . [S/x][v'/v]P
+\;
+\text{ where $v'$ is new.}
+\]
+
+\[
+[S / x] ?\lambda v : T . P := ?\lambda v' : [S/x]T . [S/x][v'/v]P
+\;
+\text{ where $v'$ is new.}
+\]
+
+\[ 
+\m{H}(?\lambda v : T . P , {v := A} ) := [A/v] P
+\]
+
+\[ 
+\m{H}(?\lambda v : T . P , A) := ?\lambda v : T . H(P,A)
+\]
+
+\[ 
+\m{H}(\lambda v : T . P , A) := [A/v] P
+\]
+
+\[ \begin{array}[2]{lr}
+\m{H}(P A_1 , A_2) := P\;A_1\;A_2
+&
+\m{H}(V , A) := V\; A
+\end{array} \]
+
+\label{def:hered}
+\end{definition}

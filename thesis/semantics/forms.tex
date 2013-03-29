@@ -1,0 +1,169 @@
+\section{Forms for Unification}
+
+\begin{definition}
+Spine Form
+\[
+T ::= P
+   \orr \lambda V : T . P 
+\]
+
+\[
+P ::= V 
+  \orr P T 
+\]
+\label{def:spine}
+\end{definition}
+
+Note that we will write $\Pi V : T . P$ as a synonm for 
+$\Pi\; T \; (\lambda V : T . P)$ in the rest of the paper.
+This simplifies the presentation of the unification algorithm, 
+as then $\Pi$ can be considered a traditional constructor
+that can also be used to direct the unification procedure.
+
+Spine terms have the incredibly useful property that if they are always in head normal form, 
+meaning that the head of every term is a constructor, 
+and every argument is either a constructor or lambda term.
+
+\subsection{Higher Order Patterns}
+
+While spine form is restrictive enough that its terms are always in head normal form, 
+it is not yet restrictive enough for unification problems to be decidable.  
+Miller \citep{miller1991logic} showed that for any unification instance given in 
+the pattern fragment shown in \ref{def:pattern}, unification is decidable.  
+
+Pattern form is specified with respect to partial permuations $\phi$, 
+which are injective mappings from finite domains to finite domains.
+
+\newcommand{\Pat}{\;\m{ Pat }\;}
+\begin{definition}
+Pattern Form:  Note that $\Delta$ is the existential context and 
+$\Gamma$ is the universal context.
+
+\[
+\infer[\m{P/ABS}]{
+\Delta ; \Gamma \vdash \lambda u : A . M \Pat
+}{
+\Delta ; \Gamma \vdash A \Pat
+&
+\Delta ; \Gamma,u \vdash M \Pat
+} \]
+
+
+\[ \begin{array}[2]{lr}
+\infer[\m{P/CON}]{
+\Delta ; \Gamma \vdash \lambda c \;M_1\cdots M_m \Pat
+}{
+\Delta ; \Gamma \vdash M_1 \Pat
+&
+\cdots
+&
+\Delta ; \Gamma \vdash M_m \Pat
+}
+&
+\infer[\m{P/VAR}]{
+\Delta ; \Gamma \vdash \lambda u \;M_1\cdots M_m \Pat
+}{
+\Delta ; \Gamma \vdash M_1 \Pat
+&
+\cdots
+&
+\Delta ; \Gamma \vdash M_m \Pat
+&
+u \in \Gamma
+}
+\end{array} \]
+
+
+\[ \begin{array}[2]{lr}
+\infer[\m{P/PROP}]{
+\Delta ; u_1 ,\cdots u_p 
+\vdash \lambda x \;u_{\phi(1)}\cdots u_{\phi(m)} \Pat
+}{
+\phi \text{ is a partial permutation}
+&
+x \in \Delta
+}
+&
+\infer[\m{P/VAR}]{
+\Delta ; \Gamma \vdash \lambda M \Pat
+}{
+\Delta ; \Gamma \vdash M' \Pat
+&
+M \equiv_{\eta} M'
+}
+\end{array} \]
+
+\label{def:pattern}
+\end{definition}
+
+
+\subsection{Canonical Forms}
+
+Pfenning's \citep{pfenning1991unification} unification algorithm for the 
+calculus of constructions, which the metatheory of Caledon is based on, 
+relies on the fact that expressions are also presented in 
+\textit{long $\beta\eta$-normal form} (or \textit{canonical form}), 
+meaning that they are $\eta$ expanded to conform to their type signature.  
+In the intial publication of this paper, it was taken as a hypothesis that 
+CC was strongly long $\beta\eta$-normal form normalizing.  This is now known
+to be the case.
+
+\newcommand{\FormFor}{\;\Rightarrow\;}
+\begin{definition}
+Canonical Forms
+
+\[ \begin{array}{lr}
+\infer[\m{F/ax}]{
+\Gamma \vdash s_1 \FormFor s_2
+}{
+(s_1,s_2) \in A
+}
+&
+\infer[\m{F/prod}]{
+\Gamma \vdash \Pi x : A . B \FormFor s_3
+}{
+\Gamma \vdash A \FormFor s_1
+&
+\Gamma, x : A \vdash B \FormFor s_2
+&
+(s_1,s_2,s_3) \in R
+}
+\end{array} \]
+
+\[
+\infer[\m{F/lam}]{
+\Gamma \vdash \lambda x : A . M \FormFor \lambda x : A . B
+}{
+\Gamma,x : A\vdash M \FormFor B
+&
+\Gamma\vdash A \FormFor s
+} 
+\]
+
+\[
+\infer[\m{F/app}]{
+\Gamma \vdash h\;M_1 \cdots M_n \FormFor D
+}{
+\Gamma \vdash h\;M_1 \cdots M_n : D
+&
+\Gamma \vdash M_1 \FormFor A_1
+&
+\cdots
+&
+\Gamma \vdash M_n \FormFor A_n
+&
+} 
+\]
+where $D$ is atomic
+\label{def:canonical}
+\end{definition}
+
+It has been proven that the standard calculus of constructions is 
+long $\beta\eta$-normal form strongly normalizing.  
+Unfortunately, normalzation into this form is not possible without type 
+information.  Later, a typed substitution algorithm will be given which 
+ensures normalization into this form.  
+
+The notions of canonical form and of a higher order pattern are also trivially
+extendable into church-style $CC^{Bi}$ (ie, ICC* from \citep{barras2008implicit}), 
+where stong normalization into long $\beta\eta$-normal form is also provable, as is shown by Bernardo.

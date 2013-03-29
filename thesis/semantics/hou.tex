@@ -8,108 +8,6 @@ by both existential and universal quantifiers.  Research from the past thirty ye
 the problem to the a decidable subset where unification is decidable. 
 
 
-\subsection{History}
-
-Miller \citep{miller1986higher} gave the first semidesicion algorithm for unification of 
-terms in the lambda calculus.  
-Later, it was proven by Pfenning \citep{pfenning1988partial} \citep{pfenning1988higher} 
-that for terms in the pattern fragment of the lambda calculus, unification was decidable.  
-Elliott\citep{elliott1989higher} gave a more efficient algorithm for unification in the context 
-of dependent types, and later Pfenning \citep{pfenning1991unification}
-did the same thing for unification in the Calculus of Constructions, although without a mixed prefix.  
-The most succinct presentation comes from the 1991 paper describing the workings of Twelf 
-\citep{pfenning1991logic}.  While the unification algorithm implemented in the interpreter for Caledon is 
-an extention of that presented in Pfenning's 1991 paper on unification for 
-the Calculus of Constructions\citep{pfenning1991unification}, 
-I will briefly cover the main ideas from the presentation of the paper describing the workings of Twelf, 
-and extend them later.
-
-\subsection{Pattern Calculus}
-
-\begin{definition}
-Pattern Calculus
-\[
-T ::= P
-   \orr \lambda V : T . P 
-\]
-
-\[
-P ::= V 
-  \orr P T 
-\]
-\end{definition}
-
-Note that we will write $\Pi V : T . P$ as a synonm for $\Pi\; T \; (\lambda V : T . P)$ in the rest of the paper.
-This simplifies the presentation of the unification algorithm, as then $\Pi$ can be considered a traditional constructor
-that can also be used to direct the unification procedure.
-
-Pattern terms have the incredibly useful property that if they are always in strong head normal form, meaning
-that the head of every term is a constructor, and every argument is either a constructor or lambda term.
-
-Of course, $V$ is the set of variables here.
-To discuss unification in more detail, substitution for the pattern the pattern calculus
-needs to be defined.
-
-\begin{definition}
-Hereditary Substitution is defined by the following mutual recurrence
-
-\begin{figure}[H]
-
-\[
-[S/x] x := S
-\]
-
-\[
-[S/x] y := y
-\]
-
-\[
-[S/x] P T := \m{H}([S/x] P, [S/x]T)
-\]
-
-\[
-[S/x] \lambda v : T . P := \lambda v' : [S/x]T . [S/x][v'/v]P
-\] where $v'$ is new.
-
-\[
-\m{H}(\lambda v : T . P , A) := [S/v] A
-\]
-
-\[ 
-\m{H}(P A_1 , A_2) := P\;A_1\;A_2
-\] 
-
-\[ 
-\m{H}(V , A) := V\; A
-\] 
-\caption{Macros for expressive syntax}
-\label{def:hered}
-\end{figure}
-
-\end{definition}
-
-It is important to note the alpha conversion in the $\lambda$ case, as alpha conversion will be lost on 
-some terms when implicits are added.
-
-Hereditary Substitution has the unfortunate property that it is not necessarily a complete function:
-
-\[
-[(\lambda x . x\; x) / x ] ( x \; (\lambda x . x\; x) )
-\]
-
-is not defined, as it expands to the well known $\m{H}(\lambda x . x \; x , \lambda x . x \; x)$.
-
-Fortunately, if the pattern and substitution are well typed terms in the calculus of constructions, by 
-strong normalization, hereditary substitution is total.
-
-\begin{theorem} Substitution Theorem:
-
-If $\Gamma,x : T \vdash A : T' : \m{prop}$  and $\Gamma \vdash S : T : \m{prop}$ then
-$ \Gamma \vdash [S/x]_o A : [S/x]_o T' : \m{prop}$
-\end{theorem}
-
-By consistency, $[S/x]_o A $ can be normalized to strong head normal form.  Thus, the 
-hereditary substitution $[S/x] A$ is defined. Proofy
 
 \subsection{Unification Terms}
 
@@ -123,7 +21,7 @@ U ::= U \wedge U
  \orr U \doteq U
  \orr \top
 \]
-
+\label{def:hou:syn}
 \end{definition}
 
 When $\doteq$ is taken to mean $\equiv_{\beta\eta\alpha*}$, the unification problem is to determine 
@@ -140,13 +38,92 @@ Thus, statements can always be converted to the form
 \exists y_1 \cdots y_n . \forall x_1 \cdots x_k . S_1 \doteq V_1 \wedge \cdots S_r \doteq V_r
 \]
 
-In this form, we might ask for a unification proof as a substitution
+
+
+
+\subsection{Unification Term Meaning}
+
+We can provide an provability relation of a unification formula
+based on the obvious logic.
 
 \begin{definition}
-A unification solution is a substitution $\theta$ 
-mapping existentially quantifed
-variables to closed form lambda terms such 
-that $\theta (S_1 \doteq V_1 \wedge \cdots S_r \doteq V_r)$
-is provable trivially. 
+$\Gamma \Vdash F $ can be interpreted as $\Gamma$ implies $F$ 
+is provable.
+
+\[ \begin{array}{lcr}
+\infer[\m{equiv}]{
+\Gamma \Vdash M \doteq N
+}{
+\Gamma \vdash M : A
+&
+M \equiv_{\beta\eta\alpha*} N
+&
+\Gamma \vdash N : A
+}
+&
+\infer[\m{true}]{
+\Gamma \Vdash \top
+}{}
+&
+\infer[\m{conj}]{
+\Gamma \Vdash F \wedge G
+}{
+\Gamma \Vdash F
+&
+\Gamma \Vdash G
+}
+\end{array} \]
+
+\[ \begin{array}{lr}
+\infer[\m{exists}]{
+\Gamma \Vdash \exists x : A . F
+}{
+\Gamma \Vdash [M/x] F
+&
+\Gamma \vdash M : A
+}
+&
+\infer[\m{forall}]{
+\Gamma \Vdash \forall x : A . F
+}{
+\Gamma, x : A \Vdash F
+}
+\end{array} \]
+
+\label{def:hou:prf}
 \end{definition}
+
+While a truly superb logic programming language might 
+be able to convert this very declarative 
+specification into a runnable program, 
+the essentially nondeterministic rule for existential
+quantification in a unification formula prevents an 
+obvious deterministic algorithm from being extracted.
+
+
+\subsection{Higher Order Unification for CC}
+
+\newcommand{\UnifiesTo}{\;\longrightarrow\;}
+
+
+I now present an algorithm, similar to that presented in 
+\citep{pfenning1991logic} for unification in the 
+Calculus of Constructions.  Because we have already 
+presented typed hereditary substitution with $\eta$-expansion, 
+the presentation here will not add much 
+but for types in the substitutions.  
+
+$F \UnifiesTo F'$ shall mean that $F$ can be transformed to $F'$
+without modifying the provability. 
+An equation $F[G]$ will stand as notation for highlighting $G$
+under the formulae context $F$.  
+As an example, if we were to examine the formula 
+$\forall x . \forall n . \exists y . ( y \doteq x \wedge \forall z . \exists r . [ x z \doteq r] )$
+but were only interested in the last portion, we might instead write it as
+$\forall x . F[\forall z . \exists r . [ x z \doteq r]]$
+Again, $\phi$ shall be an injective partial permutation. 
+
+Furthermore, rather than explicitly writing down the result of unification, 
+we shall use $\exists x. F \UnifiesTo \exists x . [ L / x] F$ 
+to stand for $\exists x. F \UnifiesTo \exists x . x \doteq L \wedge [ L / x] F$
 

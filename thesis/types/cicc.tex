@@ -53,7 +53,7 @@ CN(\m{otherwise}) = \emptyset
 The generalized names for a term, written $GN(M)$ is a set defined as follows:
 
 \[ 
-GN(?\Pi x . M) = \{ x \} \cup CN(M)
+GN(?\Pi x . M) = \{ x \} \cup GN(M)
 \]
 
 \[ 
@@ -63,14 +63,14 @@ GN(\m{otherwise}) = \emptyset
 \end{definition}
 
 \begin{definition}
-The bound names for a term, written $GN(M)$ is a set defined as follows:
+The bound names for a term, written $BN(M)$ is a set defined as follows:
 
 \[ 
-GN(?\lambda x . M) = \{ x \} \cup CN(M)
+BN(?\lambda x . M) = \{ x \} \cup BN(M)
 \]
 
 \[ 
-GN(\m{otherwise}) = \emptyset
+BN(\m{otherwise}) = \emptyset
 \]
 
 \end{definition}
