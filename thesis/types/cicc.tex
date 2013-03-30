@@ -1,45 +1,43 @@
 \section{Caledon Implicit Calculus of Constructions}
 
-Caledon's type system is a varient of ICC and $CC^{Bi}$, 
-which for the rest of the paper I will refer to as CICC.  
+Caledon's type system is a varient of $ICC$ and $ICC^+$, 
+which for the rest of the paper I will refer to as $CICC$.  
 This sytem contains two products and two binders - one each for implicit and explicit arguments. 
-Unlike ICC, there is no rule that allows for an unmarked value to obtain an implicit product type, which
+Unlike $ICC$, there is no rule that allows for an unmarked value to obtain an implicit product type, which
 makes type checking somewhat simpler.  
 In addition, there is a new form of application to allow for the explicit
 selection of an implicit argument to constrain.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \[ 
 E ::= 
 V 
-| S 
-| E\;E 
-| \lambda V . E 
-| ?\lambda V . E 
-| \Pi V : E . E 
-| ?\Pi V : E . E 
-| E \{ V := E \}
+\orr S 
+\orr E\;E 
+\orr \lambda V : T. E 
+\orr ?\lambda V : T. E 
+\orr \Pi V : E . E 
+\orr ?\Pi V : E . E 
+\orr E \{ V := E \}
 \]
 
-\caption{Syntax of CICC}
+\caption{Syntax of $CICC$}
 \label{cicc:syntax}
 \end{figure}
 
 The \textit{non-dependent} explicit and implicit products are written $T \rightarrow T$ 
 and $T \Rightarrow T$ respectively.
 
-
-Note, that in CICC system, $?\lambda x . A \neg\equiv_\alpha ?\lambda y . [x / y] A$ 
-and $?\Pi x . A \neg\equiv_\alpha ?\Pi y . [x / y] A$  if $x \neq y$.  This implies that the 
-behavior of caledon's implicit argument is something akin to a structural dependent product.  
-
+Note, that in $CICC$ system, $?\lambda x . A \neg\equiv_\alpha ?\lambda y . [x / y] A$ 
+and $?\Pi x . A \neg\equiv_\alpha ?\Pi y . [x / y] A$  if $x \neq y$.  
+This implies that the behavior of caledon's implicit argument is something akin to a structural dependent product.  
 
 Before the typing rules of this system can be given, the notion of a constrained name of a term must be defined.
 
 \begin{definition}
 The constrained names on a term, written $CN(M)$ is a set defined as follows:
 
-\[ 
+\[
 CN(M \{ x := E \}) = \{ x \} \cup CN(M)
 \]
 
@@ -53,7 +51,7 @@ CN(\m{otherwise}) = \emptyset
 The generalized names for a term, written $GN(M)$ is a set defined as follows:
 
 \[ 
-GN(?\Pi x . M) = \{ x \} \cup GN(M)
+GN(?\Pi x : T . M) = \{ x \} \cup GN(M) \cup GN(T)
 \]
 
 \[ 
@@ -66,7 +64,7 @@ GN(\m{otherwise}) = \emptyset
 The bound names for a term, written $BN(M)$ is a set defined as follows:
 
 \[ 
-BN(?\lambda x . M) = \{ x \} \cup BN(M)
+BN(?\lambda x : T . M) = \{ x \} \cup BN(M) \cup BN(T)
 \]
 
 \[ 
@@ -76,60 +74,59 @@ BN(\m{otherwise}) = \emptyset
 \end{definition}
 
 
-\begin{figure}[h]
+\begin{figure}[H]
 
-\[
-\infer[\m{gen}]
+\[ \begin{array}{lr}
+\infer[\m{wf/e}]
 {
-\Gamma \vdash ?\lambda x . M : (?\Pi x : T . U)
+\cdot \vdash_{ci} 
+}{}
+&
+\infer[\m{wf/s}]
+{
+\Gamma, x : T \vdash_{ci} 
 }
 {
-\Gamma , x : T \vdash M : U
+\Gamma \vdash_{ci} T : s
 &
-\Gamma \vdash (?\Pi x : T . U) : s
+x \notin DV(\Gamma)
+}
+\end{array} \]
+
+%% axioms %%
+%%%%%%%%%%%%
+\[
+\infer[\m{axioms}]
+{
+\Gamma \vdash_{ci} c : s
+}
+{
+\Gamma \vdash_{ci}
+&
+(c,s) \in A
+}
+\]
+
+%% start %%
+%%%%%%%%%%%
+\[
+\infer[\m{start}]
+{
+\Gamma,x:A \vdash_{ci} x :A
+}
+{
+\Gamma \vdash_{ci} A:s
 &
 s \in S
-&
-x \notin FV(M) \cup BN(M) \cup GN(U)
 }
 \]
 
-
+%% prod %%
+%%%%%%%%%%
 \[
-\infer[\m{inst-free}]
+\infer[\m{prod}]
 {
-\Gamma \vdash M : U [N/x]
-}
-{
-\Gamma \vdash M : ?\Pi x :T . U
-&
-\Gamma \vdash N : T
-& x \notin CN(M)
-}
-\]
-
-
-\[
-\infer[\m{inst-bound}]
-{
-\Gamma \vdash M \{ x := N \} : U [N/x]
-}
-{
-\Gamma \vdash M : ?\Pi x :T . U
-&
-\Gamma \vdash N : T
-& 
-x \notin GN(M)
-&
-x \notin BN(U)
-}
-\]
-
-
-\[
-\infer[\m{imp-prod}]
-{
-\Gamma \vdash (\forall x : A . B) : s_3
+\Gamma \vdash (\Pi x : A . B) : s_3
 }
 {
 \Gamma \vdash A : s_1
@@ -140,30 +137,492 @@ x \notin BN(U)
 }
 \]
 
+%% prod* %%
+%%%%%%%%%%%
+\[
+\infer[\m{prod}*]
+{
+\Gamma \vdash (?\Pi x : A . B) : s_3
+}
+{
+\Gamma \vdash A : s_1
+&
+\Gamma,x:A \vdash B : s_2
+&
+(s_1,s_2,s_3) \in R
+}
+\]
 
+%% gen %%
+%%%%%%%%%
+\[
+\infer[\m{gen}]
+{
+\Gamma \vdash_{ci} \lambda x : T . M : (\Pi x : T . U)
+}
+{
+\Gamma , x : T \vdash_{ci} M : U
+&
+\Gamma \vdash_{ci} (\Pi x : T . U) : s
+&
+s \in S
+&
+x \notin FV(M) \cup BN(M) \cup GN(U)
+}
+\]
+
+%% gen* %%
+%%%%%%%%%%
+\[
+\infer[\m{gen}*]
+{
+\Gamma \vdash_{ci} ?\lambda x : T . M : (?\Pi x : T . U)
+}
+{
+\Gamma , x : T \vdash_{ci} M : U
+&
+\Gamma \vdash_{ci} (?\Pi x : T . U) : s
+&
+s \in S
+&
+x \notin FV(M) \cup BN(M) \cup GN(U)
+}
+\]
+
+%% app %%
+%%%%%%%%%
+\[
+\infer[\m{app}]
+{
+\Gamma \vdash_{ci} M N : U [N/x]
+}
+{
+\Gamma \vdash_{ci} M : \Pi x : T . U
+&
+\Gamma \vdash_{ci} N : T
+}
+\]
+
+%% inst/f %%
+%%%%%%%%%%%%
+\[
+\infer[\m{inst/f}]
+{
+\Gamma \vdash_{ci} M : U [N/x]
+}
+{
+\Gamma \vdash_{ci} M : ?\Pi x :T . U
+&
+\Gamma \vdash_{ci} N : T
+& x \notin CN(M)
+}
+\]
+
+%% inst/b %%
+%%%%%%%%%%%%
+\[
+\infer[\m{inst/b}]
+{
+\Gamma \vdash_{ci} M \{ x := N \} : U [N/x]
+}
+{
+\Gamma \vdash_{ci} M : ?\Pi x :T . U
+&
+\Gamma \vdash_{ci} N : T
+& 
+x \notin GN(M)
+&
+x \notin BN(U)
+}
+\]
+
+%% strength %%
+%%%%%%%%%%%%%%
 \[
 \infer[\m{strength}]
 {
-\Gamma \vdash M : U
+\Gamma \vdash_{ci} M : U
 }
 {
-\Gamma , x : T \vdash M : U
+\Gamma , x : T \vdash_{ci} M : U
 &
 x \notin FV(M) \cup FV(U)
 }
 \]
-
-\[
-\infer[\m{ext}]
-{
-\Gamma \vdash M : T
-}
-{
-\Gamma\vdash \lambda x . (M x)  : T 
-&
-x \notin FV(M)
-}
-\]
-\caption{Typing for ICC}
+\caption{Typing for $CICC$}
 \label{cicc:typing}
 \end{figure}
+
+
+\subsection{Subtyping}
+
+Similar to $ICC$, these rules result in a subtyping relation, which will be of
+importance later on in this thesis.
+
+\begin{definition}
+Subtyping relation:
+$\Gamma \vdash_{ci} T \leq T' \;\; \equiv \;\; \Gamma, x : T \vdash_{ci} x : T'$ 
+\end{definition}
+
+\begin{lemma}
+Subtyping is a preordering:
+\[
+\begin{array}{lr}
+\infer-[\m{sym}]{ 
+\Gamma \vdash_{ci} T \leq T
+}{
+\Gamma \vdash_{ci} T : s
+}
+&
+\infer-[\m{trans}]{ 
+\Gamma \vdash_{ci} T_1 \leq T_3
+}{
+\Gamma \vdash_{ci} T_1 \leq T_2
+&
+\Gamma \vdash_{ci} T_2 \leq T_3
+}
+\end{array}
+\]
+
+\[
+\infer-[\m{sub}]{ 
+\Gamma \vdash_{ci} M : T'
+}{
+\Gamma \vdash_{ci} M \leq T
+&
+\Gamma \vdash_{ci} T \leq T'
+}
+\]
+\end{lemma}
+
+\begin{lemma}
+Domains of products are contravariant and codomains are covarient:
+
+\[
+\begin{array}{lr}
+\infer[]{ 
+\Gamma \vdash_{ci} \Pi x : T . U \leq \Pi x : T' . U'
+}{
+\Gamma \vdash_{ci} T' \leq T 
+&
+\Gamma,x : T' \vdash_{ci} U \leq U'
+}
+&
+\infer[]{ 
+\Gamma \vdash_{ci} \forall x : T . U \leq \forall x : T' . U'
+}{
+\Gamma \vdash_{ci} T' \leq T 
+&
+\Gamma,x : T' \vdash_{ci} U \leq U'
+}
+\end{array}
+\]
+\end{lemma}
+
+
+
+\subsection{Consistency}
+
+We can show consistency of $CICC$ by projection into $ICC^+$.
+
+Unfortunately, the projection function now requires more information than is available syntactically, 
+and thus must be given on the typing derivation.
+
+
+\newcommand{\CICCproj}[1]{ \left\llbracket #1 \right\rrbracket_{ci}}
+
+\begin{definition}
+Projection from $CICC$ to $ICC^+$:
+
+\[
+\CICCproj{
+\infer[\m{wf/e}]
+{
+\cdot \vdash_{ci} 
+}{}
+}^{c}
+:= \cdot
+\]
+
+\[
+\CICCproj{
+\infer[\m{wf/s}]
+{
+\Gamma, x : T \vdash_{ci} 
+}
+{
+\overset{\mathcal{D}}{ 
+\Gamma \vdash_{ci} x : T 
+}
+&
+\cdots
+}
+}^{c}
+:= \CICCproj{\Gamma \vdash_{ci}}^c, \CICCproj{\mathcal{D}} 
+\]
+
+
+
+
+\[
+\CICCproj{
+\infer[\m{start}]
+{
+\Gamma,x:A \vdash_{ci} x :A
+}
+{
+\cdots
+}
+}
+:= x
+\]
+
+
+\[
+\CICCproj{
+\infer[\m{axioms}]
+{
+\Gamma,x:A \vdash_{ci} c : s
+}
+{
+\cdots
+}
+}
+:= c
+\]
+
+%% prod %%
+%%%%%%%%%%
+\[
+\CICCproj{
+\infer[\m{prod}]{ \Gamma \vdash_{ci} (\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_1}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_2}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+}
+:=
+\Pi( x : \CICCproj{ \mathcal{D}_1 } ) . \CICCproj{ \mathcal{D}_2 }
+\]
+
+%% prod* %%
+%%%%%%%%$%%
+\[
+\CICCproj{
+\infer[\m{prod}*]{ \Gamma \vdash_{ci} (?\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_1}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_2}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+}
+:=
+\Pi[ x : \CICCproj{ \mathcal{D}_1 } ] . \CICCproj{ \mathcal{D}_2 }
+\]
+
+%% gen %%
+%%%%%%%%%
+\[
+\CICCproj{
+\infer[\m{gen}]
+{
+\Gamma \vdash_{ci} \lambda x : T . M : (\Pi x : T . U)
+}
+{
+\overset{\mathcal{D}_1}{
+\Gamma , x : T \vdash_{ci} M : U 
+}
+&
+\infer[\m{prod}]{ \Gamma \vdash_{ci} (\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_2}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_3}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+&
+\cdots
+}
+}
+:=
+\lambda( x : \CICCproj{ \mathcal{D}_2 } ) . \CICCproj{ \mathcal{D}_1 }
+\]
+
+%% gen* %%
+%%%%%%%%%%
+\[
+\CICCproj{
+\infer[\m{gen}*]
+{
+\Gamma \vdash_{ci} ?\lambda x : T . M : (?\Pi x : T . U)
+}
+{
+\overset{\mathcal{D}_1}{
+\Gamma , x : T \vdash_{ci} M : U 
+}
+&
+\infer[\m{prod}*]{ \Gamma \vdash_{ci} (?\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_2}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_3}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+&
+\cdots
+}
+}
+:=
+\lambda [ x : \CICCproj{ \mathcal{D}_2 } ] . \CICCproj{ \mathcal{D}_1 }
+\]
+
+%% app %%
+%%%%%%%%%
+\[
+\CICCproj{ 
+\infer[\m{app}]
+{
+\Gamma \vdash_{ci} M N : U [N/x]
+}
+{
+\overset{\mathcal{D}_1}{ \Gamma \vdash_{ci} M : \Pi x : T . U }
+&
+\overset{\mathcal{D}_2}{ \Gamma \vdash_{ci} N : T }
+}
+}
+:=
+\CICCproj{ \mathcal{D}_1 } \; \CICCproj{\mathcal{D}_2}
+\]
+
+%% inst/b %%
+%%%%%%%%%%%%
+\[
+\CICCproj{ 
+\infer[\m{inst/b}]
+{
+\Gamma \vdash_{ci} M \{ x := N \} : U [N/x]
+}
+{
+\overset{\mathcal{D}_1}{ \Gamma \vdash_{ci} M : ?\Pi x :T . U }
+&
+\overset{\mathcal{D}_2}{ \Gamma \vdash_{ci} N : T }
+& 
+\cdots
+}
+}
+:=
+\CICCproj{\mathcal{D}_1} \; [ \CICCproj{\mathcal{D}_2} ]
+\]
+
+%% inst/b %%
+%%%%%%%%%%%%
+\[
+\CICCproj{ 
+\infer[\m{inst/f}]
+{
+\Gamma \vdash_{ci} M : U [N/x]
+}
+{
+\overset{\mathcal{D}_1}{ \Gamma \vdash_{ci} M : ?\Pi x : T . U }
+&
+\overset{\mathcal{D}_2}{ \Gamma \vdash_{ci} N : T }
+&
+\cdots
+}
+}
+:=
+\CICCproj{\mathcal{D}_1} \; [ \CICCproj{\mathcal{D}_2} ]
+\]
+
+
+%% strength %%
+%%%%%%%%%%%%%%
+\[
+\CICCproj{ 
+\infer[\m{strength}]
+{
+\Gamma \vdash_{ci} M : U
+}
+{
+\overset{\mathcal{D}}{ \Gamma , x : T \vdash_{ci} M : U }
+&
+\cdots
+}
+}
+:=
+\CICCproj{\mathcal{D}}
+\]
+
+\label{cicc:proj}
+\end{definition}
+
+
+\begin{lemma}
+
+If $\Gamma \vdash_{ci} A : T$ then $\Gamma \vdash_{ci}$
+
+\label{ci:wfctxt}
+\end{lemma}
+
+\begin{lemma}
+
+If $\Gamma \vdash_{ci} A : T$ then $\Gamma \vdash_{ci} T : s$ for some sort $s$
+
+\label{ci:wtt}
+\end{lemma}
+
+\begin{theorem}
+
+\textbf{(Soundness of extraction)}  
+
+\begin{alignat}{4}
+\Gamma &\vdash_{ci}&  & \implies & \CICCproj{\Gamma \vdash_{ci}}^c & \vdash_{ci} &
+\\
+\Gamma &\vdash_{ci}& A : T & \implies & \CICCproj{\Gamma \vdash_{ci}}^c & \vdash_{ci} & \CICCproj{ \Gamma \vdash_{ci} A : T }
+\end{alignat}
+
+\label{ci:sound}
+\end{theorem}
+
+While the formal proof of this theorem is somewhat technical due to the involvement of the 
+projection on the well typed context, it is easy to see how this proof follows from the 
+definition \ref{cicc:proj}, and the two lemmas \ref{ci:wfctxt} and \ref{ci:wtt}.
+
+\begin{definition}
+$ \m{Term}_{ci}  = \{ M : \exists T,\Gamma . \Gamma \vdash_{ci} M : T \}$
+\end{definition}
+
+\begin{theorem}
+\textbf{(Strong Normalization)}  $\forall M \in \m{Term}_{ci}. SN(M)$
+\label{ci:cons}
+\end{theorem}
+
+This follows from the soundness of the extraction, 
+\ref{ci:sound},  and the consistency of $ICC^+$, \ref{icc+:cons}, 
+using the teqchniques developed by Miquel in 
+\citep{miquel2001calcul}.
+
+

@@ -1,12 +1,12 @@
 \section{Implicit Calculus of Constructions}
 
 Miquel \citep{miquel2001implicit} provides a more general system than that seen 
-in Hindley-Milner, ICC to allow for implicit arguments.
+in Hindley-Milner, $ICC$ to allow for implicit arguments.
 Here, I will briefly explain the system and some of the relevant theoretical results that have been obtained.
 As maintaining the flexibility of the system is important to future extentions of the Caledon language, 
 I will present the implicit calculus in terms of Pure Type Systems.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \[ 
 E ::= V 
  \orr S 
@@ -15,24 +15,39 @@ E ::= V
  \orr \Pi V : E . E 
  \orr \forall V : E . E 
 \]
-\caption{Syntax of ICC}
+\caption{Syntax of $ICC$}
 \label{icc:syntax}
 \end{figure}
 
-Note that Miquel's presentation of ICC uses curry style $\lambda$ bindings where types are ommitted.  
-The typing rules for ICC are mostly the same as those for Pure Type Systems except that an extra rule
-needs to be proided for abstraction, application, and formation of implicitly quantification.
+Note that Miquel's presentation of $ICC$ uses curry style $\lambda$ bindings where types are ommitted.  
+The typing rules for $ICC$ are mostly the same as those for Pure Type Systems except that an extra rule
+needs to be proided for abstraction, application, and formation of implicitly quantification.  The abstraction rule
+also must conform to the syntax of the curry style $\lambda$ bindings.
 
-\begin{figure}[h]
+\begin{figure}[H]
+\[
+\infer[\m{abstraction}]
+{
+\Gamma \vdash_{ICC} (\lambda x . F) : (\Pi x : A . B)
+}
+{
+\Gamma , x : A\vdash_{ICC} F : B
+&
+\Gamma \vdash_{ICC} (\Pi x : A . B) : s
+&
+s \in S
+}
+\]
+
 \[
 \infer[\m{gen}]
 {
-\Gamma \vdash M : (\forall x : T . U)
+\Gamma \vdash_{ICC} M : (\forall x : T . U)
 }
 {
-\Gamma , x : T\vdash M : U
+\Gamma , x : T\vdash_{ICC} M : U
 &
-\Gamma \vdash (\forall x : T . U) : s
+\Gamma \vdash_{ICC} (\forall x : T . U) : s
 &
 s \in S
 &
@@ -43,24 +58,24 @@ x \notin FV(M)
 \[
 \infer[\m{inst}]
 {
-\Gamma \vdash M : U [N/x]
+\Gamma \vdash_{ICC} M : U [N/x]
 }
 {
-\Gamma \vdash M : \forall x :T . U
+\Gamma \vdash_{ICC} M : \forall x :T . U
 &
-\Gamma \vdash N : T
+\Gamma \vdash_{ICC} N : T
 }
 \]
 
 \[
 \infer[\m{imp-prod}]
 {
-\Gamma \vdash (\forall x : A . B) : s_3
+\Gamma \vdash_{ICC} (\forall x : A . B) : s_3
 }
 {
-\Gamma \vdash A : s_1
+\Gamma \vdash_{ICC} A : s_1
 &
-\Gamma,x:A \vdash B : s_2
+\Gamma,x:A \vdash_{ICC} B : s_2
 &
 (s_1,s_2,s_3) \in R
 }
@@ -70,10 +85,10 @@ x \notin FV(M)
 \[
 \infer[\m{strength}]
 {
-\Gamma \vdash M : U
+\Gamma \vdash_{ICC} M : U
 }
 {
-\Gamma , x : T \vdash M : U
+\Gamma , x : T \vdash_{ICC} M : U
 &
 x \notin FV(M) \cup FV(U)
 }
@@ -82,15 +97,15 @@ x \notin FV(M) \cup FV(U)
 \[
 \infer[\m{ext}]
 {
-\Gamma \vdash M : T
+\Gamma \vdash_{ICC} M : T
 }
 {
-\Gamma\vdash \lambda x . (M x)  : T 
+\Gamma\vdash_{ICC} \lambda x . (M x)  : T 
 &
 x \notin FV(M)
 }
 \]
-\caption{Typing for ICC}
+\caption{Typing for $ICC$}
 \label{icc:typing}
 \end{figure}
 
@@ -107,39 +122,39 @@ These rules are however required to show subject reduction in this calculus.
 \subsection{Subtyping}
 
 \begin{definition}
-Subtyping relation:
-$\Gamma \vdash T \leq T' \;\; \equiv \;\; \Gamma, x : T \vdash x : T'$ 
+\textbf{Subtyping relation: }
+$\Gamma \vdash_{ICC} T \leq T' \;\; \equiv \;\; \Gamma, x : T \vdash_{ICC} x : T'$ 
 \end{definition}
 
 \begin{lemma}
-Subtyping is a preordering:
+\textbf{(Subtyping is a preordering)}
 
 \begin{tabular}{lrc}
 $
 \infer-[\m{sym}]{ 
-\Gamma \vdash T \leq T
+\Gamma \vdash_{ICC} T \leq T
 }{
-\Gamma \vdash T : s
+\Gamma \vdash_{ICC} T : s
 }
 $
 &
 $
 \infer-[\m{trans}]{ 
-\Gamma \vdash T_1 \leq T_3
+\Gamma \vdash_{ICC} T_1 \leq T_3
 }{
-\Gamma \vdash T_1 \leq T_2
+\Gamma \vdash_{ICC} T_1 \leq T_2
 &
-\Gamma \vdash T_2 \leq T_3
+\Gamma \vdash_{ICC} T_2 \leq T_3
 }
 $
 &
 $
 \infer-[\m{sub}]{ 
-\Gamma \vdash M : T'
+\Gamma \vdash_{ICC} M : T'
 }{
-\Gamma \vdash M \leq T
+\Gamma \vdash_{ICC} M \leq T
 &
-\Gamma \vdash T \leq T'
+\Gamma \vdash_{ICC} T \leq T'
 }
 $
 \end{tabular}
@@ -152,46 +167,46 @@ Domains of products are contravariant and codomains are covarient:
 \begin{tabular}{lrc}
 $
 \infer[]{ 
-\Gamma \vdash \Pi x : T . U \leq \Pi x : T' . U'
+\Gamma \vdash_{ICC} \Pi x : T . U \leq \Pi x : T' . U'
 }{
-\Gamma \vdash T' \leq T 
+\Gamma \vdash_{ICC} T' \leq T 
 &
-\Gamma,x : T' \vdash U \leq U'
+\Gamma,x : T' \vdash_{ICC} U \leq U'
 }
 $
 &
 $
 \infer[]{ 
-\Gamma \vdash \forall x : T . U \leq \forall x : T' . U'
+\Gamma \vdash_{ICC} \forall x : T . U \leq \forall x : T' . U'
 }{
-\Gamma \vdash T' \leq T 
+\Gamma \vdash_{ICC} T' \leq T 
 &
-\Gamma,x : T' \vdash U \leq U'
+\Gamma,x : T' \vdash_{ICC} U \leq U'
 }
 $
 \end{tabular}
 \end{lemma}
-
-
-
 
 \subsection{Results}
 
 There are two main results that follow from this calculus.
 
 \begin{theorem}
-Subject Reduction:
-If $\Gamma \vdash M : T$ and $M \rightarrow_{\beta\eta*} M'$ then $\Gamma \vdash M' : T$
+\textbf{(Subject Reduction)} If $\Gamma \vdash_{ICC} M : T$ and $M \rightarrow_{\beta\eta*} M'$ then $\Gamma \vdash_{ICC} M' : T$
 \end{theorem}
 
+\begin{definition}
+$ \m{Term}_{ICC}  = \{ M : \exists T,\Gamma . \Gamma \vdash_{ICC} M : T \}$
+\end{definition}
+
 \begin{theorem}
-Strong Normalization:
-$\forall M \in \m{Term}. SN(M)$
+\textbf{(Strong Normalization)} $\forall M \in \m{Term}_{ICC}. SN(M)$
 \end{theorem}
 
 It is important to note that because this calculus is Curry style and thus Church-Rosser is provable.  
 While the internal representation and external presentation of Caledon is not necessarily Curry style, 
-it is possible to mimic a non Curry style encoding into a curry style encoding through use of type ascriptions,
-and evaluation delaying terms.  Technically, the calculus will no longer have the church-rosser property if 
+it is possible to mimic a Church-style encoding into a Curry-style encoding through use of type ascriptions,
+and evaluation delaying terms.  Technically, the calculus will no longer have the Church-Rosser property if 
 evaluation delaying terms are included, but these are irrelevant in the presence of the strong normalization theorem
 for the underlying calculus without them.
+

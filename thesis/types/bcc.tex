@@ -1,8 +1,15 @@
-\section{Bicolored Calculus of Constructions}
+\section{Bicolored Syntax}
 
-The Bicolored Calculus of Constructions \citep{luther2001more}
-can be considered 
-\begin{figure}[h]
+The Bicolored Calculus of Constructions \citep{luther2001more}, $CC^{Bi}$
+can be considered a varient of the Curry-style CC where there and two products, and two applications as seen in \ref{ccbi:syntax}.
+The usefullness of $CC^{Bi}$ comes from the fact that the
+consistency of the $CC^{Bi}$ is a direct result of the consistency of CC.
+Because of this, one can use $CC^{Bi}$ as a target language for the result of implicit argument 
+generation of a system with omitted implicit types, and obtain consistency of 
+the underlying monochromatic $\lambda$ calculus from the conversion,
+given that reductions are not typed in this calculus.
+
+\begin{figure}[H]
 \[ 
 E ::= V 
  \orr S 
@@ -13,13 +20,311 @@ E ::= V
  \orr \forall V : E . E 
 \]
 \caption{Syntax of $CC^{Bi}$}
-\label{icc:syntax}
+\label{ccbi:syntax}
 \end{figure}
 
-The usefullness of $CC^{Bi}$ comes from the fact that the
-consistency of the $CC^{Bi}$ is a direct result of the consistency of CC.
-Because of this, one can use $CC^{Bi}$ as a target language for the result of implicit argument 
-generation of a system with omitted implicit types, and obtain consistency of 
-the underlying monochromatic $\lambda$ calculus from the conversion,
-given that reductions are not typed in this calculus.
+Because it is curry style and contains only one binder, it is not sufficient 
+as a target for Caledon's system.  Instead, we work with Barras' Church-style $ICC*$ \citep{barras2008implicit}, 
+which has two products, two binders, and two applications as seen in \ref{icc*:syntax}.
 
+\begin{figure}[H]
+\[ 
+E ::= V 
+ \orr S 
+ \orr E\;E 
+ \orr E\;[E]
+ \orr \lambda (V : T). E 
+ \orr \lambda [V : T] . E 
+ \orr \Pi (V : E) . E 
+ \orr \Pi [V : E] . E 
+\]
+\caption{Syntax of $ICC*$}
+\label{icc*:syntax}
+\end{figure}
+
+In order to write the typing rules for this calculus, 
+the projection in \ref{icc*:proj} from terms of this calculus 
+to terms of $ICC$ is necessary.  
+
+\begin{figure}[H]
+\[ 
+V* := V
+\]
+
+\[
+(E_1\;E_2)* := E_1* \; E_2*
+\]
+
+\[
+(E_1\;[E_2])* := E_1*
+\]
+
+\[
+(\lambda (V : T). E )* := \lambda V. E*
+\]
+
+\[
+(\lambda [V : T]. E )* := E*
+\]
+
+\[
+(\Pi [V : T]. E )* := E*
+\]
+
+\[
+(\Pi (V : T). E )* := \Pi (V : T*). E*
+\]
+\caption{Projection from $ICC*$ to $ICC$}
+\label{icc*:proj}
+\end{figure}
+
+The condition in the abstraction* 
+rule that variables must not be abstracted from the projected term
+is equivalent to the restriction that implicit abstraction is 
+non implicit proof irrelevant.
+
+\begin{figure}[H]
+
+\[
+\infer[\m{axiom}]
+{
+\Gamma \vdash_{*} * : \Box
+}
+{
+}
+\]
+
+\[
+\infer[\m{start}]
+{
+\Gamma,x:A \vdash_{*} x :A
+}
+{
+\Gamma \vdash_{*} A:K
+}
+\]
+
+
+\[
+\infer[\m{weakening}]
+{
+\Gamma,x:C \vdash_{*} A:B
+}
+{
+\Gamma \vdash_{*} A:B
+&
+\Gamma \vdash_{*} C:K
+}
+\]
+
+
+\[
+\infer[\m{product}]
+{
+\Gamma \vdash_{*} (\Pi x : A . B) : K_1
+}
+{
+\Gamma,x:A \vdash_{*} B : K_2
+&
+\Gamma \vdash_{*} A : K_1
+}
+\]
+
+\[
+\infer[\m{product}*]
+{
+\Gamma \vdash_{*} (\Pi[x : A]. B) : K_1
+}
+{
+\Gamma,x:A \vdash_{*} B : K_2
+&
+\Gamma \vdash_{*} A : K_1
+}
+\]
+
+\[
+\infer[\m{app}]
+{
+\Gamma \vdash_{*} F V : [V/x] B
+}
+{
+\Gamma \vdash_{*} F : (\Pi x : A . B)
+&
+\Gamma \vdash_{*} V : A
+&
+\text{x is free for V in B}
+}
+\]
+
+\[
+\infer[\m{app*}]
+{
+\Gamma \vdash_{*} F [V] : [V/x] B
+}
+{
+\Gamma \vdash_{*} F : (\Pi[x : A]. B)
+&
+\Gamma \vdash_{*} V : A
+&
+\text{x is free for V in B}
+}
+\]
+
+\[
+\infer[\m{abs}]
+{
+\Gamma \vdash_{*} (\lambda (x : A) . F) : (\Pi (x : A) . B)
+}
+{
+\Gamma , x : A\vdash_{*} F : B
+&
+\Gamma \vdash_{*} (\Pi (x : A) . B) : K
+}
+\]
+
+\[
+\infer[\m{abs*}]
+{
+\Gamma \vdash_{*} (\lambda [x : A] . F) : (\Pi [x : A] . B)
+}
+{
+\Gamma , x : A\vdash_{*} F : B
+&
+\Gamma \vdash_{*} (\Pi [x : A] . B) : K
+&
+x \notin FV(F*)
+}
+\]
+
+\[
+\infer[\m{conv}]
+{
+\Gamma \vdash_{*} A : B'
+}
+{
+\Gamma \vdash_{*} A : B
+&
+\Gamma \vdash_{*} B* \equiv_{\beta\eta\alpha*} B'*
+&
+\Gamma \vdash_{*} B' : K
+}
+\]
+
+\caption{Typing rules for $ICC*$}
+\label{icc*:rules}
+\end{figure}
+
+Barras showed consistency for the rules in 
+this Church-style $ICC*$  calculus
+by consistency of $ICC$ \citep{barras2008implicit}.  
+
+It is important to note that the conversion rule given by Barras
+is more general than is necessary, as it only requires equality of 
+the projected forms.
+
+The abstraction rule is also more specific than is needed, as it 
+prevents proof relevant implicit terms.  
+While removing this restriction obfuscates the connection to $ICC$, 
+it is possible to instead project from $ICC*$ directly into the 
+Church-style $CC$ to obtain consistency, using the same proof
+techniques.
+
+I now define the system $ICC^+$, which shares the syntax of $ICC*$.
+
+\begin{figure}[H]
+\[ 
+V^+ := V
+\]
+
+\[
+(E_1\;E_2)^+ := E_1^+ \; E_2^+
+\]
+
+\[
+(E_1\;[E_2])^+ := E_1^+\; E_2^+
+\]
+
+\[
+(\lambda (V : T). E )^+ := \lambda V : T^+. E^+
+\]
+
+\[
+(\lambda [V : T]. E )^+ := \lambda V : T^+ . E^+
+\]
+
+\[
+(\Pi [V : T]. E )^+ := \Pi V : T^+ . E^+
+\]
+
+\[
+(\Pi (V : T). E )^+ := \Pi V : T^+. E^+
+\]
+\caption{Projection from $ICC^+$ to $CC$}
+\label{icc+:proj}
+\end{figure}
+
+The typing rules for $ICC^+$ are the same as those for $ICC*$ 
+but for the modification mentioned earlier. 
+Note that these rules no longer depend on the projection.  
+
+
+\begin{figure}[H]
+\[
+\infer[\m{abs}*]
+{
+\Gamma \vdash_+ (\lambda [x : A] . F) : (\Pi [x : A] . B)
+}
+{
+\Gamma , x : A\vdash_+ F : B
+&
+\Gamma \vdash_+ (\Pi [x : A] . B) : K
+}
+\]
+
+\[
+\infer[\m{conv}]
+{
+\Gamma \vdash_+ A : B'
+}
+{
+\Gamma \vdash_+ A : B
+&
+\Gamma \vdash_+ B \equiv_{\beta\eta\alpha*} B'
+&
+\Gamma \vdash_+ B' : K
+}
+\]
+\caption{Altered rules for $ICC^+$}
+\label{icc+:rules}
+\end{figure}
+
+The projection defined in \ref{icc+:proj} is used to convert
+typing derivations for $ICC^+$ to $CC$ in order to show consistency 
+of $ICC^+$.
+
+
+\begin{theorem}
+Soundness of extraction:
+
+\[
+\Gamma \vdash_+ M : T \implies \Gamma+ \vdash M+ : T+
+\]
+
+\label{icc+:sound}
+\end{theorem}
+
+Note that this \ref{icc+:sound} can be proved trivially
+by structural induction, and replacing rules ending in * 
+with their counterparts.
+
+\begin{definition}
+$ \m{Term}_{ICC^+}  = \{ M : \exists T,\Gamma . \Gamma \vdash_{+} M : T \}$
+\end{definition}
+
+\begin{theorem}
+\textbf{(Strong Normalization)} $\forall M \in \m{Term}_{ICC^+}. SN(M)$
+\label{icc+:cons}
+\end{theorem}
+
+This is a direct result of the consistency of $CC$ and 
+the soundness result, \ref{icc+:sound}.

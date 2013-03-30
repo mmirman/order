@@ -7,10 +7,11 @@ is a logic programming language in the style of Twelf.  In this section I presen
 programming, rather than explaining it technically, and demonstrate the descriptive
 power of the system implemented in Caledon.
 
+\FloatBarrier
 \subsection{Basics}
 We begin by defining addition on unary numbers in Caledon shown in shown in \ref{code:add}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{lstlisting}
 defn add : nat -> nat -> nat -> prop
   >| addZ = add zero A A
@@ -23,7 +24,7 @@ defn add : nat -> nat -> nat -> prop
 
 One might notice that this definition is incredibly similar to its Haskell counterpart shown in \ref{code:hask}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{lstlisting}
 add :: nat -> nat -> nat
 add Zero a = a
@@ -43,7 +44,7 @@ has been to search for solutions to combinitorial games such as tic-tac-toe, wit
 of the search.  As this tends to produce inneficient code, this use style is discouraged.  Rather, a more imperative 
 view of logic programming is encouraged where pattern match and search is performed in the order it appears.  
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{lstlisting}
 query prg = p t1 ... tn
 
@@ -63,7 +64,7 @@ attempting to prove $p_{1,1}$ and so on.    With enough understanding of this re
 to allow for more control of the search.  In the following snippet of the code, the distinction between breadth first and depth first
 queries are used to emulate the concept of concurrency and cause the program to have more complex behavior.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{lstlisting}
 query main = runBoth false
 
@@ -93,7 +94,7 @@ despite proof search failing on the first three axioms due to an incorrect match
 the fail is defered until after io has been performed.  The middle axioms, run1 and run2 are declared to be
 breadth first axioms while run0 and run3 are declared to be depth first axioms.  
 
-
+\FloatBarrier
 \subsection{Higher Order Abstract Syntax}
 
 Just as imperative programs benefit from the addition of higher order functions, logic programs benefit from the addition of both
@@ -102,7 +103,7 @@ higher order predicates and patterns.
 A common request by functional programming language users is that they would like to be able to abstract patterns even more than just over
 arguments.  
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{lstlisting}
 func (Var a) = code1
 func (Forall var val) = Exists var code
@@ -117,7 +118,7 @@ A serious amount of code is repeated in lines 2 and 3 of example \ref{code:verbo
 but in common languages it is impossible to simplify this.
 What a programmer would actually like to express is shown in \ref{code:idea}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{lstlisting}
 func (Var a) = code1
 func (f var val) = f var code
@@ -130,7 +131,7 @@ func (And a b) = code2
 In higher order logic programming languages like $\lambda$ Prolog, this sort of simplification 
 is in fact possible to express as shown in \ref{code:lprolog}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{lstlisting}
 defn func : term -> term -> prop 
   | f1 = func (var A) R <- [code1]
@@ -141,7 +142,7 @@ defn func : term -> term -> prop
 \label{code:lprolog}
 \end{figure}
 
-
+\FloatBarrier
 \subsection{Higher Order Programming}
 
 Fortunately, higher order functions need not be restricted to patterns.  Lisp style macros provide even more ways
@@ -150,7 +151,7 @@ to generalize code.
 A great example is the function application operator from Haskell.  
 We can define this in Caledon as shown in \ref{code:macros}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{lstlisting}
 fixity right 0 @
 defn @ : {at bt:prop} (at -> bt) -> at -> bt

@@ -30,23 +30,30 @@ In this sytem, terms can depend on terms and types,
 and types can depend on types and terms.  
 
 It has the well known strong normalization property, implying the termination of 
-all lambda terms typable by CC \citep{Geuvers94ashort} \citep{geuvers1991modular}.
+all lambda terms typable by $CC$ \citep{Geuvers94ashort} \citep{geuvers1991modular}.
 
-\begin{definition}
-Calculus of Constructions:
+\begin{figure}[H]
+
+\[ 
+E ::= 
+V 
+\orr K
+\orr E\;E 
+\orr \lambda V : E . E 
+\orr \Pi V : E . E 
+\]
+
+\caption{ Syntax of $CC$ }
+\label{coc:syntax}
+\end{figure}
+
+\begin{figure}[H]
+
 
 \[
 K ::= * | \Box
 \]
 
-\[ 
-E ::= 
-V 
-| K
-| E\;E 
-| \lambda V : E . E 
-| \Pi V : E . E 
-\]
 
 \[
 \infer[\m{axiom}]
@@ -60,10 +67,10 @@ V
 \[
 \infer[\m{start}]
 {
-\Gamma,x:A \vdash x :A
+\Gamma,x:A \vdash_{CC} x :A
 }
 {
-\Gamma \vdash A:K
+\Gamma \vdash_{CC} A:K
 }
 \]
 
@@ -71,12 +78,12 @@ V
 \[
 \infer[\m{weakening}]
 {
-\Gamma,x:C \vdash A:B
+\Gamma,x:C \vdash_{CC} A:B
 }
 {
-\Gamma \vdash A:B
+\Gamma \vdash_{CC} A:B
 &
-\Gamma \vdash C:K
+\Gamma \vdash_{CC} C:K
 }
 \]
 
@@ -84,24 +91,24 @@ V
 \[
 \infer[\m{product}]
 {
-\Gamma \vdash (\Pi x : A . B) : K_1
+\Gamma \vdash_{CC} (\Pi x : A . B) : K_1
 }
 {
-\Gamma,x:A \vdash B : K_2
+\Gamma,x:A \vdash_{CC} B : K_2
 &
-\Gamma \vdash A : K_1
+\Gamma \vdash_{CC} A : K_1
 }
 \]
 
 \[
 \infer[\m{application}]
 {
-\Gamma \vdash F V : [V/x] B
+\Gamma \vdash_{CC} F V : [V/x] B
 }
 {
-\Gamma \vdash F : (\Pi x : A . B)
+\Gamma \vdash_{CC} F : (\Pi x : A . B)
 &
-\Gamma \vdash V : A
+\Gamma \vdash_{CC} V : A
 &
 \text{x is free for V in B}
 }
@@ -110,62 +117,65 @@ V
 \[
 \infer[\m{abstraction}]
 {
-\Gamma \vdash (\lambda x : A . F) : (\Pi x : A . B)
+\Gamma \vdash_{CC} (\lambda x : A . F) : (\Pi x : A . B)
 }
 {
-\Gamma , x : A\vdash F : B
+\Gamma , x : A\vdash_{CC} F : B
 &
-\Gamma \vdash (\Pi x : A . B) : K
+\Gamma \vdash_{CC} (\Pi x : A . B) : K
 }
 \]
 
 \[
 \infer[\m{conversion}]
 {
-\Gamma \vdash A : B'
+\Gamma \vdash_{CC} A : B'
 }
 {
-\Gamma \vdash A : B
+\Gamma \vdash_{CC} A : B
 &
-\Gamma \vdash B \equiv_{\beta\eta\alpha*} B'
+\Gamma \vdash_{CC} B \equiv_{\beta\eta\alpha*} B'
 &
-\Gamma \vdash B' : K
+\Gamma \vdash_{CC} B' : K
 }
 \]
-\end{definition}
+
+\caption{Typing rules of $CC$}
+\label{coc:types}
+\end{figure}
 
 It is to care of the types of equalities allowed in the conversion rule, as with more allowed equalities, certain proofs
 become significantly more complex.  For example, if $\eta$ reduction is permited, the church rosser theorem becomes no longer
 easily provable.
 
 \begin{definition}
-If $\Gamma \vdash P : T : K$ means $\Gamma \vdash P : T$ and $\Gamma \vdash T : K$
+If $\Gamma \vdash_{CC} P : T : K$ means $\Gamma \vdash_{CC} P : T$ and $\Gamma \vdash_{CC} T : K$
 \end{definition}
 
 
 \subsection{Consistency of the Calculus of Constructions}
 
-It is useful to first describe a few theorems and definitions relevant to CC.  
+It is useful to first describe a few theorems and definitions relevant to $CC$.  
 
-It is important to show that we can classify \citep{Geuvers94ashort} terms of CC.
+It is important to show that we can classify \citep{Geuvers94ashort} terms of $CC$.
 
 \begin{definition}
 Classifications:
 
 \[
-\m{Kind} := \{ A | \exists \Gamma . \Gamma \vdash A : \Box \}
+\m{Kind} := \{ A | \exists \Gamma . \Gamma \vdash_{CC} A : \Box \}
 \]
 
 \[
-\m{Type} := \{ A | \exists \Gamma . \Gamma \vdash A : * \}
+\m{Type} := \{ A | \exists \Gamma . \Gamma \vdash_{CC} A : * \}
 \]
 
 \[
-\m{Constr} := \{ A | \exists T,\Gamma . \Gamma \vdash A : T:\Box \}
+\m{Constr} := \{ A | \exists T,\Gamma . \Gamma \vdash_{CC} A : T:\Box \}
 \]
 
 \[
-\m{Obj} := \{ A | \exists T,\Gamma . \Gamma \vdash A : T:* \}
+\m{Obj} := \{ A | \exists T,\Gamma . \Gamma \vdash_{CC} A : T:* \}
 \]
 
 \end{definition}
@@ -184,16 +194,19 @@ Subject Reduction and Uniqueness of Types theorem.
 The theorem defines an important technique for breaking down judgements into
 different cases.
 
+\begin{definition}
+$ \m{Term}_{CC}  = \{ M : \exists T,\Gamma . \Gamma \vdash_{cc} M : T \}$
+\end{definition}
+
 \begin{theorem}
-Strong Normalization:
-$\forall M \in \m{Term}. SN(M)$
+\textbf{(Strong Normalization)} $\forall M \in \m{Term}_{CC}. SN(M)$
 \end{theorem}
 
 The easiest to digest proof is also due to Geuvers \citep{Geuvers94ashort} 
 but other proofs have also been proposed.  Geuvers' proof has the convenient
 property that it does not depend too much on the definition of the set $SN$ 
 (strongly normalizing). The only properties required are that $S \subseteq SN$ 
-where $S$ is the set of sorts in the system. In the case of CC $\Box,* \in SN$.
+where $S$ is the set of sorts in the system. In the case of $CC$ $\Box,* \in SN$.
 It also requires that $\Pi x : A . B \in SN$, and $\lambda x : A . B \in SN$ 
 for any $A,B$.  Lastly it requires that saturated subsets of $SN$ are closed under
 arbitrary intersection, and function space generation.
@@ -254,13 +267,13 @@ It is important to note that in Caledon code, $\m{type}$ will never appear.  Thi
 is not provable in the Calculus of Constructions, and every term that appears in the language must have a provable type.
 
 \begin{definition}
-If $\Gamma \vdash P : T : \m{prop}$ in the caledon language, then $T$ is a theorem, and $P$ is a proof.
+If $\Gamma \vdash_{CICC} P : T : \m{prop}$ in the caledon language, then $T$ is a theorem, and $P$ is a proof.
 \end{definition}
 
 Terms can be considered this way since the consistency of the calculus of constructions implies the strong normalization
 of terms such as $P$.  No unbounded proof search is necessary to evaluate $P$.
 
-When the calculus of constructions was first developed, therems were proven and generated by explicitly defining
+When $CC$ was first developed, therems were proven and generated by explicitly defining
 constructors and destructors for records and sum types.  Later, the inductive calculus of constructions was developed 
 \citep{coquand1990inductively} which more accurately forms the basis of the CoQ programming language.  These types of inductive
 constructions have been omited from Caledon to allow the addition of inductively defined, universally quantified predicates.

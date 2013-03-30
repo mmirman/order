@@ -1,5 +1,6 @@
 %for a more compact document, add the option openany to avoid
 %starting all chapters on odd numbered pages
+
 \documentclass[12pt]{cmuthesis}
 
 % This is a template for a CMU thesis.  It is 18 pages without any content :-)
@@ -27,9 +28,11 @@
 \usepackage{fullpage}
 \usepackage{graphicx}
 \usepackage{amsmath}
+
 \usepackage{float}
 \floatstyle{boxed}
 \restylefloat{figure}
+\usepackage{placeins} 
 
 \input{fp-macros}
 
@@ -153,7 +156,7 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
     \input{types/types.tex}
     \input{types/puretypes.tex}
     \input{types/coc.tex}
-
+     
 \chapter{Implicit Arguments}
     \input{types/implicit_coc.tex}
     \input{types/icc.tex}
@@ -165,7 +168,7 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
     \input{semantics/history.tex}
     \input{semantics/forms.tex}
     \input{semantics/substitution.tex}
-
+      
     \input{semantics/hou.tex}
     \input{semantics/houi.tex}
    

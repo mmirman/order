@@ -23,7 +23,7 @@ A pure type system is a set $S$ of sorts,
 $A\subseteq S \times S$ of axioms, and a relation 
 $R \subseteq S \times S \times S$ along with the following grammar and inference rules:
 
-\begin{figure}[h]
+\begin{figure}[H]
 \[ 
 E ::=  V 
  \orr S 
@@ -35,13 +35,34 @@ E ::=  V
 \label{pt:syntax}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
+
+\[ \begin{array}{lr}
+\infer[\m{WF-E}]
+{
+\cdot \vdash
+}
+{}
+&
+\infer[\m{WF-S}]
+{
+\Gamma, x : T \vdash
+}
+{
+\Gamma \vdash T : s
+&
+x \notin DV(\Gamma)
+}
+\end{array} \]
+
 \[
 \infer[\m{axioms}]
 {
 \Gamma \vdash c : s
 }
 {
+\Gamma \vdash
+&
 (c,s) \in A
 }
 \]
