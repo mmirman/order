@@ -1,0 +1,135 @@
+\section{Extended Calculus of Constructions}
+
+The Extended Calculus of Constructions ($ECC$) \citep{luo1989ecc}, 
+is the standard calculus of constructions extended with ``strong sums'', 
+also known as dependent pairs.  I describe the calculus here because unlike $ICC^+$, 
+it is not possible to translate $CICC$ to $ECC$, but it is also possible to translate back
+from $ECC$ to $CICC$, thus providing $\beta$ strong normalization for $CICC$.  
+Dealing with strong sums in higher order unification has also been covered by Elliot 
+\citep{elliott1989higher}.
+
+\begin{definition}
+\textbf{(ECC syntax)}
+
+\[
+E ::= 
+V 
+\orr K
+\orr E\;E 
+\orr \lambda V : E . E 
+\orr \Pi V : E . E 
+\orr \Sigma V : E . E 
+\orr \pi_i M
+\orr \m{pair}(M_1, M_2)
+\]
+\label{ecc:syntax}
+\end{definition}
+
+
+\begin{definition}
+\textbf{ (ECC conversion rules) } 
+
+\[
+(\lambda x : A . M ) N \equiv_{\beta} [N/ x] M
+\]
+
+\[
+\pi_i( \m{pair}_{\Sigma x : A . B}(M_1, M_2) ) \equiv_{\sigma} M_i
+\]
+
+\[
+\pi_i( \m{pair}_{\Sigma x : A . B}(M_1, M_2) ) \equiv_{\sigma} M_i
+\]
+
+\label{ecc:conversion}
+\end{definition}
+
+Take note that these rules do not include $\eta$ conversion.  While the effects of $\eta$ conversion
+are believed to be understood, it appears as though they have not been fully investigated, and 
+thus the properties of the system under the influence of $\eta$ conversion can not be definitivly 
+stated.
+
+The typing rules for $ECC$ are a direct extension of those from $CC$.  Unfortunately, the system
+is no longer a pure type system, and thus can not be given by an extention of the sort rules.
+
+\begin{definition}
+\textbf{ (ECC typing rules) } All those from standard $CC_\beta$ and these:
+
+
+\[
+\infer[\Sigma\m{/form}]
+{
+\Gamma \vdash_{ECC} \Sigma x : A . B : K
+}{
+\Gamma \vdash_{ECC} A : \m{type}
+&
+\Gamma,x : A \vdash_{ECC} B : \m{type}
+}
+\]
+
+\[
+\infer[\m{pair}]
+{
+\Gamma \vdash_{ECC} \m{pair}_{\Sigma x : A . B} (M,N) : \Sigma x : A . B
+}{
+\Gamma \vdash_{ECC} M : A
+&
+\Gamma,x : A \vdash_{ECC} N : [M/x]B
+&
+\Gamma, x : A \vdash B : \m{prop}
+}
+\]
+
+
+\[
+\infer[\pi_1]
+{
+\Gamma \vdash_{ECC} \pi_1(M) : A
+}{
+\Gamma \vdash_{ECC} M : \Sigma x : A . B
+}
+\]
+
+\[
+\infer[\pi_2]
+{
+\Gamma \vdash_{ECC} \pi_2(M) : [\pi_1 M / x] B
+}{
+\Gamma \vdash_{ECC} M : \Sigma x : A . B
+}
+\]
+
+
+\label{ecc:type}
+\end{definition}
+
+The strong sum $\Sigma$'s formation rule is slightly different from that of $\Pi$ in that 
+$\Sigma x : A . B$ is not permitted to have type $\m{prop}$.  Hook showed that allowing strong existential
+types to be impredicative, and thus have type $\m{prop}$ in the calculus of constructions, 
+was equivalent to allowing the rule $\m{type} : \m{type}$, known to be inconsistent 
+\citep{hook1986impredicative}.  However, this does not pose a problem for translation from $CICC$, 
+since the only locations we ever encounter a strong sum is as the first argument of a dependent product, 
+of the form $\Pi x : (\Sigma y : A . B) . C$, and thus can always have type $\m{type}$.
+
+
+\begin{theorem}
+\textbf{(Strong Normalization for $ECC_{\beta}$)}  $\forall M \in \m{Term}_{ECC_{\eta\beta}}. SN(M)$
+\label{ecc:sn}
+\end{theorem}
+
+The proof is due to Lou \citep{luo1989ecc}.
+
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\begin{conjecture}
+\textbf{(Strong Normalization for $ECC_{\beta\eta}$)}  $\forall M \in \m{Term}_{ECC_{\eta\beta}}. SN(M)$
+\label{ecc:sne}
+\end{conjecture}
+
+While no proof of this conjecture currently exists, it has been used
+as a conjecture in other proof systems \citep{coquand2003logical}.  
+As strong normalization has been shown for the simpler system, $ECC_\beta$, it is not
+far fetched to assume that the theorem extends to $\eta$ expansion as it does in the $CC$ case 
+\citep{barthe1995extensions}.
+
+

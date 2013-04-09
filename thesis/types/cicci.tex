@@ -1,0 +1,628 @@
+\section{Inference for CICC}
+
+In order to make use of the implicit system of $CICC$, an inference
+relation must be provided.  
+This is accomplished by extending the typing rules and providing
+a mapping from the extended type derivation and term to 
+an original type derivation and term. 
+
+We only have one syntactic difference in this calculus:  $E\; \{ V : A = E \}$ 
+is now simply $ E \; \{ V  = E \}$.  
+We might also include Curry style binders in this presentation, but they shed little 
+extra light on the workings of type inference.
+
+\begin{definition}
+\textbf{($CICC^-$ Extended Typing Rules)}
+
+%% inst/f %%
+%%%%%%%%%%%%
+\[
+\infer[\m{inst/f}]
+{
+\Gamma \vdash_{ci^-} M : [N/x]U 
+}
+{
+\Gamma \vdash_{ci^-} M : ?\Pi x :T . U
+&
+\Gamma \vdash_{ci^-} N : T
+&
+x \notin DV(\Gamma)
+}
+\]
+
+%% abs2 %%
+%%%%%%%%%%
+\[
+\infer[\m{abs}_2]
+{
+\Gamma\vdash_{ci^{-}} M : ?\Pi x : T . U
+}
+{
+\Gamma, x : T \vdash_{ci^{-}} M : U
+&
+\Gamma \vdash_{ci^{-}} (?\Pi x : T . U) : K
+&
+x \notin FV(M) \cup DV(\Gamma)
+}
+\]
+
+%% strength %%
+%%%%%%%%%%%%%%
+\[
+\infer[\m{strength}]
+{
+\Gamma\vdash_{ci^{-}} M : U
+}
+{
+\Gamma, x : T  \vdash_{ci^{-}} M : U
+&
+x \notin FV(M) \cup FV(U)  \cup DV(\Gamma)
+}
+\]
+
+%% inst/b %%
+%%%%%%%%%%%%
+\[
+\infer[\m{inst/b}]
+{
+\Gamma \vdash_{ci^-} M \{ x = N \} : [N/x]U 
+}
+{
+\Gamma \vdash_{ci^-} M : ?\Pi x : T . U
+&
+\Gamma \vdash_{ci^-} N : T
+& 
+x \notin GN(M)
+&
+x \notin BN(U)
+}
+\]
+
+\end{definition}
+
+In $CICC$, as in $CC$, the strengthening rule is admissible,
+while in $CICC^{-}$, it is not.  
+
+While we no longer care about the semantics of this language since we will be
+elaborating to the sublanguage $CICC$ before evaluating, we do not need to 
+semantic related properties.  
+However, it is still important to note that substitution holds.
+
+\begin{theorem}
+\textbf{(Substitution)}
+\[
+\infer-[\m{subst}]{ 
+\Gamma \vdash_{ci^-} [N / x]M : [N/x]T_2
+}{
+\Gamma, x : T_1 \vdash_{ci^-} M : T_2
+&
+\Gamma \vdash_{ci^-} N : T_1
+}
+\]
+\label{ci:sub}
+\end{theorem}
+
+Unfortunately, the projection function now requires more information than is available syntactically, 
+and thus must be given on the typing derivation.
+
+\begin{definition}
+\textbf{ (Projection from $CICC^{-}$ to $CICC$) }
+
+\newcommand{\CICCmproj}[1]{ \left\llbracket #1 \right\rrbracket_{ci^{-}}}
+
+\[
+\CICCmproj{
+\infer[\m{wf/e}]
+{
+\cdot \vdash_{ci^-} 
+}{}
+}^{c}
+:= \cdot
+\]
+
+\[
+\CICCmproj{
+\infer[\m{wf/s}]
+{
+\Gamma, x : T \vdash_{ci^-} 
+}
+{
+\overset{\mathcal{D}}{ 
+\Gamma \vdash_{ci^-} x : T 
+}
+&
+\cdots
+}
+}^{c}
+:= \CICCmproj{\Gamma \vdash_{ci^-}}^c, \CICCmproj{\mathcal{D}} 
+\]
+
+\[
+\CICCmproj{
+\infer[\m{start}]
+{
+\Gamma,x:A \vdash_{ci^-} x :A
+}
+{
+\cdots
+}
+}
+:= x
+\]
+
+
+\[
+\CICCmproj{
+\infer[\m{axioms}]
+{
+\Gamma,x:A \vdash_{ci^-} c : s
+}
+{
+\cdots
+}
+}
+:= c
+\]
+
+%% prod %%
+%%%%%%%%%%
+\[
+\CICCmproj{
+\infer[\m{prod}]{ \Gamma \vdash_{ci^-} (\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_1}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_2}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+}
+:=
+\Pi x : \CICCmproj{ \mathcal{D}_1 }  . \CICCmproj{ \mathcal{D}_2 }
+\]
+
+%% prod* %%
+%%%%%%%%$%%
+\[
+\CICCmproj{
+\infer[\m{prod}*]{ \Gamma \vdash_{ci^-} (?\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_1}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_2}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+}
+:=
+?\Pi x : \CICCmproj{ \mathcal{D}_1 }  . \CICCmproj{ \mathcal{D}_2 }
+\]
+
+%% gen %%
+%%%%%%%%%
+\[
+\CICCmproj{
+\infer[\m{gen}]
+{
+\Gamma \vdash_{ci^-} \lambda x : T . M : (\Pi x : T . U)
+}
+{
+\overset{\mathcal{D}_1}{
+\Gamma , x : T \vdash_{ci^-} M : U 
+}
+&
+\infer[\m{prod}]{ \Gamma \vdash_{ci^-} (\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_2}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_3}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+&
+\cdots
+}
+}
+:=
+\lambda x : \CICCmproj{ \mathcal{D}_2 }  . \CICCmproj{ \mathcal{D}_1 }
+\]
+
+%% gen* %%
+%%%%%%%%%%
+\[
+\CICCmproj{
+\infer[\m{gen}*]
+{
+\Gamma \vdash_{ci^-} ?\lambda x : T . M : (?\Pi x : T . U)
+}
+{
+\overset{\mathcal{D}_1}{
+\Gamma , x : T \vdash_{ci^-} M : U 
+}
+&
+\infer[\m{prod}*]{ \Gamma \vdash_{ci^-} (?\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_2}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_3}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+&
+\cdots
+}
+}
+:=
+?\lambda x : \CICCmproj{ \mathcal{D}_2 }  . \CICCmproj{ \mathcal{D}_1 }
+\]
+
+%% app %%
+%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{app}]
+{
+\Gamma \vdash_{ci^-} M N : U [N/x]
+}
+{
+\overset{\mathcal{D}_1}{ \Gamma \vdash_{ci^-} M : \Pi x : T . U }
+&
+\overset{\mathcal{D}_2}{ \Gamma \vdash_{ci^-} N : T }
+}
+}
+:=
+\CICCmproj{ \mathcal{D}_1 } \; \CICCmproj{\mathcal{D}_2}
+\]
+
+%% inst/b %%
+%%%%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{inst/b}]
+{
+\Gamma \vdash_{ci^-} M \{ x = N \} : U [N/x]
+}
+{
+\overset{\mathcal{D}_1}{ \Gamma \vdash_{ci^-} M : ?\Pi x :T . U }
+&
+\overset{\mathcal{D}_2}{ \Gamma \vdash_{ci^-} N : T }
+& 
+\cdots
+}
+}
+:=
+\CICCmproj{\mathcal{D}_1} \; \{ x : \CICCmproj{\Gamma \vdash T : \m{kind}} = \CICCmproj{\mathcal{D}_2} \}
+\]
+
+%% inst/b %%
+%%%%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{inst/f}]
+{
+\Gamma \vdash_{ci^-} M : U [N/x]
+}
+{
+\overset{\mathcal{D}_1}{ \Gamma \vdash_{ci^-} M : ?\Pi x : T . U }
+&
+\overset{\mathcal{D}_2}{ \Gamma \vdash_{ci^-} N : T }
+&
+\cdots
+}
+}
+:=
+\CICCmproj{\mathcal{D}_1} \; \{ x = \CICCmproj{\mathcal{D}_2} \}
+\]
+
+%% strength %%
+%%%%%%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{strength}]
+{
+\Gamma \vdash_{ci^-} M : U
+}
+{
+\overset{\mathcal{D}}{ \Gamma, x : T \vdash_{ci^-}M : U }
+&
+\cdots
+}
+}
+:=
+\CICCmproj{\mathcal{D}}
+\]
+
+
+%% strength %%
+%%%%%%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{abs}_2]
+{
+\Gamma \vdash_{ci^-} M : ?\Pi x : T . U
+}
+{
+\overset{\mathcal{D}}{ \Gamma \vdash_{ci^-}M : U }
+&
+\cdots
+}
+}
+:=
+?\lambda x : T . \CICCmproj{\mathcal{D}}
+\]
+\label{cicc-:proj}
+\end{definition}
+
+
+\begin{theorem}
+
+\textbf{(Soundness of extraction)}  
+
+\begin{alignat}{4}
+\Gamma &\vdash_{ci^{-}}&  & \implies & \CICCproj{\Gamma \vdash_{ci^-}}^c & \vdash_{ci^-} &
+\\
+\Gamma &\vdash_{ci^{-}}& A : T & \implies & \CICCproj{\Gamma \vdash_{ci^-}}^c & \vdash_{ci^-} & \CICCproj{ \Gamma \vdash_{ci^-} A : T }
+\end{alignat}
+
+\label{cicc-:sound}
+\end{theorem}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Subtyping %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Subtyping}
+
+Similar to $ICC$, these rules result in a subtyping relation, which will be of
+importance during type inference and elaboration.
+
+\begin{definition}
+Subtyping relation:
+$\Gamma \vdash_{ci^-} T \leq T' \;\; \equiv \;\; \Gamma, x : T \vdash_{ci^-} x : T'$  where $x$ is new.
+\end{definition}
+
+\begin{lemma}
+Subtyping is a preordering:
+\[
+\begin{array}{lr}
+\infer-[\m{refl}]{ 
+\Gamma \vdash_{ci^-} T \leq T
+}{
+\Gamma \vdash_{ci^-} T : s
+}
+&
+\infer-[\m{trans}]{ 
+\Gamma \vdash_{ci^-} T_1 \leq T_3
+}{
+\Gamma \vdash_{ci^-} T_1 \leq T_2
+&
+\Gamma \vdash_{ci^-} T_2 \leq T_3
+}
+\end{array}
+\]
+
+\[
+\infer-[\m{sub}]{ 
+\Gamma \vdash_{ci^-} M : T'
+}{
+\Gamma \vdash_{ci^-} M \leq T
+&
+\Gamma \vdash_{ci^-} T \leq T'
+}
+\]
+\end{lemma}
+
+This theorem is an application of the substitution lemma.
+
+\begin{lemma}
+Domains of products are contravariant and codomains are covarient:
+
+\[
+\begin{array}{lr}
+\infer-[]{ 
+\Gamma \vdash_{ci^-} \Pi x : T . U \leq \Pi x : T' . U'
+}{
+\Gamma \vdash_{ci^-} T' \leq T 
+&
+\Gamma,x : T' \vdash_{ci^-} U \leq U'
+}
+&
+\infer-[]{ 
+\Gamma \vdash_{ci^-} \forall x : T . U \leq \forall x : T' . U'
+}{
+\Gamma \vdash_{ci^-} T' \leq T 
+&
+\Gamma,x : T' \vdash_{ci^-} U \leq U'
+}
+\end{array}
+\]
+\end{lemma}
+
+Unlike traditional subtyping relations where an explicit subtyping rule must be included in the type system,
+this system's subtyping relation is much easier to manage during unification, as it is simply
+a macro for a provability relation.  
+
+This allows one to implement higher order unification almost exactly
+as is usual without to much modification as would be the case in a lattice unification algorithm.  
+Instead, the modification is made to the search procedure, and subtyping constraints 
+are realized as search terms.  
+
+However, with the addition of the strengthening rule, 
+this kind of modification not entirely necessary, 
+as it is provable that this subtyping relation is symetric \ref{ci:sym}, 
+and thus an entirely symetric unification algorithm can be presented.
+
+
+\begin{theorem}
+\textbf{(Symmetry)}
+$\Gamma \vdash_{ci^-} A \leq B $ implies 
+$\Gamma \vdash_{ci^-} B \leq A $.
+\label{ci:sym}
+\end{theorem}
+
+
+This theorem isn't exactly obvious upon first glance, 
+so I will provide intuitive justification first.
+
+In $CICC$, by uniqueness of types, 
+$\Gamma \vdash x : A$ and 
+$\Gamma \vdash x : B$ implies
+$A \equiv_{\eta\beta\alpha*} B$.  
+In $CICC^{-}$ however, there is no such uniqueness of 
+types properties.  
+Rather, the $\m{inst/f}$ and $\m{abs}_2$ 
+rules permit you to repsectively,
+add an initialize an implicit argument, 
+abstract implicitely upon an unused argument. 
+
+Thus if $\Gamma , x : ?\Pi z : T . A \vdash_{ci^-} x : A$
+by implicit instantiation of the argument $z:T$,
+we might also
+derive
+$\Gamma , x : A \vdash_{ci^-} x : ?\Pi z : T . A$
+given that $z \notin FV(x)$ and that 
+$\Gamma , x : ?\Pi z : T . A \vdash_{ci^-} x : A$ 
+implies $ \Gamma , x : ?\Pi z : T . A \vdash_{ci^-}$ 
+which implies $ \Gamma\vdash_{ci^-} x : (?\Pi z : T . A) : K$.
+\begin{comment}
+-------------------------- Id/x
+G, z : T , x : A |- x : A        G |- ?[z:T]A : K   z notin FV(x)
+----------------------------------------------------------------- abs_2
+G , x : A |- x : ?[z : T ] A
+
+
+G |- M : ?[x:T]U   G |- N : T
+------------------------------ inst/f
+ G |- M : [N/x] U
+
+
+
+\end{comment}
+
+\begin{comment}
+
+CASE ABS2: 
+
+G,x:A, z : T |- x : B      G |- ?[z:T]B : K      z notin FV(x)\cup FV(G,x:A) 
+--------------------------------------------------------------------abs_2
+            G, x : A |- x : ?[z:T] B
+ 
+                                     G |- ?[z:T] B : K                 
+                                   -------------------- weak         ----------
+                                   G,z:T |- ?[z:T]B : K              G |- T : K
+                            ------------------------------- id    -------------- id
+then                         G,z:T, x : ?[z:T]B |- x : ?[z:T]B    G,z:T |- z : T
+     I.H.                   -----------------------------------------------------  inst/f
+G,z:T, x : B |- x : A              G, z : T , x : ?[z:T] B |- x : B
+--------------------------------------------------------------------  subst
+  G, z:T, x : ?[z:T] B |- x : A    since x notin FV(A)
+  ----------------------------------------------------- strength
+            G, x : ?[z:T] B |- x : A            
+
+\end{comment}
+
+
+\begin{comment}
+
+CASE STRENGTH:
+
+G, x : A, z : T |- x : B   z \notin FV(x)\cup FV(B) \cup DV(G)
+------------------------------------------
+    G, x : A |- x : B
+
+then z is not in FV(A)
+
+     I.H.
+--------------------
+G,z:T, x : B|- x : A 
+-------------------- strength
+G, x : B |- x : A
+
+\end{comment}
+
+
+\begin{proof}
+\begin{comment}
+
+G , x : A |- x : ?[z : T] B    G , x : A |- N : T    z \notin FV(\Gamma, x:A)
+----------------------------------------------------------------------------- inst/f
+G , x : A |- x : [N/z]B
+
+since G , x : A |- x : ?[z : T]B   has x standing alone and minimal, the only two proof options 
+are identity, conversion, and abs_2.  
+
+then z \notin FV(N) \cup FV(T), since z \notin G
+
+Assume we've gotten all the conversion and now have G , x : A |- x : ?[z' : T']B'  with ?[z' : T']B' == ?[z : T]B.
+
+then the only option is identity and abs_2.
+
+* Assume that it was identity.  
+
+Then A == ?[z : T] B. 
+
+so [q/x] A == ?[z : [q/x]T] [q/x]B
+
+                     G , x : A |- N : T
+                       ---------- str          
+                       G |- N : T               G,z : T |- B : K_2
+                     ------------------------------------------------- subst
+G, x : A |- N : T                G|- [N/z] B : K                                  G,x:A |- T : K_1     G,x : A,z:T |- B : K_2
+----------------- str     ----------------------------------------- Id           ---------------- st  ----------------------- st
+    G |- N : T             G,q:A,x : [[q/x]N/z] B |- x : [[q/x]N / z] B         G |- T : K_1         G,z:T |- B : K_2
+------------------------------------------------------------------  rev/subst  --------------------------------------- pi
+G,q:A,z:T, x : [N/z] B |- x : B                                                 G|- ?[z:T]B : K_2               z notin FV(x) u FV(G,q:A,,x:[N/z]B)
+-------------------------------------------------------------------------------------------------------------------------------------------------- abs_2
+  G, x : [N/z]B |- x : ?[z : T]B == A
+
+Thus, G, x :[N/z] B |- x : A
+
+
+* Assume that it was abs_2.
+
+ G, z:T , x : A |- x : B        G |- ?[z:T]B : K      z notin FV(x) \cup FV(\Gamma)
+ ---------------------------------------------------------------------------------- abs_2
+  G , x : A |- x : ?[z : T] B
+                                  G,x:A |- N : T      
+      I.H.                        --------------- strengthening since $x$ is new
+ G,z : T, x : B |- x : A           G |- N : T
+ --------------------------------------------------------- subst
+         G, x : [N/z]B |-  x : [N/z]A                      since $z \notin FV(A)$
+
+
+\end{comment}
+
+We begin with the case 
+\[
+\infer[\m{inst/f}]
+{
+\Gamma,x : A \vdash_{ci^-} x : [N/z]B 
+}
+{
+\Gamma, x : A \vdash_{ci^-} x : ?\Pi z :T . B
+&
+\Gamma x : A \vdash_{ci^-} N : T
+}
+\]
+
+
+
+\end{proof}
+
