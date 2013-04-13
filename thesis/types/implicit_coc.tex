@@ -6,7 +6,7 @@ and chosen during typechecking based on a provability relation.
 Standard CC, and even standard LF 
 can be an unnecessarily verbose languages as seen in the example \ref{code:long}.
 
-\begin{figure}[H]
+\begin{figure}[h]
 \begin{lstlisting}
 defn churchList : prop -> prop
   as \ A : prop . [lst : prop -> prop] ([C] lst C) -> (A -> [C] lst C -> lst C) -> [C] lst C

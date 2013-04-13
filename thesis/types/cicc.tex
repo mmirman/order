@@ -1,12 +1,14 @@
 \section{Caledon Implicit Calculus of Constructions}
 
-Caledon's type system is a varient of $ICC$ and $ICC^+$, 
-which for the rest of the paper I will refer to as $CICC$.  
+Caledon's exposed type system is a varient of $ICC$,
+which for the rest of the paper I will refer to as $CICC^{-}$.  
 This sytem contains two products and two binders - one each for implicit and explicit arguments. 
 Unlike $ICC$, there is no rule that allows for an unmarked value to obtain an implicit product type, which
 makes type checking somewhat simpler.  
 In addition, there is a new form of application to allow for the explicit
-selection of an implicit argument to constrain.
+selection of an implicit argument to constrain. 
+As implicit quantification is permitted on object level variables, semantics must be given with respect to 
+the elaborated theory without implicit application.
 
 \begin{figure}[H]
 \[ 
@@ -18,7 +20,7 @@ V
 \orr ?\lambda V : T. E 
 \orr \Pi V : E . E 
 \orr ?\Pi V : E . E 
-\orr E \{ V := E \}
+\orr E \{ V : E = E \}
 \]
 
 \caption{Syntax of $CICC$}
@@ -38,7 +40,7 @@ Before the typing rules of this system can be given, the notion of a constrained
 The constrained names on a term, written $CN(M)$ is a set defined as follows:
 
 \[
-CN(M \{ x := E \}) = \{ x \} \cup CN(M)
+CN(M \{ x = E \}) = \{ x \} \cup CN(M)
 \]
 
 \[ 
@@ -73,8 +75,61 @@ BN(\m{otherwise}) = \emptyset
 
 \end{definition}
 
+As defined above, bound names and bound variables can no longer be treated the same in the semantics.  
+Specifically, $?\lambda x : A . B$ does not have the same semantics as $?\lambda y : A . [y / x] B$.  
+This implies that alpha conversion is now severely limited.  
+
+There are a few ways to deal with this.  
+The most attractive possibility is to interpret names as a kind of record modifier.
+This can be seen as saying $\{ x : T = N \} : \{ x : N \}$, 
+and $?\lambda x : N . B$ is really just $\lambda y : \{ x : N \} . [ y.x / x ] N$ where $ .x : \{ x : N \} \rightarrow N$.
 
 \begin{figure}[H]
+\begin{lstlisting}
+defn nat : prop 
+  as [a : prop] a -> (a -> a) -> a
+
+defn nat_1 : nat -> prop
+  as \ N : nat . [a : nat -> prop] a zero -> succty a -> a N
+
+defn rec : nat -> prop -> prop
+  as \ nm : nat . \ N : kind . nat_1 nm * N
+
+defn get : [N : kind] [nm : nat] nat_1 nm * N -> N
+  as \ N : kind . \nm : nat . \ c : (string2 nm, N) . snd c
+
+defn put : [N : kind] [nm : nat] nat_1 nm ->  N -> nat_1 nm * N
+  as \ N : kind . \nm : nat . \nmnm : nat_1 nm . \ c : N . pair nmnm N
+\end{lstlisting}
+\caption{Definitions for extraction}
+\label{code:ideal}
+\end{figure}
+
+We can further convert this into traditional dependent types by constructing
+ type invariants as seen in \ref{code:ideal}.
+
+Then $?\lambda x : A . B$ and $?\Pi x : A . B$ 
+becomes $\lambda y : \m{rec}\;\bar{x}\;A . [get A \bar{x} y / x ] B$
+and $?\Pi y : \m{rec}\;\bar{x}\;A . [get A \bar{x} y / x ] B$.
+
+Similarly, $N \{ x\; : \; T \; = \;A \} $
+would become $N\;( \m{put} \; T \; \bar{x} \; \bar{\bar{x}} \; A)$.
+
+One might notice that $N$ in $\m{get}$ is of type $\m{kind}$.  
+In the calculus of constructions, this is unfortunately not an actual type. 
+Rather, it refers to the use of either $\m{type}$ or $\m{prop}$.  
+Allowing $N : \m{type}$ is not permited in the standard $CC$ since it is the subject of quantification.
+This is possible in $CC$ extended with a type heirarchy.
+In this case, $\m{kind}$ would always refer to the next universe after the highest
+universe mentioned in the program.
+Because the visible language of Caledon does not yet have multiple universes and only implemnts
+the simple $CC$, we are free to define $\m{kind}$ as $\m{type}_1$, since it will always be larger than any
+type or kind mentioned in a Caledon program.
+
+This intuitive conversion leads to the following typing rules for $CICC$.
+
+\begin{definition}
+\textbf{(Typing for $CICC$)}
 
 \[ \begin{array}{lr}
 \infer[\m{wf/e}]
@@ -203,30 +258,15 @@ x \notin FV(M) \cup BN(M) \cup GN(U)
 }
 \]
 
-%% inst/f %%
-%%%%%%%%%%%%
-\[
-\infer[\m{inst/f}]
-{
-\Gamma \vdash_{ci} M : U [N/x]
-}
-{
-\Gamma \vdash_{ci} M : ?\Pi x :T . U
-&
-\Gamma \vdash_{ci} N : T
-& x \notin CN(M)
-}
-\]
-
 %% inst/b %%
 %%%%%%%%%%%%
 \[
 \infer[\m{inst/b}]
 {
-\Gamma \vdash_{ci} M \{ x := N \} : U [N/x]
+\Gamma \vdash_{ci} M \{ x : T = N \} : U [N/x]
 }
 {
-\Gamma \vdash_{ci} M : ?\Pi x :T . U
+\Gamma \vdash_{ci} M : ?\Pi x : T . U
 &
 \Gamma \vdash_{ci} N : T
 & 
@@ -236,349 +276,59 @@ x \notin BN(U)
 }
 \]
 
-%% strength %%
-%%%%%%%%%%%%%%
-\[
-\infer[\m{strength}]
-{
-\Gamma \vdash_{ci} M : U
-}
-{
-\Gamma , x : T \vdash_{ci} M : U
-&
-x \notin FV(M) \cup FV(U)
-}
-\]
-\caption{Typing for $CICC$}
 \label{cicc:typing}
-\end{figure}
-
-
-\subsection{Subtyping}
-
-Similar to $ICC$, these rules result in a subtyping relation, which will be of
-importance later on in this thesis.
-
-\begin{definition}
-Subtyping relation:
-$\Gamma \vdash_{ci} T \leq T' \;\; \equiv \;\; \Gamma, x : T \vdash_{ci} x : T'$ 
 \end{definition}
 
-\begin{lemma}
-Subtyping is a preordering:
-\[
-\begin{array}{lr}
-\infer-[\m{sym}]{ 
-\Gamma \vdash_{ci} T \leq T
-}{
-\Gamma \vdash_{ci} T : s
-}
-&
-\infer-[\m{trans}]{ 
-\Gamma \vdash_{ci} T_1 \leq T_3
-}{
-\Gamma \vdash_{ci} T_1 \leq T_2
-&
-\Gamma \vdash_{ci} T_2 \leq T_3
-}
-\end{array}
-\]
 
-\[
-\infer-[\m{sub}]{ 
-\Gamma \vdash_{ci} M : T'
-}{
-\Gamma \vdash_{ci} M \leq T
-&
-\Gamma \vdash_{ci} T \leq T'
-}
-\]
-\end{lemma}
+\subsection{Main Results}
 
-\begin{lemma}
-Domains of products are contravariant and codomains are covarient:
-
-\[
-\begin{array}{lr}
-\infer[]{ 
-\Gamma \vdash_{ci} \Pi x : T . U \leq \Pi x : T' . U'
-}{
-\Gamma \vdash_{ci} T' \leq T 
-&
-\Gamma,x : T' \vdash_{ci} U \leq U'
-}
-&
-\infer[]{ 
-\Gamma \vdash_{ci} \forall x : T . U \leq \forall x : T' . U'
-}{
-\Gamma \vdash_{ci} T' \leq T 
-&
-\Gamma,x : T' \vdash_{ci} U \leq U'
-}
-\end{array}
-\]
-\end{lemma}
-
-
-
-\subsection{Consistency}
-
-We can show consistency of $CICC$ by projection into $ICC^+$.
-
-Unfortunately, the projection function now requires more information than is available syntactically, 
-and thus must be given on the typing derivation.
-
+Most of the theorems relating to $CICC$ can be obtained by a simple projection into $CC$.
 
 \newcommand{\CICCproj}[1]{ \left\llbracket #1 \right\rrbracket_{ci}}
 
 \begin{definition}
-Projection from $CICC$ to $ICC^+$:
+\textbf{ (Projection from $CICC$ to $CC$) }
 
 \[
-\CICCproj{
-\infer[\m{wf/e}]
-{
-\cdot \vdash_{ci} 
-}{}
-}^{c}
-:= \cdot
+\CICCproj{v} := v
 \]
 
 \[
-\CICCproj{
-\infer[\m{wf/s}]
-{
-\Gamma, x : T \vdash_{ci} 
-}
-{
-\overset{\mathcal{D}}{ 
-\Gamma \vdash_{ci} x : T 
-}
-&
-\cdots
-}
-}^{c}
-:= \CICCproj{\Gamma \vdash_{ci}}^c, \CICCproj{\mathcal{D}} 
+\CICCproj{s} := s
 \]
 
-
-
-
 \[
-\CICCproj{
-\infer[\m{start}]
-{
-\Gamma,x:A \vdash_{ci} x :A
-}
-{
-\cdots
-}
-}
-:= x
+\CICCproj{E_1 \; E_2} := \CICCproj{E_1} \; \CICCproj{E_2}
 \]
 
-
 \[
-\CICCproj{
-\infer[\m{axioms}]
-{
-\Gamma,x:A \vdash_{ci} c : s
-}
-{
-\cdots
-}
-}
-:= c
+\CICCproj{E_1 \; \{ x : T = E \}} := \CICCproj{E_1} \; (\m{put}\;\CICCproj{T}\;\bar{x}\; \bar{\bar{x}}; \CICCproj{E_2} )
 \]
 
-%% prod %%
-%%%%%%%%%%
 \[
-\CICCproj{
-\infer[\m{prod}]{ \Gamma \vdash_{ci} (\Pi x : T . U) : s 
-}{ 
-\overset{\mathcal{D}_1}{ 
-\Gamma \vdash T : s_1
-}
-&
-\overset{\mathcal{D}_2}{ 
-\Gamma,x:T \vdash U : s_2
-}
-&
-\cdots
-}
-}
-:=
-\Pi( x : \CICCproj{ \mathcal{D}_1 } ) . \CICCproj{ \mathcal{D}_2 }
+\CICCproj{\lambda v : T . E } := \lambda v : \CICCproj{T} . \CICCproj{E}
 \]
 
-%% prod* %%
-%%%%%%%%$%%
 \[
-\CICCproj{
-\infer[\m{prod}*]{ \Gamma \vdash_{ci} (?\Pi x : T . U) : s 
-}{ 
-\overset{\mathcal{D}_1}{ 
-\Gamma \vdash T : s_1
-}
-&
-\overset{\mathcal{D}_2}{ 
-\Gamma,x:T \vdash U : s_2
-}
-&
-\cdots
-}
-}
-:=
-\Pi[ x : \CICCproj{ \mathcal{D}_1 } ] . \CICCproj{ \mathcal{D}_2 }
+\CICCproj{?\lambda v : T . E } := \lambda y : \m{rec}\;\bar{v}\; \CICCproj{T} . \CICCproj{ [ \m{get}\; \CICCproj{T}\; \bar{v}\; y  / v ] E}
+\;\text{ where $y$ is fresh}
+\] 
+
+\[
+\CICCproj{\Pi v : T . E } := \Pi v : \CICCproj{T} . \CICCproj{E}
 \]
 
-%% gen %%
-%%%%%%%%%
 \[
-\CICCproj{
-\infer[\m{gen}]
-{
-\Gamma \vdash_{ci} \lambda x : T . M : (\Pi x : T . U)
-}
-{
-\overset{\mathcal{D}_1}{
-\Gamma , x : T \vdash_{ci} M : U 
-}
-&
-\infer[\m{prod}]{ \Gamma \vdash_{ci} (\Pi x : T . U) : s 
-}{ 
-\overset{\mathcal{D}_2}{ 
-\Gamma \vdash T : s_1
-}
-&
-\overset{\mathcal{D}_3}{ 
-\Gamma,x:T \vdash U : s_2
-}
-&
-\cdots
-}
-&
-\cdots
-}
-}
-:=
-\lambda( x : \CICCproj{ \mathcal{D}_2 } ) . \CICCproj{ \mathcal{D}_1 }
-\]
-
-%% gen* %%
-%%%%%%%%%%
-\[
-\CICCproj{
-\infer[\m{gen}*]
-{
-\Gamma \vdash_{ci} ?\lambda x : T . M : (?\Pi x : T . U)
-}
-{
-\overset{\mathcal{D}_1}{
-\Gamma , x : T \vdash_{ci} M : U 
-}
-&
-\infer[\m{prod}*]{ \Gamma \vdash_{ci} (?\Pi x : T . U) : s 
-}{ 
-\overset{\mathcal{D}_2}{ 
-\Gamma \vdash T : s_1
-}
-&
-\overset{\mathcal{D}_3}{ 
-\Gamma,x:T \vdash U : s_2
-}
-&
-\cdots
-}
-&
-\cdots
-}
-}
-:=
-\lambda [ x : \CICCproj{ \mathcal{D}_2 } ] . \CICCproj{ \mathcal{D}_1 }
-\]
-
-%% app %%
-%%%%%%%%%
-\[
-\CICCproj{ 
-\infer[\m{app}]
-{
-\Gamma \vdash_{ci} M N : U [N/x]
-}
-{
-\overset{\mathcal{D}_1}{ \Gamma \vdash_{ci} M : \Pi x : T . U }
-&
-\overset{\mathcal{D}_2}{ \Gamma \vdash_{ci} N : T }
-}
-}
-:=
-\CICCproj{ \mathcal{D}_1 } \; \CICCproj{\mathcal{D}_2}
-\]
-
-%% inst/b %%
-%%%%%%%%%%%%
-\[
-\CICCproj{ 
-\infer[\m{inst/b}]
-{
-\Gamma \vdash_{ci} M \{ x := N \} : U [N/x]
-}
-{
-\overset{\mathcal{D}_1}{ \Gamma \vdash_{ci} M : ?\Pi x :T . U }
-&
-\overset{\mathcal{D}_2}{ \Gamma \vdash_{ci} N : T }
-& 
-\cdots
-}
-}
-:=
-\CICCproj{\mathcal{D}_1} \; [ \CICCproj{\mathcal{D}_2} ]
-\]
-
-%% inst/b %%
-%%%%%%%%%%%%
-\[
-\CICCproj{ 
-\infer[\m{inst/f}]
-{
-\Gamma \vdash_{ci} M : U [N/x]
-}
-{
-\overset{\mathcal{D}_1}{ \Gamma \vdash_{ci} M : ?\Pi x : T . U }
-&
-\overset{\mathcal{D}_2}{ \Gamma \vdash_{ci} N : T }
-&
-\cdots
-}
-}
-:=
-\CICCproj{\mathcal{D}_1} \; [ \CICCproj{\mathcal{D}_2} ]
-\]
-
-
-%% strength %%
-%%%%%%%%%%%%%%
-\[
-\CICCproj{ 
-\infer[\m{strength}]
-{
-\Gamma \vdash_{ci} M : U
-}
-{
-\overset{\mathcal{D}}{ \Gamma , x : T \vdash_{ci} M : U }
-&
-\cdots
-}
-}
-:=
-\CICCproj{\mathcal{D}}
+\CICCproj{?\Pi v : T . E } := \Pi y : \m{rec}\;\bar{v}\;\CICCproj{T} . \CICCproj{ [ \m{get}\;\CICCproj{T}\; \bar{v}\; y  / v ] E}
+\;\text{ where $y$ is fresh}
 \]
 
 \label{cicc:proj}
 \end{definition}
 
+It is significant that church numerals be used for the representation of the name in the record, 
+as no extra axioms need to be included in the context of the translation for the translation to be valid.  
+This necessity is seen in \ref{ci:sound}.
 
 \begin{lemma}
 
@@ -599,16 +349,15 @@ If $\Gamma \vdash_{ci} A : T$ then $\Gamma \vdash_{ci} T : s$ for some sort $s$
 \textbf{(Soundness of extraction)}  
 
 \begin{alignat}{4}
-\Gamma &\vdash_{ci}&  & \implies & \CICCproj{\Gamma \vdash_{ci}}^c & \vdash_{ci} &
+\Gamma &\vdash_{ci}&  & \implies & \CICCproj{\Gamma} & \vdash_{cc} &
 \\
-\Gamma &\vdash_{ci}& A : T & \implies & \CICCproj{\Gamma \vdash_{ci}}^c & \vdash_{ci} & \CICCproj{ \Gamma \vdash_{ci} A : T }
+\Gamma &\vdash_{ci}& A : T & \implies & \CICCproj{\Gamma} & \vdash_{cc} & \CICCproj{A} : \CICCproj{ T }
 \end{alignat}
 
 \label{ci:sound}
 \end{theorem}
 
-While the formal proof of this theorem is somewhat technical due to the involvement of the 
-projection on the well typed context, it is easy to see how this proof follows from the 
+It is easy to see how this proof follows from the 
 definition \ref{cicc:proj}, and the two lemmas \ref{ci:wfctxt} and \ref{ci:wtt}.
 
 \begin{definition}
@@ -616,13 +365,56 @@ $ \m{Term}_{ci}  = \{ M : \exists T,\Gamma . \Gamma \vdash_{ci} M : T \}$
 \end{definition}
 
 \begin{theorem}
-\textbf{(Strong Normalization)}  $\forall M \in \m{Term}_{ci}. SN(M)$
+\textbf{(Consistency)}  $\not \exists M \in \m{Term}_{ci}. \vdash M : \Pi x : \m{prop} . x$
 \label{ci:cons}
 \end{theorem}
 
-This follows from the soundness of the extraction, 
-\ref{ci:sound},  and the consistency of $ICC^+$, \ref{icc+:cons}, 
-using the teqchniques developed by Miquel in 
-\citep{miquel2001calcul}.
+This follows clearly from the soundness of the extraction, 
+\ref{ci:sound}, the consistency of $CC$ \ref{cc:cons}, and the fact that we 
+have obviously more possible reductions in $CC$ than in $CICC$.  
 
+Before we can prove the strong normalization theorem, we need to show that reductions in the extracted calculus 
+correspond to reductions in $CICC$. 
 
+\begin{theorem}
+\textbf{(Semantic Equivalence)} 
+$\forall M \in \m{Term}_{cicc}$ such that $\CICCproj{M} \rightarrow_{\beta\eta*} N'$
+implies 
+$\exists M' \in \m{Term}_{cicc}$ such that $M \rightarrow_{\beta\eta\alpha} M'$ and $\CICCproj{M'} \equiv N'$
+\label{ci:se}
+\end{theorem}
+
+While the proof here is somewhat technical, the result is obvious, as the extraction and calculus
+have been written so as to ensure that the result is true.
+
+\begin{theorem}
+\textbf{(Subject Reduction)} If $\Gamma \vdash_{ci} M : T$ and $M \rightarrow_{\beta\eta\alpha*} M'$ then $\Gamma \vdash_{ci} M' : T$
+\end{theorem}
+
+In non dependent type theories, this theorem is rather trivial.  However, in $CC$, this theorem depends heavily on the Church-Rosser 
+theorem.  Fortunately, $CICC$ can be considered a bicoloring of the syntax of $CC$, and the proof of subject reduction 
+for $CC$ can be leveraged to $CICC$ using a forgetfull extraction.
+
+\begin{theorem}
+\textbf{(Strong Normalization)} $\forall M \in \m{Term}_{ci}. SN(M)$
+\label{ci:sn}
+\end{theorem}
+
+That we can cleanly translate into the calculus of constructions without loss or gain of 
+semantical translation implies strong normalization for $CICC$ with $\beta\eta$ equivalence, 
+and $\eta$ expansion.  This is the most important theorem of the section, as it implies that typchecking a Caledon 
+statement will allow that statement to be compiled to pattern form to be used in proof search.  
+Without this theorem typechecking is a weak property and valid programs might not be useable.  
+While type safety in the presence of the strong normalization theorem does not ensure bounded proof search, 
+it does ensure bounded unification.
+The strong normalization theorem is to logic programming languages as 
+the progress theorem is to functional programming languages.
+
+That $CICC$ is simply an extention of $CC$ and not a modification of $CC$ implies we have the completeness theorem, \ref{ci:comp}.
+
+\begin{theorem}
+\textbf{(Completeness)}  $\forall M,T \in \m{Term}_{cc}. \vdash_{cc} M : T \implies \vdash_{ci} M : T$
+\label{ci:comp}
+\end{theorem}
+
+This theorem is trivial since the syntax of $CC$ is a subset of the syntax of $CICC$.

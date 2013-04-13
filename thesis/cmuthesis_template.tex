@@ -28,6 +28,7 @@
 \usepackage{fullpage}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{verbatim} 
 
 \usepackage{float}
 \floatstyle{boxed}
@@ -43,6 +44,7 @@
 ]{hyperref}
 \usepackage{subfigure}
   
+\usepackage{bussproofs}
 
 \usepackage{color}
 \usepackage{listings}
@@ -154,13 +156,8 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
 
 \chapter{Type System}
     \input{types/types.tex}
-    \input{types/puretypes.tex}
+    \input{types/puretypes.tex} 
     \input{types/coc.tex}
-     
-\chapter{Implicit Arguments}
-    \input{types/implicit_coc.tex}
-    \input{types/icc.tex}
-    \input{types/bcc.tex} 
     \input{types/cicc.tex}
 
 \chapter{Semantics}
@@ -168,13 +165,15 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
     \input{semantics/history.tex}
     \input{semantics/forms.tex}
     \input{semantics/substitution.tex}
-      
     \input{semantics/hou.tex}
-    \input{semantics/houi.tex}
-   
     \input{semantics/search.tex}
     \input{semantics/io.tex}
     \input{semantics/nondet.tex}
+   
+\chapter{Type Inference}
+    \input{types/implicit_coc.tex}
+    \input{types/icc.tex} 
+    \input{types/cicci.tex}
 
 \chapter{Implementation Details}
     \input{language/language.tex}

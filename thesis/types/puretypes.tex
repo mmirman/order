@@ -23,7 +23,8 @@ A pure type system is a set $S$ of sorts,
 $A\subseteq S \times S$ of axioms, and a relation 
 $R \subseteq S \times S \times S$ along with the following grammar and inference rules:
 
-\begin{figure}[H]
+\begin{definition}
+\textbf{(PTS Syntax)}
 \[ 
 E ::=  V 
  \orr S 
@@ -31,11 +32,13 @@ E ::=  V
  \orr \lambda V : E . E 
  \orr \Pi V : E . E 
 \]
-\caption{Syntax of PTS}
-\label{pt:syntax}
-\end{figure}
 
-\begin{figure}[H]
+\label{pt:syntax}
+\end{definition}
+
+\begin{definition}
+
+\textbf{(PTS Typing Rules)}
 
 \[ \begin{array}{lr}
 \infer[\m{WF-E}]
@@ -151,9 +154,9 @@ s \in S
 s \in S
 }
 \]
-\caption{Typing rules of the Calculus of Constructions}
+
 \label{pt:typing}
-\end{figure}
+\end{definition}
 
 
 As Barendgregt points out, the common type theories can be recast as pure type systems

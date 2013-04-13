@@ -14,17 +14,21 @@ pure type system and demonstrated its utility.
 This is the pure type system where.
 
 \begin{definition}
-Pure Type System for the calculus of Constructions
-\end{definition}
+\textbf{(PTS for the CC)}
+
 \[
 A = \{ *, \Box \}
 \]
+
 \[
 S = \{ (* : \Box) \}
 \]
+
 \[ 
 R = \{ (*,*,*),(*,\Box,\Box),(\Box,\Box,\Box),(\Box,*,*)\}
 \]  
+
+\end{definition}
 
 In this sytem, terms can depend on terms and types, 
 and types can depend on types and terms.  
@@ -32,8 +36,8 @@ and types can depend on types and terms.
 It has the well known strong normalization property, implying the termination of 
 all lambda terms typable by $CC$ \citep{Geuvers94ashort} \citep{geuvers1991modular}.
 
-\begin{figure}[H]
-
+\begin{definition}
+\textbf{ Syntax of $CC$ }
 \[ 
 E ::= 
 V 
@@ -43,12 +47,11 @@ V
 \orr \Pi V : E . E 
 \]
 
-\caption{ Syntax of $CC$ }
 \label{coc:syntax}
-\end{figure}
+\end{definition}
 
-\begin{figure}[H]
-
+\begin{definition}
+\textbf{($CC$ Typing rules)} 
 
 \[
 K ::= * | \Box
@@ -140,13 +143,14 @@ K ::= * | \Box
 }
 \]
 
-\caption{Typing rules of $CC$}
-\label{coc:types}
-\end{figure}
 
-It is to care of the types of equalities allowed in the conversion rule, as with more allowed equalities, certain proofs
-become significantly more complex.  For example, if $\eta$ reduction is permited, the church rosser theorem becomes no longer
-easily provable.
+\label{coc:types}
+\end{definition}
+
+It is necessary to be carefull with the types of equalities allowed in the conversion rule, 
+as with more allowed equalities certain proofs
+become significantly more complex.  For example, if $\eta$ reduction is permited, 
+the church rosser theorem becomes no longer easily provable.
 
 \begin{definition}
 If $\Gamma \vdash_{CC} P : T : K$ means $\Gamma \vdash_{CC} P : T$ and $\Gamma \vdash_{CC} T : K$
@@ -213,7 +217,7 @@ arbitrary intersection, and function space generation.
 
 However, this proof is restricted to normalization in the calculus where only $\beta$ reduction 
 is considered and not $\eta$ conversion.  The proof for the calculus with full reduction properties is due
-to Abel \citep{abel2010towards}.  While evaluation of terms in Caledon without considering proof search does
+to Geuvers \citep{geuvers1993logics}.  While evaluation of terms in Caledon without considering proof search does
 not involve $\eta$ conversion, unification makes significant use of $\eta$ reduction and it is important to note
 the consistency of the calculus of constructions even when $\eta$ reduction is considered.  
 It is also important to note that in the Curry style calculus where types are omited from lambda abstractions, 

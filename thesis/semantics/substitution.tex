@@ -62,7 +62,9 @@ hereditary substitution $[S/x] A$ is defined.
 Performing substitutions that maintain long $\beta\eta$-normal 
 form is important to ensuring decidability of unification.  
 Unfortunately this is not possible without some type information, 
-as arbitrary $\eta$ expansion has no stop condition. \ref{def:tyhered} solves this by performing
+as arbitrary $\eta$ expansion has no stop condition. 
+Keller \citep{keller2010normalization} gave a heredetary substitution algorithm
+that results in canonical forms. \ref{def:tyhered} solves this by performing
 a typed substitution under a context, generating type information.
 
 \begin{definition}
@@ -116,8 +118,6 @@ R\; N \Rightarrow [N/y]_{\Gamma,\vdash B_1}B_2
 
 In general, it is possible to prove that for any PTS that is strongly normalizing for $\beta$ reduction and 
 $\eta$ expansion, this algorithm will terminate and substitution will be defined. 
-
-
 
 \subsection{Substitution With Implicits}
 
