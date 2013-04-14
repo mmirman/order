@@ -3,19 +3,19 @@
 \begin{definition}
 Spine Form
 \[
-T ::= P
-   \orr \lambda V : T . P 
+N ::= P
+   \orr \lambda V : N . N 
 \]
 
 \[
 P ::= V 
-  \orr P T 
+  \orr P N 
 \]
 \label{def:spine}
 \end{definition}
 
-Note that we will write $\Pi V : T . P$ as a synonm for 
-$\Pi\; T \; (\lambda V : T . P)$ in the rest of the paper.
+Note that we will write $\Pi V : N . P$ as a synonm for 
+$\Pi\; N \; (\lambda V : N . P)$ in the rest of the paper.
 This simplifies the presentation of the unification algorithm, 
 as then $\Pi$ can be considered a traditional constructor
 that can also be used to direct the unification procedure.

@@ -116,15 +116,18 @@ Similarly, $N \{ x\; : \; T \; = \;A \} $
 would become $N\;( \m{put} \; T \; \bar{x} \; \bar{\bar{x}} \; A)$.
 
 One might notice that $N$ in $\m{get}$ is of type $\m{kind}$.  
-In the calculus of constructions, this is unfortunately not an actual type. 
+In simple $CC$, this is unfortunately not an actual type. 
 Rather, it refers to the use of either $\m{type}$ or $\m{prop}$.  
 Allowing $N : \m{type}$ is not permited in the standard $CC$ since it is the subject of quantification.
-This is possible in $CC$ extended with a type heirarchy.
+This is possible in $CC_\omega$ however.
 In this case, $\m{kind}$ would always refer to the next universe after the highest
 universe mentioned in the program.
-Because the visible language of Caledon does not yet have multiple universes and only implemnts
-the simple $CC$, we are free to define $\m{kind}$ as $\m{type}_1$, since it will always be larger than any
-type or kind mentioned in a Caledon program.
+In the Caledon language implementing simple $CC$ we are free to define 
+$\m{kind}$ as $\m{type}_1$, since it will always be larger than any
+type or kind mentioned in a Caledon program.  
+Fortunately, Geuvers' proof \citep{geuvers1993logics} of strong normalization in the presence of 
+$\eta$ conversion applies to the Calculus of Construction with one impredicative universe and two predicative
+universes.
 
 This intuitive conversion leads to the following typing rules for $CICC$.
 

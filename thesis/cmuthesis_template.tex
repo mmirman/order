@@ -76,16 +76,15 @@ escapeinside={\%*}{*)}          % if you want to add a comment within your code
 % Provides a draft mark at the top of the document. 
 \draftstamp{\today}{DRAFT}
 
-
-
-\begin {document} 
+  
+\begin{document} 
 \frontmatter
 
 %initialize page style, so contents come out right (see bot) -mjz
 \pagestyle{empty}
 
 \title{ 
-{\bf Metaprogramming via Type Inference and Logic Programming}}
+{\bf Logic Programming and Type Inference with the Calculus of Constructions }}
 \author{Matthew Mirman}
 \date{May 2013}
 \Year{2013}
@@ -106,7 +105,7 @@ Metaprogramming, Universe Checking}
 \maketitle
 
 \begin{dedication}
-For those who know. %% TODO: REMOVE
+For my grandfather.
 \end{dedication}
 
 \pagestyle{plain} % for toc, was empty
@@ -121,7 +120,7 @@ For those who know. %% TODO: REMOVE
 \end{abstract}
 
 \begin{acknowledgments}
-I thank the academy and Frank Pfenning. %% TODO: REMOVE
+I thank the academy, soup, and Frank Pfenning. %% TODO: REMOVE
 \end{acknowledgments}
 
 \tableofcontents
@@ -144,22 +143,24 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
 %
 %  - You need to use the department standard tech report title page.  I
 %    have tried to ensure that the title page here conforms to this
-%    standard.
+%    standard.       
 %
 %  - Use a nice serif font, such as Times Roman.  Sans serif looks bad.
 %
 % Other than that, just make it look good...
 
+\newtheorem{tcase}{Case}
+     
 \chapter{Introduction}
     \input{background/introduction.tex}
     \input{background/logic.tex}
-
+   
 \chapter{Type System}
     \input{types/types.tex}
     \input{types/puretypes.tex} 
     \input{types/coc.tex}
     \input{types/cicc.tex}
-
+  
 \chapter{Semantics}
     \input{semantics/semantics.tex}
     \input{semantics/history.tex}
@@ -167,10 +168,9 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
     \input{semantics/substitution.tex}
     \input{semantics/hou.tex}
     \input{semantics/search.tex}
-    \input{semantics/io.tex}
-    \input{semantics/nondet.tex}
-   
-\chapter{Type Inference}
+
+          
+\chapter{Type Inference} 
     \input{types/implicit_coc.tex}
     \input{types/icc.tex} 
     \input{types/cicci.tex}
@@ -178,23 +178,23 @@ I thank the academy and Frank Pfenning. %% TODO: REMOVE
 \chapter{Implementation Details}
     \input{language/language.tex}
     \input{language/inference.tex}
-    \input{language/implicits.tex}
     \input{language/families.tex} 
-    \input{language/macros.tex}
     \input{language/sorting.tex}
+    \input{semantics/nondet.tex}
+    \input{language/macros.tex}
+    \input{language/io.tex}
 
 \chapter{Metaprogramming with Caledon}
-       
     \input{metaprogramming/typeclasses.tex}
     \input{metaprogramming/transform.tex}
     \input{metaprogramming/dsl.tex}
-
+ 
 \chapter{Conclusion}
    \input{conclusion/results.tex}
    \input{conclusion/futurework.tex}
    
 \appendix
-\include{appendix}
+\include{appendix} 
 
 \backmatter
 

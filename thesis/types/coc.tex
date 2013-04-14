@@ -14,7 +14,7 @@ pure type system and demonstrated its utility.
 This is the pure type system where.
 
 \begin{definition}
-\textbf{(PTS for the CC)}
+\textbf{(PTS for $CC$)}
 
 \[
 A = \{ *, \Box \}
@@ -27,7 +27,7 @@ S = \{ (* : \Box) \}
 \[ 
 R = \{ (*,*,*),(*,\Box,\Box),(\Box,\Box,\Box),(\Box,*,*)\}
 \]  
-
+\label{coc:types}
 \end{definition}
 
 In this sytem, terms can depend on terms and types, 
@@ -35,117 +35,6 @@ and types can depend on types and terms.
 
 It has the well known strong normalization property, implying the termination of 
 all lambda terms typable by $CC$ \citep{Geuvers94ashort} \citep{geuvers1991modular}.
-
-\begin{definition}
-\textbf{ Syntax of $CC$ }
-\[ 
-E ::= 
-V 
-\orr K
-\orr E\;E 
-\orr \lambda V : E . E 
-\orr \Pi V : E . E 
-\]
-
-\label{coc:syntax}
-\end{definition}
-
-\begin{definition}
-\textbf{($CC$ Typing rules)} 
-
-\[
-K ::= * | \Box
-\]
-
-
-\[
-\infer[\m{axiom}]
-{
-\Gamma \vdash * : \Box
-}
-{
-}
-\]
-
-\[
-\infer[\m{start}]
-{
-\Gamma,x:A \vdash_{CC} x :A
-}
-{
-\Gamma \vdash_{CC} A:K
-}
-\]
-
-
-\[
-\infer[\m{weakening}]
-{
-\Gamma,x:C \vdash_{CC} A:B
-}
-{
-\Gamma \vdash_{CC} A:B
-&
-\Gamma \vdash_{CC} C:K
-}
-\]
-
-
-\[
-\infer[\m{product}]
-{
-\Gamma \vdash_{CC} (\Pi x : A . B) : K_1
-}
-{
-\Gamma,x:A \vdash_{CC} B : K_2
-&
-\Gamma \vdash_{CC} A : K_1
-}
-\]
-
-\[
-\infer[\m{application}]
-{
-\Gamma \vdash_{CC} F V : [V/x] B
-}
-{
-\Gamma \vdash_{CC} F : (\Pi x : A . B)
-&
-\Gamma \vdash_{CC} V : A
-&
-\text{x is free for V in B}
-}
-\]
-
-\[
-\infer[\m{abstraction}]
-{
-\Gamma \vdash_{CC} (\lambda x : A . F) : (\Pi x : A . B)
-}
-{
-\Gamma , x : A\vdash_{CC} F : B
-&
-\Gamma \vdash_{CC} (\Pi x : A . B) : K
-}
-\]
-
-\[
-\infer[\m{conversion}]
-{
-\Gamma \vdash_{CC} A : B'
-}
-{
-\Gamma \vdash_{CC} A : B
-&
-\Gamma \vdash_{CC} B \equiv_{\beta\eta\alpha*} B'
-&
-\Gamma \vdash_{CC} B' : K
-}
-\]
-
-
-\label{coc:types}
-\end{definition}
 
 It is necessary to be carefull with the types of equalities allowed in the conversion rule, 
 as with more allowed equalities certain proofs
@@ -216,14 +105,13 @@ for any $A,B$.  Lastly it requires that saturated subsets of $SN$ are closed und
 arbitrary intersection, and function space generation.
 
 However, this proof is restricted to normalization in the calculus where only $\beta$ reduction 
-is considered and not $\eta$ conversion.  The proof for the calculus with full reduction properties is due
-to Geuvers \citep{geuvers1993logics}.  While evaluation of terms in Caledon without considering proof search does
+is considered and not $\eta$ conversion.  The proof for the calculus with full reduction properties is
+in Guevers' thesis \citep{geuvers1993logics}.  While evaluation of terms in Caledon without considering proof search does
 not involve $\eta$ conversion, unification makes significant use of $\eta$ reduction and it is important to note
 the consistency of the calculus of constructions even when $\eta$ reduction is considered.  
 It is also important to note that in the Curry style calculus where types are omited from lambda abstractions, 
 the church rosser theorem under $\eta$ conversion appears essentially for free\citep{miquel2001implicit}. Strong normalization 
 follows, and by replacement of types, strong normalization follows for the Tarski style calculus.
-
 
 \subsection{Impredicativity in the Calculus of Constructions}
 
@@ -231,16 +119,18 @@ It is also important to note that while the term language of the calculus of con
 the predicates in the calculus of constructions are impredicative, meaning that small types can be generalized over all small types.
 This adds yet another layer of computation into the Caledon language which might not terminate.  
 Furthermore, the predicate language is insufficient to prove properties of larger types. 
-Harper \citep{harper1991type} solves this by introducing universes.  Agda, Idris, CoQ,
+Luo \citep{luo1989ecc} solves this by introducing universes into the Extended Calculus of Constructions.  
+As defined by Luo, the Extended Calculus of Constructions is no longer a pure type system.
+
+Harper \citep{harper1991type} provided an analysis of a few pure type systems with universes.
+Agda, Idris, CoQ,
 and Plastic \citep{callaghan2001implementation} all implement this teqchnique. 
 Idris implementation uses a topological sort to allow for implicit universes
 and thus does not allow the universes to become an annoyance in code. 
 As Caledon is not intended to be a theorem prover, the impredicativity of the theorem layer is ignored and no 
 predicative universe heirarchy is provided to construct metatheorems natively.
 
-While the addition of a universe heirachy is possible without too much added difficulty, 
-the implementation and implications are out of the scope of this thesis, and are the subject of future work.  
-However, do note that with the addition of inconsistent impredicative inductive types, it is possible to provide an implementation 
+With the addition of inconsistent impredicative inductive types, it is possible to provide an implementation 
 of the universe heirachy as a higher order datatype who's inhabitants are consistent.  This kind of implementation 
 allows for metatheorem verification in a restricted subset of the language, albeit with the loss of 
 simple cumulative universe inference.
@@ -283,3 +173,44 @@ constructors and destructors for records and sum types.  Later, the inductive ca
 constructions have been omited from Caledon to allow the addition of inductively defined, universally quantified predicates.
 This omits the confusion that would be generated from having both inductively defined data and predicates in the system, as 
 dependently typed logic programming treats predicates as both data and code.
+
+Unfortunately, simple $CC$ does not make for a powerfull theorem proving language.  This can significantly 
+limit the utility of powerfull theorem searching techniques.
+
+The original calculus of constructions with a universe heirarchy included an impredicative type.
+
+\begin{definition}
+\textbf{(PTS for $CC_\omega$)}
+
+\[
+A = \{ \m{prop} \} \cup \{ \m{type}_i | i \in \mathbb{N} \}
+\]
+
+\[
+S =   \{ (\m{prop} : \m{type}_0 ) \}
+ \cup \{ (\m{type}_i : \m{type}_{i+1} ) | i \in \mathbb{N} \}
+\]
+
+\[ 
+R = \{ (\m{type}_j,\m{type}_i,\m{type}_k) | j \leq k \wedge i \leq k \}
+\cup \{ (\m{prop},t,t) | t \in A \}
+\cup \{ (t,\m{prop},t) | t \in A \}
+\]
+
+\label{coc:types}
+\end{definition}
+
+While type checking with the addition of the impredicative universe is theoretically equivalently as difficult 
+as without it, in practice it turns out to not be very usefull for proof or program writing, and 
+languages like CoQ, Agda and Idris now omit it for the system with only predicative universes.
+
+The addition of a universe heirachy into the Caledon Language is possible without too much added difficulty. 
+Experimentation shows that the omitting the predicative $\m{prop}$ allows for a simpler implementation of type inference.
+In this case, typechecking and unification are performed with the usually inconsistent assumption that
+$\m{type} : \m{type}$, and a cycle checker is later applied to ensure that there is no instance of 
+$\m{type}_i : \m{type}_i$ necessary.  
+
+In the case where an impredicative universe is included, the extra axiom $\m{prop} : \m{type}$ would
+need to be included, which would mean searching among two possibilities, rather than a single possibility 
+when attempting to find a type for a metatheoretic hole.  The added nondeterminism tends to cause
+an explosion in the time complexity of type inference.

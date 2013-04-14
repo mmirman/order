@@ -1,9 +1,23 @@
 \section{Substitution}
 
+The Higher order Unification algorithm described is only defined on the pattern form provided in the previous section.
+As the pattern fragment is a restriction on $\beta\eta$ long-normal form, it is necessary to provide a normalizing
+substitution that preserves $\beta\eta$ long-normal form.  The presentation here
+revolves around heredetary substitution, a notion first described by Pfenning et al. \citep{pfenning1991logic} for
+a calculus with only $\beta$ reduction.
+
+Other presentations are possible, such as traditional substitution followed by Normalization by Evaluation 
+for $\beta\eta$ conversions\citep{abel2010towards}. 
+While this is a proven total method in a typed setting, it's mechanics
+are complex and not particularly enlightening.  
+Keller et al. \citep{keller2010normalization}
+extended Heredetary substitution to $\eta$ expansion, but only in the simply typed case. 
+The presentation here extends this version into $CC$.
+
 \subsection{Untyped Substitution}
 
 \begin{definition}
-Hereditary Substitution is defined by the following mutual recurrence
+\textbf{(Hereditary Substitution)} 
 
 \[ \begin{array}[3]{llr}
 [ S / x ] x := S
@@ -35,16 +49,18 @@ Hereditary Substitution is defined by the following mutual recurrence
 It is important to note the alpha conversion in the $\lambda$ case, as alpha conversion will be lost on 
 some terms when implicits are added.
 
-Hereditary Substitution has the unfortunate property that it is not necessarily a complete function:
+A hereditary substitution is not necessarily terminating as is shown by
+substitution replicating the $\omega$-combinator.
 
 \[
-[(\lambda x . x\; x) / x ] ( x \; (\lambda x . x\; x) )
+[(\lambda x : T . x\; x) / x ] ( x \; (\lambda x : T. x\; x) )
 \]
 
-is not defined, as it expands to the well known $\m{H}(\lambda x . x \; x , \lambda x . x \; x)$.
+This is not defined, as it expands to the well known $\m{H}(\lambda x . x \; x , \lambda x . x \; x)$.
 
-Fortunately, if the pattern and substitution are well typed terms in the calculus of constructions, by 
-strong normalization, hereditary substitution is total.
+If the pattern and substitution are well typed terms in the Calculus of Constructions, by 
+strong normalization, this version of hereditary substitution is total.
+
 
 \begin{theorem} Substitution Theorem:
 
@@ -62,62 +78,112 @@ hereditary substitution $[S/x] A$ is defined.
 Performing substitutions that maintain long $\beta\eta$-normal 
 form is important to ensuring decidability of unification.  
 Unfortunately this is not possible without some type information, 
-as arbitrary $\eta$ expansion has no stop condition. 
+as arbitrary $\eta$ expansion has no stop condition.
 Keller \citep{keller2010normalization} gave a heredetary substitution algorithm
-that results in canonical forms. \ref{def:tyhered} solves this by performing
-a typed substitution under a context, generating type information.
+that results in canonical forms for simply typed lambda calculus. 
+\ref{def:tyhered} solves this by performing a typed substitution under a context, 
+generating type information.
+
+\begin{theorem}
+\textbf{(Reduction Decomposition)}
+If $\Gamma \vdash A \Rightarrow_{\beta\eta*} B$ then there exists some $C$ such that
+$A \Rightarrow_{\beta*} C$ and $\Gamma \vdash C \Rightarrow_{\eta*} B$
+
+\label{thm:betaeta}
+\end{theorem}
+
+The property in \ref{thm:betaeta} stating that any reduction can be 
+shown equivalent to first a series of $\beta$ reductions and then a series of
+$\eta$ expansions forms the basis of the following algorithm.
+
+For this section it is convenient to include $\Pi$ in the spine form: 
+\[
+N ::= P 
+\orr \lambda V : N . N 
+\orr \Pi V : N . N 
+\]
+
 
 \begin{definition}
-Typed Hereditary Substitution
+\textbf{(Typed Hereditary Substitution)}
 
 \[
-[S / x]^n_{\Gamma \vdash A} P := \m{E}_A([S / x]^r_{\Gamma \vdash A} P)
+[S / x : A]^n_{\Gamma } P := \m{E}([S / x : A]^p_{\Gamma } P)
 \]
 
 \[
-[S / x]^n_{\Gamma \vdash A} (\lambda y : B . N) := \lambda y:B ([S / x ]^n_{\Gamma, y: B \vdash A} N)
+[S / x : A]^n_{\Gamma } (\lambda y : B . N) := \lambda y:B . [S / x : A]^n_{\Gamma, y : B} N
 \]
 
 \[
-\m{E}_A(R \Rightarrow A) := \eta^{-1}_A (R)
+\m{E}^M(M \uparrow P) := M
 \]
 
 \[
-\eta^{-1}_{\Pi x : A . B}(R) := (\lambda x : A . R x)
+\m{E}(N \downarrow A) := \eta^{-1}_A (N)
 \]
 
 \[
-\m{E}^M_A(M : P) := M
-\]
-
-\[ \begin{array}{lr}
-[ S / x ]^r_{\Gamma \vdash A} x := S : A
-&
-[S / x]^r_{\Gamma \vdash A} y := y \Rightarrow \Gamma(x)
-\end{array} \] 
+\eta^{-1}_{\Pi x : A . B}(N) := \lambda z : A . N \; \eta^{-1}_A(z)
+\] where $z$ is fresh
 
 \[
-[S / x]^r_{\Gamma \vdash A} R\;N := 
-\m{H}_{\Gamma \vdash A} ([S/x]^r_{\Gamma \vdash A} R, [S/x]^n_{\Gamma \vdash A} N) 
+\eta^{-1}_{P}(N) := N
+\]
+
+\[ 
+[ N / x : A]^p_{\Gamma} x := N \uparrow A
 \]
 
 \[
-\m{H}_{\Gamma \vdash A} ((\lambda v : A_1 . M) : \Pi v : A_1 . A_2 , R) 
-:= 
-[R/v]^n_{\Gamma \vdash A_1} M : A_2
+[S / x : A]^p_{\Gamma} y := y \downarrow \Gamma(x)
+\] 
+
+\[
+[S / x : A]^p_{\Gamma } P\;N := 
+\m{H}_{\Gamma} ( [S/x : A]^p_{\Gamma} P , [S/x : A]^n_{\Gamma} N) 
 \]
 
 \[
-\m{H}_{\Gamma \vdash A}(R \Rightarrow \Pi y : B_1 . B_2 , N) 
-:= 
-R\; N \Rightarrow [N/y]_{\Gamma,\vdash B_1}B_2
+\m{H}_{\Gamma} ((\lambda v : A_1 . N) \uparrow \Pi v : A_1 . A_2 , P) 
+:= [P/v]^n_{\Gamma \vdash v : A_1} N \uparrow A_2
+\]
+
+\[
+\m{H}_{\Gamma}(P \downarrow \Pi y : B_1 . B_2 , N) := P\; N \downarrow [N/y : B_1]^n_{\Gamma}B_2
 \]
 
 \label{def:tyhered}
 \end{definition}
 
-In general, it is possible to prove that for any PTS that is strongly normalizing for $\beta$ reduction and 
-$\eta$ expansion, this algorithm will terminate and substitution will be defined. 
+Note, that while we could omit the distinction between $\uparrow$ and $\downarrow$ from
+these rules, it would in practice result in excess computation.
+
+Also, note that in the hereditary part of the recurrence, 
+it is possible to omit cases for improperly formated terms.  $A \downarrow T$ has the invarient that
+$A$ must be already in a cononical form within the context it is used since it existed previously in the
+equation.  Similarly, $A \uparrow T$ has the invarient that $A$ must be locally in a canonical form.
+This permits significant amounts of reduction of steps.
+
+The usefull property of this hereditary substitution is spelled in \ref{thm:hed-sound}
+
+\begin{theorem}
+\textbf{(Soundness of Heredetary Substitution)}
+If  $\Gamma \vdash S : A$ 
+and $\Gamma \vdash x : A$ 
+and $\Gamma \vdash S \; \m{pattern}$ 
+and $\Gamma \vdash N \; \m{pattern}$ 
+and $x$ is free for $S$ in $N$
+and $[S / x : A]^n N$ is defined, 
+then
+and $\Gamma \vdash ([S / x : A]^n N) \; \m{pattern}$ 
+\label{thm:hed-sound}
+\end{theorem}
+
+In general, it is provable that for any PTS that is strongly normalizing for $\beta$ reduction and 
+$\eta$ expansion, this algorithm will terminate and substitution will be defined.  
+This is a direct consequence of \ref{thm:betaeta}.
+
 
 \subsection{Substitution With Implicits}
 

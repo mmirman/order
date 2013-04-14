@@ -1,0 +1,71 @@
+\section{IO and Builtin Values and Predicates}
+
+While not this material is neither novel nor particularly difficult, 
+I'm including this section as both a specification and a guide 
+to future implementors of logic programming languages with proof search.
+
+The first thing to note when programming in Caledon is that searching for items of type $\m{prop}$ 
+can might IO, and thus IO can be performed during typechecking.  
+This can be understood as the set of axioms differing based on the environment available.
+
+IO is performed when the evaluation function encounters a query for a builtin IO performing function.
+
+\begin{lstlisting}
+eval : Proposition -> Environment Formula
+eval (a %*$\in$ *) ``print'' Str) = ( if gvar a then print str else ()
+                                    ; return (a %* $\doteq $ *) printImp Str)
+                                    )
+\end{lstlisting}
+
+It is important to include the check that $a$ has not already been resolved such that repeated io actions are not performed
+when nondeterministically proof searching.  
+
+It is tempting to define predicates that take input as taking as an argument 
+a function that uses the input.  This is in fact a valid way to define such functions, 
+and permits for hints of directionality in the types.  
+However, it is still possible to escape.  
+
+\begin{lstlisting}
+builtin readLine : (string -> prop) -> prop
+
+defn readLineEscape : string -> prop
+  as \ s : string . readLine (\ t . t =:= s )
+
+\end{lstlisting}
+
+Ensuring variables do not escape their intended scope is necessary to ensuring
+that the intended IO action is only executed once, and not multiple times during proof search.
+
+While it is in fact possible to reason about nondeterministic IO, it is desirable to also have actions
+that can not be executed twice, for which nondeterminism is not possible.
+
+For this, the notion of an monad is in fact usefull.  
+In this setting io is presented as a series of builtin axioms.
+
+\begin{lstlisting}
+defn io : prop -> prop
+   | bind     = io A -> (A -> io B) -> io B
+   | return   = A -> io A
+   | ioReadLine = io string
+   | ioPrint    = string -> io unit
+\end{lstlisting}
+
+We can now no longer write $A \in \m{readLine}$ though since $\m{readLine} : \m{prop}$ 
+is a value and thus has no inhabitants. 
+
+Instead, an interpretation predicate can be created which maps these dummy io actions to real actions.
+
+\begin{lstlisting}
+defn run : io A -> A -> prop
+  >| runBind = run (bind IOA F) V
+            <- run IOA A 
+            <- run (F A) V 
+  >| runReturn   = run (return V) V
+  >| runReadLine = run ioReadLine A <- readLineEscape A
+  >| runPrint    = run (ioPrint S) one <- print S
+\end{lstlisting}
+
+It is important to note that since the type system is the calculus of constructions, io actions constructed
+from $io$ will be total, severely limiting their utility.
+More complex io actions and interpreters can be generated, most importantly ones involving recursion 
+or infinite loops.
