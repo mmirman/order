@@ -1,6 +1,6 @@
 \section{Substitution}
 
-The Higher order Unification algorithm described is only defined on the pattern form provided in the previous section.
+The higher order unification algorithm described is only defined on the pattern form provided in the previous section.
 As the pattern fragment is a restriction on $\beta\eta$ long-normal form, it is necessary to provide a normalizing
 substitution that preserves $\beta\eta$ long-normal form.  The presentation here
 revolves around heredetary substitution, a notion first described by Pfenning et al. \citep{pfenning1991logic} for
@@ -43,7 +43,7 @@ The presentation here extends this version into $CC$.
 \m{H}(V , A) := V\; A
 \end{array} \]
 
-\label{def:hered}
+\label{def:shered}
 \end{definition}
 
 It is important to note the alpha conversion in the $\lambda$ case, as alpha conversion will be lost on 
@@ -154,7 +154,7 @@ N ::= P
 \]
 
 \label{def:tyhered}
-\end{definition}
+\end{definition} 
 
 Note, that while we could omit the distinction between $\uparrow$ and $\downarrow$ from
 these rules, it would in practice result in excess computation.
@@ -183,67 +183,3 @@ and $\Gamma \vdash ([S / x : A]^n N) \; \m{pattern}$
 In general, it is provable that for any PTS that is strongly normalizing for $\beta$ reduction and 
 $\eta$ expansion, this algorithm will terminate and substitution will be defined.  
 This is a direct consequence of \ref{thm:betaeta}.
-
-
-\subsection{Substitution With Implicits}
-
-The formulation of hereditary substitution in the presence of 
-implicit arguments is not that unlike the presentation of
-heredetary substitution without implicit arguments, 
-but for additional checks required.
-The main difficulty is the notion of an acceptable substitution. 
-Because implicit bindings are not $\alpha$ convertable, 
-certain substitutions are not permited.  
-Because as many substitions should be permitted as possible, 
-the situation becomes significantly more complex in the 
-hereditary case, where substitutions might not carry types.  
-The easiest way to define substitution in this case is with an ``illegal'' alpha substitution, 
-which maps implicitly bound variables to fresh names, 
-and produces a memory to map them back.
-
-In this case, we can say that a substitution $[S/x] M$ is legal if 
-$FV(S) \subseteq FV(\alpha_I^-1( [\alpha_I(S)/x] M) )$.
-
-\begin{definition}
-Implicit Hereditary Substitution
-
-\[ \begin{array}[3]{llr}
-[ S / x ] x := S
-&
-[S / x] y := y
-&
-[S / x] P\;T := \m{H}([S/x] P, [S/x]T)
-\end{array} \]
-
-\[
-[S / x] \lambda v : T . P := \lambda v' : [S/x]T . [S/x][v'/v]P
-\;
-\text{ where $v'$ is new.}
-\]
-
-\[
-[S / x] ?\lambda v : T . P := ?\lambda v' : [S/x]T . [S/x][v'/v]P
-\;
-\text{ where $v'$ is new.}
-\]
-
-\[ 
-\m{H}(?\lambda v : T . P , {v := A} ) := [A/v] P
-\]
-
-\[ 
-\m{H}(?\lambda v : T . P , A) := ?\lambda v : T . H(P,A)
-\]
-
-\[ 
-\m{H}(\lambda v : T . P , A) := [A/v] P
-\]
-
-\[ \begin{array}[2]{lr}
-\m{H}(P A_1 , A_2) := P\;A_1\;A_2
-&
-\m{H}(V , A) := V\; A
-\end{array} \]
-
-\label{def:hered}
-\end{definition}

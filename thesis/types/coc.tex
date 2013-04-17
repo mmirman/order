@@ -93,6 +93,7 @@ $ \m{Term}_{CC}  = \{ M : \exists T,\Gamma . \Gamma \vdash_{cc} M : T \}$
 
 \begin{theorem}
 \textbf{(Strong Normalization)} $\forall M \in \m{Term}_{CC}. SN(M)$
+\label{cc:cons}
 \end{theorem}
 
 The easiest to digest proof is also due to Geuvers \citep{Geuvers94ashort} 
@@ -197,7 +198,7 @@ R = \{ (\m{type}_j,\m{type}_i,\m{type}_k) | j \leq k \wedge i \leq k \}
 \cup \{ (t,\m{prop},t) | t \in A \}
 \]
 
-\label{coc:types}
+\label{coc:utypes}
 \end{definition}
 
 While type checking with the addition of the impredicative universe is theoretically equivalently as difficult 

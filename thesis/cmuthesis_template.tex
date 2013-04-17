@@ -120,13 +120,10 @@ For my grandfather.
 \end{abstract}
 
 \begin{acknowledgments}
-I thank the academy, soup, and Frank Pfenning. %% TODO: REMOVE
+I thank the academy, and Frank Pfenning, and soup. %% TODO: REMOVE
 \end{acknowledgments}
 
 \tableofcontents
-\listoffigures
-\listoftables
-
 \mainmatter
 
 %% Double space document for easy review:
@@ -150,11 +147,11 @@ I thank the academy, soup, and Frank Pfenning. %% TODO: REMOVE
 % Other than that, just make it look good...
 
 \newtheorem{tcase}{Case}
-     
+      
 \chapter{Introduction}
     \input{background/introduction.tex}
     \input{background/logic.tex}
-   
+     
 \chapter{Type System}
     \input{types/types.tex}
     \input{types/puretypes.tex} 
@@ -168,31 +165,30 @@ I thank the academy, soup, and Frank Pfenning. %% TODO: REMOVE
     \input{semantics/substitution.tex}
     \input{semantics/hou.tex}
     \input{semantics/search.tex}
-
           
 \chapter{Type Inference} 
     \input{types/implicit_coc.tex}
     \input{types/icc.tex} 
     \input{types/cicci.tex}
-
+    \input{semantics/isem.tex}
+             
 \chapter{Implementation Details}
     \input{language/language.tex}
+    \input{language/macros.tex}
     \input{language/inference.tex}
     \input{language/families.tex} 
-    \input{language/sorting.tex}
-    \input{semantics/nondet.tex}
-    \input{language/macros.tex}
+    \input{language/nondet.tex}
     \input{language/io.tex}
-
+ 
 \chapter{Metaprogramming with Caledon}
     \input{metaprogramming/typeclasses.tex}
     \input{metaprogramming/transform.tex}
     \input{metaprogramming/dsl.tex}
- 
+  
 \chapter{Conclusion}
    \input{conclusion/results.tex}
    \input{conclusion/futurework.tex}
-   
+    
 \appendix
 \include{appendix} 
 

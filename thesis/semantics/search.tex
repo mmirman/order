@@ -30,23 +30,23 @@ U ::= U \wedge U
 The following new transformations are added to represent proof search:
 
 \[
-G_\Pi : M \in \Pi x : A . B   \rightarrow \forall x : A . \exists y : B . y \doteq M x \wedge y \in B
+G_\Pi : M \in \Pi x : A . B   \UnifiesTo \forall x : A . \exists y : B . y \doteq M x \wedge y \in B
 \]
 
 \[
-G^1_\m{Atom} : \forall x : A . F[M\in C]  \rightarrow \forall x : A . F[x \in A >> M \in C]
+G^1_\m{Atom} : \forall x : A . F[M\in C]  \UnifiesTo \forall x : A . F[x \in A >> M \in C]
 \]
 
 \[
-G^2_\m{Atom} : F[M\in C]  \rightarrow \forall x : A . F[c_0 \in A >> M \in C]
+G^2_\m{Atom} : F[M\in C]  \UnifiesTo \forall x : A . F[c_0 \in A >> M \in C]
 \]  where $c_0 : A$ is a constant
 
 \[
-D_\Pi : N\in \Pi x : A . B >> M \in C \rightarrow \exists x : A ( N x \in B >> M \in C) \wedge x \in A
+D_\Pi : N\in \Pi x : A . B >> M \in C \UnifiesTo \exists x : A ( N x \in B >> M \in C) \wedge x \in A
 \]
 
 \[
-D_\m{Atom} : N\in a N_1 \cdots N_n >> M \in a M_1 \cdots M_n \rightarrow N_1 \doteq M_1 \wedge \cdots \wedge N_n \doteq M_n \wedge N \doteq M
+D_\m{Atom} : N\in a N_1 \cdots N_n >> M \in a M_1 \cdots M_n \UnifiesTo N_1 \doteq M_1 \wedge \cdots \wedge N_n \doteq M_n \wedge N \doteq M
 \]
 
 \subsection{Proof Sharing}
@@ -65,15 +65,15 @@ U ::= U \wedge U
 \]
 
 \[
-G^1_\m{Atom} : \forall x : A . F[\exists_f V : T . \top]  \rightarrow \forall x : A . F[x \in A >> M \in C]
+G^1_\m{Atom} : \forall x : A . F[\exists_f V : T . \top]  \UnifiesTo \forall x : A . F[x \in A >> M \in C]
 \]
 
 \[
-G^2_\m{Atom} : \exists_f x : A . F[\exists_f V : T . \top]  \rightarrow \forall x : A . F[x \in A >> M \in C]
+G^2_\m{Atom} : \exists_f x : A . F[\exists_f V : T . \top]  \UnifiesTo \forall x : A . F[x \in A >> M \in C]
 \]
 
 \[
-D_\Pi : N\in \Pi x : A . B >> M \in C \rightarrow \exists_f x : A ( N x \in B >> M \in C)
+D_\Pi : N\in \Pi x : A . B >> M \in C \UnifiesTo \exists_f x : A ( N x \in B >> M \in C)
 \]
 
 In this situation, it is permitted to use the results of future searches for the solution of the current search.
