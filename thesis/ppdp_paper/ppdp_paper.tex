@@ -1,27 +1,7 @@
 %for a more compact document, add the option openany to avoid
 %starting all chapters on odd numbered pages
 
-\documentclass[12pt]{cmuthesis}
-
-% This is a template for a CMU thesis.  It is 18 pages without any content :-)
-% The source for this is pulled from a variety of sources and people.
-% Here's a partial list of people who may or may have not contributed:
-%
-%        bnoble   = Brian Noble
-%        caruana  = Rich Caruana
-%        colohan  = Chris Colohan
-%        jab      = Justin Boyan
-%        josullvn = Joseph O'Sullivan
-%        jrs      = Jonathan Shewchuk
-%        kosak    = Corey Kosak
-%        mjz      = Matt Zekauskas (mattz@cs)
-%        pdinda   = Peter Dinda
-%        pfr      = Patrick Riley
-%        dkoes = David Koes (me)
-
-% My main contribution is putting everything into a single class files and small
-% template since I prefer this to some complicated sprawling directory tree with
-% makefiles.
+\documentclass[12pt]{cmuthesis} %% something else!
 
 % some useful packages
 \usepackage{times}
@@ -35,7 +15,7 @@
 \restylefloat{figure}
 \usepackage{placeins} 
 
-\input{fp-macros}
+\input{../fp-macros.tex}
 
 \usepackage[numbers,sort]{natbib}
 
@@ -44,7 +24,7 @@
 ]{hyperref}
 \usepackage{subfigure}
   
-\usepackage{bussproofs}
+\usepackage{../bussproofs.sty}
 
 \usepackage{color}
 \usepackage{listings}
@@ -73,10 +53,6 @@ escapeinside={\%*}{*)}          % if you want to add a comment within your code
 %for general printing (not binding)
 \usepackage[letterpaper,twoside,vscale=.8,hscale=.75,nomarginpar,hmarginratio=1:1]{geometry}
 
-% Provides a draft mark at the top of the document. 
-\draftstamp{\today}{DRAFT}
-
-  
 \begin{document} 
 \frontmatter
 
