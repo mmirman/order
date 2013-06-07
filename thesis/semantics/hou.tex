@@ -369,3 +369,40 @@ rule to apply.
 Due to the restrictivity of this case, and the potential
 for non termination with unrestricted application of the Raising rule,
 it is the only case where the Raising rule is permitted.  
+
+
+\subsection{Implementation}
+
+Because typed substitution is necessary, we must now keep track of existential variable's
+types.  This can significantly complicate the implementation of the unification algorithm
+as the common technique of maintaining unbound existential variables with restrictions
+can no longer be blindly used, as existential variables must be maintained in the 
+formula.  If existential variables are maintained litterally in the formula, 
+the structure must provide the ability to add variables at both the top and bottom level.
+This complication if implemented naively can lead to a significantly less efficient structure.
+After experimentation, similar speeds have been observed when this structure is implemented
+as a zipper \citep{huet1997functional}.  Unfortunately in this case, since variables are best 
+implemented via DeBruijn indexes, variable reconstruction is no longer trivial. 
+To reconstruct types, variable names might be included along side existential variable bindings.  
+Again, this introduces significatn complications.  In order to perform 
+substitution for an existential variable, the context of existential variables would have to have
+existential DeBruijn indexes continually swapped for their names.  
+This is most readily implementable as having all existential variable instances 
+also mention their names.
+
+Another potential option is to maintain the type of the existential variable 
+with each mention of the existential variable.  
+While in this situation it is simplest to implement reconstruction, 
+types might be enormous and it would be preferable to metion them only once.  
+
+The last option is to perform unification with untyped substitution in certain cases.  
+While there is no proof at the moment that unification on the pattern subset of 
+the calculus of constructions with untyped substitution for only the existential substitutions
+is total, it is not unbelievable.  Furthermore, omitting typed substitution does not alter
+the correctness of the algorithm, only the potential totality.  
+
+Ideally, knowledge that type checking terminated would be convincing enough
+so it is not necessary to continue with the reconstruction.  However, reconstruction
+is necessary for implementing the multi-pass proof search described previously.  
+Furthermore, reconstruction is usefull since the exposed typing rules do not admit 
+coherence.  In these cases, it is desirable to see what was infered by type inference.

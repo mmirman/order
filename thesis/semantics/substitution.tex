@@ -145,18 +145,22 @@ N ::= P
 \]
 
 \[
-\m{H}_{\Gamma} ((\lambda v : A_1 . N) \uparrow \Pi v : A_1 . A_2 , P) 
-:= [P/v]^n_{\Gamma \vdash v : A_1} N \uparrow A_2
+\m{H}_{\Gamma} ((\lambda v : A_1 . N) \uparrow \Pi v' : A_1 . A_2 , P) 
+:= [P/v : A_1]^n_{\Gamma} N \uparrow [P/v']^n A_2
 \]
 
 \[
-\m{H}_{\Gamma}(P \downarrow \Pi y : B_1 . B_2 , N) := P\; N \downarrow [N/y : B_1]^n_{\Gamma}B_2
+\m{H}_{\Gamma}(P \downarrow \Pi y : B_1 . B_2 , N) := P\; N \downarrow [N/y]^nB_2
 \]
 
 \label{def:tyhered}
 \end{definition} 
 
-Note, that while we could omit the distinction between $\uparrow$ and $\downarrow$ from
+In these last two rules, when initializing the universal type, it is important that the substitution be non typed
+or $\eta$ expanding as this would lead to an unecessary circularity.  Types need not be in $\eta$-long form
+when used for $\eta$ expanding in substitution since they are not unified with.
+
+While we could omit the distinction between $\uparrow$ and $\downarrow$ from
 these rules, it would in practice result in excess computation.
 
 Also, note that in the hereditary part of the recurrence, 
