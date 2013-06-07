@@ -1,0 +1,733 @@
+\section{Elaboration}
+
+In order to make use of the implicit system of $CICC$, an inference
+relation must be provided.  
+This is accomplished by extending the typing rules and providing
+a mapping from the extended type derivation and term to 
+an original type derivation and term. 
+
+We only have one syntactic difference in this calculus:  $E\; \{ V : A = E \}$ 
+is now simply $ E \; \{ V  = E \}$.  
+We might also include Curry style binders in this presentation, but they shed little 
+extra light on the workings of type inference.
+
+\newcommand{\judgeCI}[0]{ \vdash_{i^-}}
+
+Let $\Gamma \vdash A : T \wedge B : T'$ stand for $\Gamma \vdash A : T$ and $\Gamma \vdash B : T'$.
+ 
+\begin{definition}
+\textbf{($CICC^-$ Extended Typing Rules)}
+
+%% inst/f %%
+%%%%%%%%%%%%
+\[
+\infer[\m{inst/f}]
+{
+\Gamma \judgeCI M : [N/x]U 
+}
+{
+\Gamma \judgeCI M : ?\Pi x :T . U
+&
+\Gamma \judgeCI N : T
+&
+x \notin DV(\Gamma)
+}
+\]
+
+%% abs2 %%
+%%%%%%%%%%
+\[
+\infer[\m{abs/f}]
+{
+\Gamma\judgeCI M : ?\Pi x : T . U
+}
+{
+\Gamma, x : T\judgeCI M : [N/x]U \wedge N : T
+&
+\Gamma \judgeCI (?\Pi x : T . U) : K
+&
+x \notin FV(M) \cup DV(\Gamma)
+}
+\]
+
+%% strength %%
+%%%%%%%%%%%%%%
+\[
+\infer[\m{strength}]
+{
+\Gamma\judgeCI M : U
+}
+{
+\Gamma, x : T  \judgeCI M : U
+&
+x \notin FV(M) \cup FV(U)  \cup DV(\Gamma)
+}
+\]
+
+%% inst/b %%
+%%%%%%%%%%%%
+\[
+\infer[\m{inst/b}]
+{
+\Gamma \judgeCI M \{ x = N \} : [N/x]U 
+}
+{
+\Gamma \judgeCI M : ?\Pi x : T . U
+&
+\Gamma \judgeCI N : T
+& 
+x \notin GN(M)
+&
+x \notin BN(U)
+}
+\]
+
+\end{definition}
+
+In $CICC$, as in $CC$, the strengthening rule is admissible,
+while in $CICC^{-}$, it is not.  
+
+Note that the rule $\m{abs/f}$ might appear to not make sense at first
+glance since it abstracts to a known term, but it can be considered
+equivalent to an existential pack without the pack proof term, since
+$x \notin FV(M)$  
+
+Further note that conversion is now restricted to $\beta$ conversion in order to 
+allow for the Church Rosser theorem which is necessary to prove subject reduction.
+
+While we no longer care about the semantics of this language since we will be
+elaborating to the sublanguage $CICC$ before evaluating and type checking further, we do not need to 
+semantic related properties.  
+
+However, it is still important to note that substitution holds.
+
+\begin{theorem}
+\textbf{(Substitution)}
+\[
+\infer-[\m{subst}]{ 
+\Gamma, [N/x]\Gamma' \judgeCI [N / x]M : [N/x]T_2
+}{
+\Gamma, x : T_1, \Gamma' \judgeCI M : T_2
+&
+\Gamma \judgeCI N : T_1
+}
+\]
+\label{ci:sub}
+\end{theorem}
+
+\begin{theorem}
+\textbf{(Subject Reduction)} If $\Gamma \judgeCI M : T$ and $M \rightarrow_{\beta*} M'$ then $\Gamma \judgeCI M' : T$
+
+\label{ci:sr}
+\end{theorem}
+
+\ref{ci:sr} is at the moment beleived to be true, 
+although no full formalization of them exists.  Provided reductions are restricted to $\beta$ conversion, the church rosser 
+theorem is simply provable and the proof of subject reduction is similar to that in the traditional calculus of constructions.
+
+Without the $\m{abs/f}$ rule, subject reduction becomes unnecessary for the metatheory since 
+the single direction subtyping relation is sufficient.  However, unification becomes difficult to implement.  
+
+Unfortunately, the projection function now requires more information than is available syntactically, 
+and thus must be given on the typing derivation.
+
+\begin{definition}
+\textbf{ (Projection from $CICC^{-}$ to $CICC$) }
+
+\newcommand{\CICCmproj}[1]{ \left\llbracket #1 \right\rrbracket_{ci^{-}}}
+
+\[
+\CICCmproj{
+\infer[\m{wf/e}]
+{
+\cdot \judgeCI 
+}{}
+}^{c}
+:= \cdot
+\]
+
+\[
+\CICCmproj{
+\infer[\m{wf/s}]
+{
+\Gamma, x : T \judgeCI 
+}
+{
+\overset{\mathcal{D}}{ 
+\Gamma \judgeCI x : T 
+}
+&
+\cdots
+}
+}^{c}
+:= \CICCmproj{\Gamma \judgeCI}^c, \CICCmproj{\mathcal{D}} 
+\]
+
+\[
+\CICCmproj{
+\infer[\m{start}]
+{
+\Gamma,x:A \judgeCI x :A
+}
+{
+\cdots
+}
+}
+:= x
+\]
+
+
+\[
+\CICCmproj{
+\infer[\m{axioms}]
+{
+\Gamma,x:A \judgeCI c : s
+}
+{
+\cdots
+}
+}
+:= c
+\]
+
+%% prod %%
+%%%%%%%%%%
+\[
+\CICCmproj{
+\infer[\m{prod}]{ \Gamma \judgeCI (\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_1}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_2}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+}
+:=
+\Pi x : \CICCmproj{ \mathcal{D}_1 }  . \CICCmproj{ \mathcal{D}_2 }
+\]
+
+%% prod* %%
+%%%%%%%%$%%
+\[
+\CICCmproj{
+\infer[\m{prod}*]{ \Gamma \judgeCI (?\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_1}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_2}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+}
+:=
+?\Pi x : \CICCmproj{ \mathcal{D}_1 }  . \CICCmproj{ \mathcal{D}_2 }
+\]
+
+%% gen %%
+%%%%%%%%%
+\[
+\CICCmproj{
+\infer[\m{gen}]
+{
+\Gamma \judgeCI \lambda x : T . M : (\Pi x : T . U)
+}
+{
+\overset{\mathcal{D}_1}{
+\Gamma , x : T \judgeCI M : U 
+}
+&
+\infer[\m{prod}]{ \Gamma \judgeCI (\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_2}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_3}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+&
+\cdots
+}
+}
+:=
+\lambda x : \CICCmproj{ \mathcal{D}_2 }  . \CICCmproj{ \mathcal{D}_1 }
+\]
+
+%% gen* %%
+%%%%%%%%%%
+\[
+\CICCmproj{
+\infer[\m{gen}*]
+{
+\Gamma \judgeCI ?\lambda x : T . M : (?\Pi x : T . U)
+}
+{
+\overset{\mathcal{D}_1}{
+\Gamma , x : T \judgeCI M : U 
+}
+&
+\infer[\m{prod}*]{ \Gamma \judgeCI (?\Pi x : T . U) : s 
+}{ 
+\overset{\mathcal{D}_2}{ 
+\Gamma \vdash T : s_1
+}
+&
+\overset{\mathcal{D}_3}{ 
+\Gamma,x:T \vdash U : s_2
+}
+&
+\cdots
+}
+&
+\cdots
+}
+}
+:=
+?\lambda x : \CICCmproj{ \mathcal{D}_2 }  . \CICCmproj{ \mathcal{D}_1 }
+\]
+
+%% app %%
+%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{app}]
+{
+\Gamma \judgeCI M N : U [N/x]
+}
+{
+\overset{\mathcal{D}_1}{ \Gamma \judgeCI M : \Pi x : T . U }
+&
+\overset{\mathcal{D}_2}{ \Gamma \judgeCI N : T }
+}
+}
+:=
+\CICCmproj{ \mathcal{D}_1 } \; \CICCmproj{\mathcal{D}_2}
+\]
+
+%% inst/b %%
+%%%%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{inst/b}]
+{
+\Gamma \judgeCI M \{ x = N \} : U [N/x]
+}
+{
+\overset{\mathcal{D}_1}{ \Gamma \judgeCI M : ?\Pi x :T . U }
+&
+\overset{\mathcal{D}_2}{ \Gamma \judgeCI N : T }
+& 
+\cdots
+}
+}
+:=
+\CICCmproj{\mathcal{D}_1} \; \{ x : \CICCmproj{\Gamma \vdash T : \m{kind}} = \CICCmproj{\mathcal{D}_2} \}
+\]
+
+%% inst/b %%
+%%%%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{inst/f}]
+{
+\Gamma \judgeCI M : U [N/x]
+}
+{
+\overset{\mathcal{D}_1}{ \Gamma \judgeCI M : ?\Pi x : T . U }
+&
+\overset{\mathcal{D}_2}{ \Gamma \judgeCI N : T }
+&
+\cdots
+}
+}
+:=
+\CICCmproj{\mathcal{D}_1} \; \{ x = \CICCmproj{\mathcal{D}_2} \}
+\]
+
+%% strength %%
+%%%%%%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{strength}]
+{
+\Gamma \judgeCI M : U
+}
+{
+\overset{\mathcal{D}}{ \Gamma, x : T \judgeCI M : U }
+&
+\cdots
+}
+}
+:=
+\CICCmproj{\mathcal{D}}
+\]
+
+
+%% abs/f %%
+%%%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{abs/f}]
+{
+\Gamma \judgeCI M : ?\Pi x : T . U
+}
+{
+\overset{\mathcal{D}}{ \Gamma \judgeCI M : [N/x]U }
+&
+\cdots
+}
+}
+:=
+?\lambda x : T . \CICCmproj{\mathcal{D}}
+\]
+\label{cicc-:proj}
+\end{definition}
+
+
+\begin{theorem}
+
+\textbf{(Soundness of extraction)}  
+
+\begin{alignat}{4}
+\Gamma &\judgeCI &  & \implies & \CICCproj{\Gamma \judgeCI}^c & \judgeCI &
+\\
+\Gamma &\judgeCI & A : T & \implies & \CICCproj{\Gamma \judgeCI}^c & \judgeCI & \CICCproj{ \Gamma \judgeCI A : T }
+\end{alignat}
+
+\label{cicc-:sound}
+\end{theorem}
+
+Since $CICC$ permits $\eta$ equivalence and $CICC^-$ does not, the extraction in the 
+reverse direction is no longer sound.  For our purposes this is not objectionable 
+since $CICC$ is known to be consistent and there is no reason to convert back into $CICC^-$, as it is 
+used entirely as a pre-elaboration language.  Once terms are typechecked and type infered in $CICC^-$
+they are typechecked in $CICC$ and normalized in $CICC$.  While the reverse extraction is
+in general not sound, normal terms with normal types are clearly typable in $CICC^-$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Subtyping %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Subtyping}
+
+Similar to $ICC$, these rules result in a subtyping relation, which will be of
+importance during type inference and elaboration.
+
+\begin{definition}
+Subtyping relation:
+$\Gamma \judgeCI T \leq T' \;\; \equiv \;\; \Gamma, x : T \judgeCI x : T'$  where $x$ is new.
+\end{definition}
+
+\begin{lemma}
+Subtyping is a preordering:
+\[
+\begin{array}{lr}
+\infer-[\m{refl}]{ 
+\Gamma \judgeCI T \leq T
+}{
+\Gamma \judgeCI T : s
+}
+&
+\infer-[\m{trans}]{ 
+\Gamma \judgeCI T_1 \leq T_3
+}{
+\Gamma \judgeCI T_1 \leq T_2
+&
+\Gamma \judgeCI T_2 \leq T_3
+}
+\end{array}
+\]
+
+\[
+\infer-[\m{sub}]{ 
+\Gamma \judgeCI M : T'
+}{
+\Gamma \judgeCI M \leq T
+&
+\Gamma \judgeCI T \leq T'
+}
+\]
+\end{lemma}
+
+This theorem is an application of the substitution lemma.
+
+\begin{lemma}
+Domains of products are contravariant and codomains are covarient:
+
+\[
+\begin{array}{lr}
+\infer-[]{ 
+\Gamma \judgeCI \Pi x : T . U \leq \Pi x : T' . U'
+}{
+\Gamma \judgeCI T' \leq T 
+&
+\Gamma,x : T' \judgeCI U \leq U'
+}
+&
+\infer-[]{ 
+\Gamma \judgeCI \forall x : T . U \leq \forall x : T' . U'
+}{
+\Gamma \judgeCI T' \leq T 
+&
+\Gamma,x : T' \judgeCI U \leq U'
+}
+\end{array}
+\]
+\end{lemma}
+
+Unlike traditional subtyping relations where an explicit subtyping rule must be included in the type system,
+this system's subtyping relation is much easier to manage during unification, as it is simply
+a macro for a provability relation.  
+
+This allows one to implement higher order unification almost exactly
+as is usual without to much modification as would be the case in a lattice unification algorithm.  
+Instead, the modification is made to the search procedure, and subtyping constraints 
+are realized as search terms.  
+
+However, with the addition of the strengthening rule, 
+this kind of modification not entirely necessary, 
+as it is provable that this subtyping relation is symetric \ref{ci:sym}, 
+and thus an entirely symetric unification algorithm can be presented.
+
+Theorem \ref{ci:sym} isn't exactly obvious upon first glance, 
+so I will provide intuitive justification first.
+
+In $CICC$, by uniqueness of types, 
+$\Gamma \vdash x : A$ and 
+$\Gamma \vdash x : B$ implies
+$A \equiv_{\beta\eta*} B$.  
+In $CICC^{-}$ however, there is no such uniqueness of 
+types properties.  
+Rather, the $\m{inst/f}$ and $\m{abs/f}$ 
+rules permit you to repsectively,
+add an initialize an implicit argument, 
+abstract implicitely upon an unused argument. 
+
+Thus if $\Gamma , x : ?\Pi z : T . A \judgeCI x : A$
+by implicit instantiation of the argument $z:T$,
+we might also
+derive
+$\Gamma , x : A \judgeCI x : ?\Pi z : T . A$
+given that $z \notin FV(x)$ and that 
+$\Gamma , x : ?\Pi z : T . A \judgeCI x : A$ 
+implies $ \Gamma , x : ?\Pi z : T . A \judgeCI$ 
+which implies $ \Gamma\judgeCI x : (?\Pi z : T . A) : K$.
+
+\begin{theorem}
+\textbf{(Symmetry)}
+$\Gamma \judgeCI A \leq B $ implies 
+$\Gamma \judgeCI B' \leq A' $. where $A \equiv_{\beta} A'$ and $B \equiv_{\beta} B'$
+\label{ci:sym}
+\end{theorem}
+
+\begin{proof}
+
+This is proved by induction on the structure of the proof
+of $\Gamma, x : A \judgeCI x : B$.  Here I only consider 
+the cases relevant to the new fragment.
+
+\setcounter{tcase}{0}
+
+%%%%%%% STRENGTH %%%%%%%%%
+\begin{tcase}
+We begin with the non admissible strengthening rule.
+\end{tcase}
+
+\begin{prooftree}
+\AxiomC{$\Gamma, x : A, z : T \judgeCI x : B$}
+\AxiomC{$z \notin FV(x)\cup FV(B) \cup DV(G)$}
+\RightLabel{strength}
+\BinaryInfC{$\Gamma, x : A \judgeCI x : B $}
+\end{prooftree}
+
+from this we can derive via the induction hypothesis, $\Gamma, x : B', z : T \judgeCI x : A'$ 
+and then reapply strengthening.
+
+\begin{prooftree}
+\AxiomC{$\Gamma, x : B', z : T \judgeCI x : A'$}
+\AxiomC{$z \notin FV(x)\cup FV(A') \cup DV(G)$}
+\RightLabel{strength}
+\BinaryInfC{$\Gamma, x : B' \judgeCI x : A' $}
+\end{prooftree}
+
+%%%%%%% INST %%%%%%%%%
+\begin{tcase}
+In this case we cover implicit instantiation.
+\end{tcase}
+
+\begin{prooftree}
+\AxiomC{$\Gamma, x : A \judgeCI x : ?\Pi z :T . B$}
+\AxiomC{$\Gamma, x : A \judgeCI N : T$}
+\AxiomC{$z \notin DV(\Gamma, x:A)$}
+\RightLabel{inst/f}
+\TrinaryInfC{$\Gamma,x : A \judgeCI x : [N/z]B $}
+\end{prooftree}
+
+Suppose $z$ is not in $FV(B)$ then $[N/z]B \equiv B$.   
+From this the following proof is possible:
+
+The first steps are the following few derivations:
+
+\begin{prooftree}
+  \AxiomC{$\Gamma,\judgeCI B' : K $} 
+  \AxiomC{$z \notin FV(B')\cup FV(K) $} 
+\RightLabel{streng}
+\BinaryInfC{$\Gamma,z:T',  \judgeCI B' : K $} 
+\end{prooftree}
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \judgeCI T': K' $} 
+  \AxiomC{$\Gamma,z:T' \judgeCI B' : K $} 
+
+\RightLabel{form/f}
+\BinaryInfC{$\Gamma \judgeCI ?\Pi z : T' . B' : K$}
+\end{prooftree}
+
+\begin{prooftree}
+ \AxiomC{$B \equiv_{\beta}B'$}
+ \AxiomC{$z \notin B'$}
+\BinaryInfC{$z \notin FV(B')$}
+\end{prooftree}
+
+From these, we can derive the following result about $B'$.
+
+\begin{prooftree}
+    \AxiomC{$\Gamma,z:T' \judgeCI B' : K $} 
+
+   \RightLabel{start}
+   \UnaryInfC{$\Gamma,z:T', x : B' \judgeCI x : B'$}
+
+   \AxiomC{$\Gamma \judgeCI ?\Pi z : T' . B' : K$}
+
+   \AxiomC{$z \notin FV(x)\cup DV(\Gamma)$}
+\RightLabel{abs/f}
+\TrinaryInfC{$\Gamma, x : B' \judgeCI x : ?\Pi z : T' . B'$}
+\end{prooftree}
+
+Finally, we can derive the desired result:
+
+\begin{prooftree}
+   \AxiomC{$\Gamma, x : B' \judgeCI x : ?\Pi z : T' . B'$}
+
+      \AxiomC{$IH(\Gamma , x : A \judgeCI x : ?\Pi z : T . B)$}
+    \UnaryInfC{$\Gamma, x : ?\Pi z : T' . B' \judgeCI x : A'$}
+
+  \RightLabel{subst}
+  \BinaryInfC{$\Gamma, x : B' \judgeCI x : A'$}
+
+  \AxiomC{$z \notin FV(B')$}
+\BinaryInfC{$\Gamma, x : [N/z]B' \judgeCI x : A'$}
+\end{prooftree}
+
+Note that the only unexplained axioms here are 
+$\Gamma \judgeCI B': K$ and $\Gamma \judgeCI T' : K$ in this proof.
+Because $\Gamma, x : A' \judgeCI x : ?\Pi z:T' . B'$ is true, we know that 
+$\Gamma, x : A' \judgeCI ?\Pi z : T' . B' : K$ and thus that 
+$\Gamma,x : A' \judgeCI ?\Pi T' : K' $ and $\Gamma, x : A', z : T' \judgeCI B' : K$.  
+By strengthening we can infer $\Gamma \judgeCI B': K$ and $\Gamma \judgeCI T' : K$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+On the other hand, if $z$ is in $FV(B)$ we achieve different proofs.  
+Now we can infer that $x \notin FV(N)$, but we can not show that $[N/z]B' \equiv B'$.
+
+By the induction hypothesis, we can infer $\Gamma , x : ?\Pi z : T' . B'\judgeCI x : A'$.
+
+First, we know that $\Gamma,x : A \judgeCI [N/z]B : K$ by well formedness of the judgement 
+$\Gamma,x : A \judgeCI x : [N/z]B' $ and the conversion rule.
+
+\begin{prooftree}
+\AxiomC{$\Gamma, x : A \judgeCI [N/z]B' : K$}
+\AxiomC{$x \notin FV(B')$}
+\RightLabel{strength}
+\BinaryInfC{$\Gamma \judgeCI [N/z]B' : K$}
+\RightLabel{start}
+\UnaryInfC{$\Gamma, x : [N/z]B'\judgeCI x : [N/z]B'$}
+\AxiomC{$z \notin FV(N)$}
+\RightLabel{strength}
+\BinaryInfC{$\Gamma, x : [N/z]B', z : T\judgeCI x : [N/z]B'$}
+\end{prooftree}
+
+thus, we can use the $\m{abs/f}$ rule to construct a form we can use in substitution.
+
+\begin{prooftree}
+\AxiomC{$\Gamma, x : [N/z]B', z : T \judgeCI (x : [N/z]B') \wedge N : T'$}
+\AxiomC{$\Gamma, x : [N/z]B' \judgeCI ?\Pi z : T' . B' : K $}
+\AxiomC{$z \notin FV(M) \cup DV(\Gamma)$}
+\RightLabel{abs/f}
+\TrinaryInfC{$\Gamma, x : [N/z]B' \judgeCI x : ?\Pi z : T' . B'$}
+\end{prooftree}
+
+Finally, we get the following derivation.
+
+\begin{prooftree}
+\AxiomC{$\Gamma, x : [N/z]B' \judgeCI x : ?\Pi z : T' . B'$}
+\AxiomC{$\Gamma , x : ?\Pi z : T' . B'\judgeCI x : A'$}
+\RightLabel{subst}
+\BinaryInfC{$\Gamma , x : [N/z]B' \judgeCI x : A'$}
+\end{prooftree}
+
+%%%%%%% ABS %%%%%%%%%
+\begin{tcase}
+In this case we examine the $\m{abs/f}$ rule.
+\end{tcase}
+
+\begin{prooftree}
+\AxiomC{$\Gamma, x : A, z : T \judgeCI x : [N/z]B \wedge N : T$}
+\AxiomC{$\Gamma, x : A \judgeCI ?\Pi z : T' . B' : K $}
+\AxiomC{$z \notin FV(M) \cup DV(\Gamma, x)$}
+\RightLabel{abs/f}
+\TrinaryInfC{$\Gamma, x : A \judgeCI x : ?\Pi z : T . B$}
+\end{prooftree}
+
+From this we can infer that $z \notin FV(A)$.  This is usefull since we can derive:
+\[
+\Gamma, z : T, x : A \judgeCI x : [N/z]B \wedge N : T
+\]
+
+We can then apply the induction hypothesis to get the following:
+
+\[
+\Gamma, z : T, x : [N'/z]B' \judgeCI x : A'
+\]
+
+From this we can infer $\Gamma, x : [N'/z]B' \judgeCI x : A'$
+by strengthening since $z \notin FV(x)\cup FV(A')$.
+
+Furthermore, we can infer that $\Gamma \judgeCI N' : T'$ since $N' \equiv_{\beta} N$ 
+so $\Gamma \judgeCI N' : T$ by subject reduction and $T' \equiv_{\beta} T$ so $\Gamma \judgeCI N' : T'$
+by conversion.
+
+We can also derive $\Gamma, x : ?\Pi z : T' . B' \judgeCI x : ?\Pi z : T' . B'$ by the start rule. 
+
+We get the following proof:
+
+\begin{prooftree}
+\AxiomC{$\Gamma, x : ?\Pi z : T' . B' \judgeCI x : ?\Pi z : T' . B'$}
+\AxiomC{$\Gamma \judgeCI N' : T'$}
+\AxiomC{$ z \notin DV(\Gamma)$}
+\RightLabel{inf/f}
+\TrinaryInfC{$\Gamma, x : ?\Pi z : T' . B' \judgeCI x : [N'/x] B'$}
+\end{prooftree}
+
+Finally, with the knowledge that $z\notin FV(A')$, we can derive the following:
+
+\begin{prooftree}
+\AxiomC{$\Gamma, x : ?\Pi z : T' . B' \judgeCI x : [N'/x] B'$}
+\AxiomC{$\Gamma, x : [N'/x] B' \judgeCI x : A'$}
+\RightLabel{subst}
+\BinaryInfC{$\Gamma, x : ?\Pi z : T' . B' \judgeCI x : A'$}
+\end{prooftree}
+
+\end{proof}

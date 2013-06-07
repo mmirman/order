@@ -1,0 +1,55 @@
+\section{Semantics for $CICCI$}
+
+
+\subsection{Substitution With Implicits}
+
+The formulation of hereditary substitution in the presence of 
+implicit arguments is not that unlike the presentation of
+heredetary substitution without implicit arguments, 
+but for additional checks required.
+The main difficulty is the notion of an acceptable substitution. 
+Because implicit bindings are not $\alpha$ convertable, 
+certain substitutions are not permited.  
+Because as many substitions should be permitted as possible, 
+the situation becomes significantly more complex in the 
+hereditary case, where substitutions might not carry types.  
+The easiest way to define substitution in this case is with an ``illegal'' alpha substitution, 
+which maps implicitly bound variables to fresh names, 
+and produces a memory to map them back.
+
+In this case, we can say that a substitution $[S/x] M$ is legal if 
+$FV(S) \subseteq FV(\alpha_I^-1( [\alpha_I(S)/x] M) )$.
+
+\begin{definition}
+\textbf{(Implicit Typed Hereditary Substitution)}
+
+
+\[
+[S / x : A]^n_{\Gamma } (?\lambda y : B . N) := ?\lambda y:B . [S / x : A]^n_{\Gamma, y : B} N
+\] 
+
+\[
+\eta^{-1}_{?\Pi x : A . B}(N) := ?\lambda x : A . N \; \{ x = \eta^{-1}_A(x) \}
+\] since $N$ being typable by $?\Pi x $ means that $x$ can not appear free in $N$
+
+\[
+\m{H}_{\Gamma}(P \downarrow ?\Pi y : B_1 . B_2 , \{ v := N \} ) := P\; \{ v := N \} \downarrow [N/y : B_1]^n_{\Gamma}B_2
+\]
+
+\[
+\m{H}_{\Gamma} ((?\lambda v : A_1 . N) \uparrow ?\Pi v : A_1 . A_2 , \{ v := P \}) 
+:= [P/v]^n_{\Gamma \vdash v : A_1} N \uparrow A_2
+\]
+
+\[ 
+\m{H}(?\lambda v : T . P \uparrow \_ , A) := ?\lambda v : T . \m{H}(P,A)
+\]
+
+\label{def:hered}
+\end{definition}
+
+
+
+\subsection{Unification With Implicits}
+
+Now we can use the convenient fact that $\Gamma \vdash A  \leq B$ implies $\Gamma \vdash B \leq A$.
