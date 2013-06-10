@@ -1,6 +1,8 @@
 \section{Caledon Implicit Calculus of Constructions}
 
-Caledon's exposed type system is a varient of $ICC$,
+Although the bulk of the invention of the paper comes from the translation, 
+we begin by describing the calculus which is to be the result of inference.
+Caledon's exposed type system is a varient of the Implicit Calculus of Constructions, $ICC$ \citep{miquel2001implicit}, 
 which for the rest of the paper I will refer to as $CICC^{-}$.  
 This sytem contains two products and two binders - one each for implicit and explicit arguments. 
 Unlike $ICC$, there is no rule that allows for an unmarked value to obtain an implicit product type, which
@@ -8,7 +10,7 @@ makes type checking somewhat simpler.
 In addition, there is a new form of application to allow for the explicit
 selection of an implicit argument to constrain. 
 As implicit quantification is permitted on object level variables, semantics must be given with respect to 
-the elaborated theory without implicit application.
+the elaborated theory without implicit application.  As this calculus is similar to a bi-colored calculus of constructions, consistency comes easily.
 
 \begin{figure}[H]
 \[ 

@@ -1,6 +1,8 @@
 \section{Higher Order Unification}
 
-Unification lies at the heart of the semantics of the Caledon language.
+Unification lies at the heart of the semantics of the Caledon language.  
+In this section we present the syntax of the unification problems, as well as a modified version of the algorithm 
+presented in \citep{pfenning1991logic} and \citep{pfenning1991unification} suited for implicit argument search.
 
 Checking for the reducability of two full lambda terms has long been known to be only semidecidable.  
 The matter becomes even more complicated when checking for the equality of terms with variables bound
@@ -17,6 +19,8 @@ U ::= U \wedge U
  \orr \forall V : T . U
  \orr \exists V : T . U 
  \orr T \doteq T
+ \orr T \in T
+ \orr T \in T >> T \in T
  \orr \top
 \]
 \label{def:hou:syn}
@@ -24,6 +28,9 @@ U ::= U \wedge U
 
 When $\doteq$ is taken to mean $\equiv_{\beta\eta\alpha*}$, the unification problem is to determine 
 whether a statement $U$ is ``true'' in the common sense, and provide a proof of the truth of the statement. 
+
+While we do not discuss the semantics of $T \in T$ or $T \in T >> T \in T$ here, 
+one can refer to \citep{pfenning1991logic} for a complete presentation.
 
 Unification problems of the form 
 $\forall x : T_1 . \exists y : T_2 . U $ can be converted to the form
@@ -36,7 +43,57 @@ Thus, statements can always be converted to the form
 \exists y_1 \cdots y_n . \forall x_1 \cdots x_k . S_1 \doteq V_1 \wedge \cdots S_r \doteq V_r
 \]
 
+\subsection{Typed Implicit Hereditary Substitution}
 
+Before we can properly specify the semantics of this language, 
+we must define typed hereditary substitution for this calculus.  This is important, as higher order unification for the calculus of constructions 
+requires that terms maintain $\eta$-long normal form after substitutions have been performed.
+Here, we do describe typed hereditary substituion in full, as a more complete presentation can be found in \citep{keller2010normalization}.
+
+The formulation of hereditary substitution in the presence of 
+implicit arguments is not that unlike the presentation of
+hereditary substitution without implicit arguments \citep{miller1991uniform}, 
+but for the additional checks required.
+The main difficulty is the notion of an acceptable substitution. 
+Because implicit bindings are not $\alpha$ convertible, 
+certain substitutions are not permitted.  
+Because as many substitions should be permitted as possible, 
+the situation becomes significantly more complex in the 
+hereditary case, where substitutions might not carry types.  
+The easiest way to define substitution in this case is with an ``illegal'' alpha substitution, 
+which maps implicitly bound variables to fresh names, 
+and produces a memory to map them back. 
+
+
+In this case, we can say that a substitution $[S/x] M$ is legal if 
+$FV(S) \subseteq FV(\alpha_I^-1( [\alpha_I(S)/x] M) )$.
+
+\begin{definition}
+\textbf{(Implicit Typed Hereditary Substitution)}
+
+\[
+[S / x : A]^n_{\Gamma } (?\lambda y : B . N) := ?\lambda y:B . [S / x : A]^n_{\Gamma, y : B} N
+\] 
+
+\[
+\eta^{-1}_{?\Pi x : A . B}(N) := ?\lambda x : A . N \; \{ x = \eta^{-1}_A(x) \}
+\] since $N$ being typable by $?\Pi x $ means that $x$ can not appear free in $N$
+
+\[
+\m{H}_{\Gamma}(P \downarrow ?\Pi y : B_1 . B_2 , \{ v := N \} ) := P\; \{ v := N \} \downarrow [N/y : B_1]^n_{\Gamma}B_2
+\]
+
+\[
+\m{H}_{\Gamma} ((?\lambda v : A_1 . N) \uparrow ?\Pi v : A_1 . A_2 , \{ v := P \}) 
+:= [P/v]^n_{\Gamma \vdash v : A_1} N \uparrow A_2
+\]
+
+\[ 
+\m{H}(?\lambda v : T . P \uparrow \_ , A) := ?\lambda v : T . \m{H}(P,A)
+\]
+
+\label{def:hered}
+\end{definition}
 
 
 \subsection{Unification Term Meaning}
@@ -103,7 +160,7 @@ obvious deterministic algorithm from being extracted.
 
 \newcommand{\UnifiesTo}{\;\longrightarrow\;}
 
-I now present an algorithm, similar to that presented in 
+We now present an algorithm, similar to that presented in 
 \citep{pfenning1991logic} for unification in the 
 Calculus of Constructions.  Because we have already 
 presented typed hereditary substitution with $\eta$-expansion, 
@@ -178,8 +235,39 @@ with DeBruijn indexes safetly and efficiently,
 but this is out of the scope of the thesis.
 
 \begin{tcase}
+Ilam-Ilam-Same
+\end{tcase}
+
+This case behaves just as the lam-lam case does, but only for implicit abstractions with the same names.
+
+\begin{tcase}
+Ilam-Other
+\end{tcase}
+
+if the constraint is of the form $F[(?\lambda x : A . M) A_1 \cdots A_n \doteq R]$, where $x$ is not constrained
+in a prefix of $R$, we transition to 
+$F[\exists x' : A .  x' \in A \wedge H(\cdots , H([x' / x : A]_F M, A_1), \cdots A_n) \doteq H(R, \{ x : A = x' \}) ]$
+
+\begin{tcase}
+Iforall-Iforall-Same
+\end{tcase}
+
+Because universal quantification is also subject to these subtyping rules, we do a similar thing to what 
+we do in the case of implicit lambda abstraction: if the names match on both side, we unify.  
+
+\begin{tcase}
+Iforall-Other
+\end{tcase}
+
+This case is a bit different however, since in the constraint $F[?\Pi x : A . M \doteq R]$, $R$ is no longer an implicit
+abstraction - rather it should be a type.  Here, we simply transition to 
+$F[\exists x' : A .  x' \in A \wedge H(\cdots , H([x' / x : A]_F M, A_1), \cdots A_n) \doteq R ]$
+
+\begin{tcase}
 Uvar-Uvar
 \end{tcase}
+
+In the traditional case without implicit constraints, we have the following transition:
 
 \[
 F[\forall y : A . G[y M_1 \cdots M_n \doteq y N_1 \cdots N_n  ]]
@@ -187,46 +275,66 @@ F[\forall y : A . G[y M_1 \cdots M_n \doteq y N_1 \cdots N_n  ]]
 F[\forall y : A . G[ M_1 \doteq \wedge N_1 \cdots \wedge M_1 \cdots N_n ]]
 \]
 
-\begin{tcase}
-Identity
-\end{tcase}
+However, when implicit constraints are permitted, the same universally quantified variables might take different numbers of arguments.  
+In this case, we must remove argument the unnecessary implicit constraints.  
+
+We might then be presented with the following constraint: 
+\[
+F[\forall y : A . G[y M_1 \cdots M_m \doteq y N_1 \cdots N_n  ]]
+\]
+We define the following matching function $\uplus$
+
 
 \[
-F[M \doteq M] 
-\UnifiesTo
-F[\top]
+\infer*{
+M_i M_{i+1} \cdots M_m \uplus N_j N_{j+1} \cdots N_n 
+\Rightarrow 
+M_i \doteq N_i \wedge (M_{i+1} \cdots M_m \uplus N_{j+1} \cdots N_n)
+}{
+M_i \neq \{ a : A = B \}
+&
+N_i \neq \{ a : A = B \}
+}
 \]
-
-\begin{tcase}
-Raising
-\end{tcase}
 
 \[
-F[Q y : A . \exists x : B . G]
-\UnifiesTo
-F[\exists x' : (\Pi y : A . B) . Q y : A . [x' y / x : B]_{F, x : \Pi y : A . B , y : A} G]
+\{ a : A = M_i \} M_{i+1} \cdots M_m \uplus \{ a : A' = N_j \} N_{j+1} \cdots N_n 
+\Rightarrow
+M_i \doteq N_i \wedge (M_{i+1} \cdots M_m \uplus N_{j+1} \cdots N_n)
 \]
 
-This rule is important, as correct or 
-incorrect application of this rule can result in 
-terminating or non terminating reductions sequences.
-
-
-\begin{tcase}
-Exists-And
-\end{tcase}
 
 \[
-F[(\exists x : A . E_1) \wedge E_2]
-\UnifiesTo
-F[\exists x : A . E_1 \wedge E_2]
+\infer[]{
+\{ a : A = M_i \} M_{i+1} \cdots M_m \uplus N_j \cdots N_n 
+\Rightarrow 
+M_{i+1} \cdots M_m \uplus N_{j+1} \cdots N_n
+}{
+a \notin \m{ConstraintsPrefix}(N_j \cdots N_n)
+}
 \]
+
+Using this dropping match, we can define the transition as follows.
+
+\[
+\infer[]{ 
+F[\forall y : A . G[y M_1 \cdots M_m \doteq y N_1 \cdots N_n  ]]
+\UnifiesTo
+F[\forall y : A . G[ Q  ]]
+}{
+M_1 \cdots M_m \uplus y N_1 \cdots N_n \Rightarrow Q
+}
+\]
+
+The rest of the transitions are a bit mundane in comparison, mostly just ensuring they use the correct
+quantifier when necessary.  Thus, we exclude the presentation of the Gvar-Gvar, and Gvar-Uvar-Inside and Gvar-Uvar-Outside cases.
 
 \begin{tcase}
 Forall-And
 \end{tcase}
 
-Unfortunately moving the universal quantifier to
+While in a good implementation, this case is not necessary, we take note of it here as it is a potential source of 
+bugs when implementing such a language.  Unfortunately moving the universal quantifier to
 capture a conjunction is not as simple, since
 if done incorrectly, existential variables might be able
 to be defined with respect to universal quantifiers that they
@@ -266,110 +374,6 @@ F[\forall y_1 : A'_1 . G_1
 ]]]
 \]
 
-\begin{tcase}
-Gvar-Uvar-Outside
-\end{tcase}
-
-$M$ has the form 
-$y M_1 \cdots M_m$ some $y$ universally
-quantified outside of $x$
-and 
-$y : \Pi v_1 : B_1 \cdots \Pi v_m : B_m . B$.  
-
-Then we can \textit{imitate} $y$ with $x'$.
-Let 
-$L = \lambda u_1 : A_1 \cdots \lambda u_n : A_n .
- y (x_1 u_1 \cdots u_n) \cdots (x_m u_1 \cdots u_n)$.
-
-Then we can transition to 
-
-\[
-\exists x_1 : \Pi u_1 : A_1 \cdots \Pi u_n : A_n . B_1 \cdots 
-\exists x_m : \Pi u_1 : A_1 \cdots \Pi u_n : A_n . 
-[x_{m-1}u_1\cdots u_n / v_{m-1} : B_{m-1}]
-\cdots 
-\]
-\[
-[x_1 u_1 \cdots u_n / v_1 : B_1]_{\Gamma, x_1:T_{x_1},\cdots, x_{m-1}:T_{x_n}} B_m .
-[L / x : T_x ]_{\Gamma, x_1:T_{x_1},\cdots, x_m:T_{x_n}}F
-\]
-
-\begin{tcase}
-Gvar-Uvar-Inside
-\end{tcase}
-
-If $M$ has the form 
-$y_{\phi(i)} M_1 \cdots M_m$ for 
-$1 \leq i \leq n$ then we can project $x$ to $y_{\phi(i)}$.
-
-Here we can perform the same transition as in the Gvar-Uvar-Outside
-case but let 
-$L = \lambda u_1 : A_1 \cdots \lambda u_n : A_n .
- u_i (x_1 u_1 \cdots u_n) \cdots (x_m u_1 \cdots u_n)$.
-
-\begin{tcase}
-Gvar-Gvar-Same
-\end{tcase}
-
-$M$ has the form 
-$x y_{\psi(1)} \cdots y_{\psi(n)}$.
-
-In this case we pick the \textit{unique} permuation $\rho$ 
-such that $\rho(k) = \psi(i)$ for all $i$ such that $\psi(i) = \phi(i)$.
-
-Then letting
-$L = \lambda u_1 : A_1 \cdots \lambda u_n : A_n .
- x' u_{\rho(1)} \cdots u_{\rho(n)} $, 
-we can transition to
-\[
-\exists x' : \Pi u_1 : A_\rho(1) \cdots \Pi u_l : A_\rho(l) . A 
-[L / x : T_x ]_{\Gamma, x' : T_x'} F
-\] 
-
-
-\begin{tcase}
-Gvar-Gvar-Diff
-\end{tcase}
-
-
-$M$ has the form $z y_{\psi(1)} \cdots y_{\psi(m)}$
-for some existentially quantified variable $z : \Pi v_1 B_1 \cdots \Pi v_m : B_m . B$ 
-distinct from $x$ and partial permutation $\psi$. 
-
-In this case, we can only transition if $z$ is existentially 
-quantified consecutively outside of $x$.
-
-In this case, we perform a dual imitation.
-
-Let $\psi'$ and $\phi'$ be partial permutations 
-such that for all $i$ and $j$ such that
-$\psi(i) = \phi(j)$ then there is some $k$ such that
-$\psi'(k) = i$ and $\psi'(k) = j$
-
-Then let the $L,L'$ be as follows.
-
-\[
-L = \lambda u_1 : A_1 \cdots \lambda u_n : A_n . x' u_{\phi'(1)} \cdots u_{\phi'(l)}
-\]
-
-\[
-L = \lambda v_1 : B_1 \cdots \lambda v_m : B_m . x' u_{\psi'(1)} \cdots u_{\psi'(l)}
-\]
-
-Then we can transition to
-
-\[
-\Gamma [ \exists x' : \Pi u_1 : A_{\phi'(1) } \cdots \Pi u_l : A_{\phi'(l)}
-. [L'/z : T_z]_{\Gamma, x': T_{x'}}[L / x : T_x]_{\Gamma, x': T_{x'}} F
-\]
- 
-While this case appears to be only applicable rarely,
-it is the case that the Raising transition can be applied to allow this
-rule to apply.  
-Due to the restrictivity of this case, and the potential
-for non termination with unrestricted application of the Raising rule,
-it is the only case where the Raising rule is permitted.  
-
 
 \subsection{Implementation}
 
@@ -377,28 +381,19 @@ Because typed substitution is necessary, we must now keep track of existential v
 types.  This can significantly complicate the implementation of the unification algorithm
 as the common technique of maintaining unbound existential variables with restrictions
 can no longer be blindly used, as existential variables must be maintained in the 
-formula.  If existential variables are maintained literally in the formula, 
-the structure must provide the ability to add variables at both the top and bottom level.
-This complication if implemented naively can lead to a significantly less efficient structure.
-After experimentation, similar speeds have been observed when this structure is implemented
-as a zipper \citep{huet1997functional}.  Unfortunately in this case, since variables are best 
-implemented via DeBruijn indexes, variable reconstruction is no longer trivial. 
-To reconstruct types, variable names might be included along side existential variable bindings.  
-Again, this introduces significant complications.  In order to perform 
-substitution for an existential variable, the context of existential variables would have to have
-existential DeBruijn indexes continually swapped for their names.  
-This is most readily implementable as having all existential variable instances 
-also mention their names.
-
-Another potential option is to maintain the type of the existential variable 
+formula.  The most advisable option is to maintain the type of the existential variable 
 with each mention of the existential variable.  
-While in this situation it is simplest to implement reconstruction, 
-types might be enormous and it would be preferable to metion them only once.  
 
-The last option is to perform unification with untyped substitution in certain cases.  
+After experimentation, good performance has been observed when this structure is implemented
+as a zipper \citep{huet1997functional}. We have found exceptional performence when implementing this structure
+as a zipper using a finger tree indexed lookups. Unfortunately, since variables are best 
+implemented via DeBruijn indexes, general variable reconstruction is no longer trivial.  It is fortunate that general variable reconstruction 
+is not necessary in the final implementation since an existential variable representing the body is always used at the top level.
+
+Another option is to perform unification with untyped substitution.
 While there is no proof at the moment that unification on the pattern subset of 
 the calculus of constructions with untyped substitution for only the existential substitutions
-is total, it is not unbelievable.  Furthermore, omitting typed substitution does not alter
+is total, it is not unbelievable. Furthermore, omitting typed substitution does not alter
 the correctness of the algorithm, only the potential totality.  
 
 Ideally, knowledge that type checking terminated would be convincing enough
@@ -406,3 +401,4 @@ so it is not necessary to continue with the reconstruction.  However, reconstruc
 is necessary for implementing the multi-pass proof search described previously.  
 Furthermore, reconstruction is usefull since the exposed typing rules do not admit 
 coherence.  In these cases, it is desirable to see what was infered by type inference.
+

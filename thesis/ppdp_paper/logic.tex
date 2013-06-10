@@ -1,0 +1,56 @@
+
+\section{Logic Programming}
+
+The Caledon language is, at the surface, a backtracking higher order logic programming language in the style of Twelf.  
+Programs in the language constitute a set of axioms that look much like types in a language like Haskell.  The ``value'' of these axioms are fact 
+their types. As seen in \ref{code:add}, the type of the axiom ``add'' is $\m{nat} \rightarrow \m{nat} \rightarrow \m{nat} \rightarrow \m{prop}$. 
+
+\begin{figure}[H]
+\begin{lstlisting}
+defn nat  : prop 
+  >| zero = nat
+  >| succ = nat -> nat
+
+defn add  : nat -> nat -> nat -> prop
+  >| addZ = add zero A A
+  >| addS = add (succ A) B (succ C) 
+             <- add A B C
+\end{lstlisting}
+\caption{Addition in Caledon}
+\label{code:add}
+\end{figure}
+
+One can read the logic programming definition as one might read the functional equivalent with pattern
+matching, knowing that an intelligent compiler would be able to convert the first into the second.  
+
+Higher order logic programming languages such as $\lambda$Prolog remove the tedium of redefining features such as $\alpha$ substitution.
+is in fact possible to express as shown in \ref{code:lprolog}.
+
+\begin{figure}[H]
+\begin{lstlisting}
+defn term : prop
+  | lam = (term -> term) -> term
+  | app = term -> term -> term
+\end{lstlisting}
+\caption{Higher order abstract syntax}
+\label{code:lprolog}
+\end{figure}
+
+Fortunately, higher order functions need not be restricted to patterns.  Lisp style macros provide even more ways
+to generalize code.  
+
+A great example is the function application operator from Haskell.  
+We can define this in Caledon as shown in \ref{code:macros}
+
+\begin{figure}[H]
+\begin{lstlisting}
+fixity right 0 @
+defn @ : {at bt:prop} (at -> bt) -> at -> bt
+  as ?\ at bt . \ f . \ a . f a
+
+\end{lstlisting}
+\caption{Macros for expressive syntax}
+\label{code:macros}
+\end{figure}
+
+In many cases, allowing these macros allows for significant simplification of syntax.

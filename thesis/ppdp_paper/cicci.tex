@@ -6,10 +6,12 @@ This is accomplished by extending the typing rules and providing
 a mapping from the extended type derivation and term to 
 an original type derivation and term. 
 
-We only have one syntactic difference in this calculus:  $E\; \{ V : A = E \}$ 
+The only syntactic difference in this calculus is that $E\; \{ V : A = E \}$ 
 is now simply $ E \; \{ V  = E \}$.  
 We might also include Curry style binders in this presentation, but they shed little 
-extra light on the workings of type inference.
+extra light on the workings of type inference.  
+The important difference comes from the ability to 
+use an implicit abstraction without explicitly initializing it, for example: $(?\lambda x : \m{print}\;\m{zero}. \m{succ}) \m{zero}$
 
 \newcommand{\judgeCI}[0]{ \vdash_{i^-}}
 
@@ -411,7 +413,7 @@ and thus must be given on the typing derivation.
 
 Since $CICC$ permits $\eta$ equivalence and $CICC^-$ does not, the extraction in the 
 reverse direction is no longer sound.  For our purposes this is not objectionable 
-since $CICC$ is known to be consistent and there is no reason to convert back into $CICC^-$, as it is 
+since $CICC$ is consistent and there is no reason to convert back into $CICC^-$, as it is 
 used entirely as a pre-elaboration language.  Once terms are typechecked and type infered in $CICC^-$
 they are typechecked in $CICC$ and normalized in $CICC$.  While the reverse extraction is
 in general not sound, normal terms with normal types are clearly typable in $CICC^-$.
