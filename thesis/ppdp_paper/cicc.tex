@@ -1,9 +1,11 @@
-\section{Caledon Implicit Calculus of Constructions}
+\section{Statics}
+
+\subsection{Caledon Implicit Calculus of Constructions}
 
 Although the bulk of the invention of the paper comes from the translation, 
 we begin by describing the calculus which is to be the result of inference.
 Caledon's exposed type system is a varient of the Implicit Calculus of Constructions, $ICC$ \citep{miquel2001implicit}, 
-which for the rest of the paper I will refer to as $CICC^{-}$.  
+which for the rest of the paper we will refer to as $CICC^{-}$.  
 This sytem contains two products and two binders - one each for implicit and explicit arguments. 
 Unlike $ICC$, there is no rule that allows for an unmarked value to obtain an implicit product type, which
 makes type checking somewhat simpler.  
@@ -20,6 +22,9 @@ V
 \orr E\;E 
 \orr \lambda V : T. E 
 \orr ?\lambda V : T. E 
+\]
+
+\[
 \orr \Pi V : E . E 
 \orr ?\Pi V : E . E 
 \orr E \{ V : E = E \}
@@ -227,9 +232,11 @@ s \in S
 &
 s \in S
 &
-x \notin FV(M) \cup BN(M) \cup GN(U)
+x \notin AV(M,U) 
 }
 \]
+where $AV(M,U) \equiv FN(M) \cup BN(M) \cup GN(U)$
+
 
 %% gen* %%
 %%%%%%%%%%
@@ -245,7 +252,7 @@ x \notin FV(M) \cup BN(M) \cup GN(U)
 &
 s \in S
 &
-x \notin FV(M) \cup BN(M) \cup GN(U)
+x \notin AV(M,U)
 }
 \]
 
@@ -316,8 +323,9 @@ Most of the theorems relating to $CICC$ can be obtained by a simple projection i
 
 \[
 \CICCproj{?\lambda v : T . E } := \lambda y : \m{rec}\;\bar{v}\; \CICCproj{T} . \CICCproj{ [ \m{get}\; \CICCproj{T}\; \bar{v}\; y  / v ] E}
-\;\text{ where $y$ is fresh}
 \] 
+
+where $y$ is fresh
 
 \[
 \CICCproj{\Pi v : T . E } := \Pi v : \CICCproj{T} . \CICCproj{E}
@@ -325,8 +333,9 @@ Most of the theorems relating to $CICC$ can be obtained by a simple projection i
 
 \[
 \CICCproj{?\Pi v : T . E } := \Pi y : \m{rec}\;\bar{v}\;\CICCproj{T} . \CICCproj{ [ \m{get}\;\CICCproj{T}\; \bar{v}\; y  / v ] E}
-\;\text{ where $y$ is fresh}
 \]
+
+where $y$ is fresh
 
 \label{cicc:proj}
 \end{definition}

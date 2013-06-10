@@ -1,4 +1,4 @@
-\section{Higher Order Unification}
+\section{Dynamics}
 
 Unification lies at the heart of the semantics of the Caledon language.  
 In this section we present the syntax of the unification problems, as well as a modified version of the algorithm 
@@ -20,7 +20,6 @@ U ::= U \wedge U
  \orr \exists V : T . U 
  \orr T \doteq T
  \orr T \in T
- \orr T \in T >> T \in T
  \orr \top
 \]
 \label{def:hou:syn}
@@ -105,7 +104,7 @@ based on the obvious logic.
 $\Gamma \Vdash F $ can be interpreted as $\Gamma$ implies $F$ 
 is provable.
 
-\[ \begin{array}{lcr}
+\[ \begin{array}{lr}
 \infer[\m{equiv}]{
 \Gamma \Vdash M \doteq N
 }{
@@ -119,7 +118,9 @@ M \equiv_{\beta\eta\alpha*} N
 \infer[\m{true}]{
 \Gamma \Vdash \top
 }{}
-&
+\end{array} \]
+
+\[
 \infer[\m{conj}]{
 \Gamma \Vdash F \wedge G
 }{
@@ -127,7 +128,7 @@ M \equiv_{\beta\eta\alpha*} N
 &
 \Gamma \Vdash G
 }
-\end{array} \]
+\]
 
 \[ \begin{array}{lr}
 \infer[\m{exists}]{
@@ -246,7 +247,12 @@ Ilam-Other
 
 if the constraint is of the form $F[(?\lambda x : A . M) A_1 \cdots A_n \doteq R]$, where $x$ is not constrained
 in a prefix of $R$, we transition to 
-$F[\exists x' : A .  x' \in A \wedge H(\cdots , H([x' / x : A]_F M, A_1), \cdots A_n) \doteq H(R, \{ x : A = x' \}) ]$
+\[
+F[\exists x' : A .  x' \in A \wedge H(\cdots , H([x' / x : A]_F M, A_1), \cdots A_n) 
+\]
+\[
+\doteq H(R, \{ x : A = x' \}) ]
+\]
 
 \begin{tcase}
 Iforall-Iforall-Same
@@ -261,7 +267,10 @@ Iforall-Other
 
 This case is a bit different however, since in the constraint $F[?\Pi x : A . M \doteq R]$, $R$ is no longer an implicit
 abstraction - rather it should be a type.  Here, we simply transition to 
-$F[\exists x' : A .  x' \in A \wedge H(\cdots , H([x' / x : A]_F M, A_1), \cdots A_n) \doteq R ]$
+
+\[
+F[\exists x' : A .  x' \in A \wedge H(\cdots , H([x' / x : A]_F M, A_1), \cdots A_n) \doteq R ]
+\]
 
 \begin{tcase}
 Uvar-Uvar
@@ -270,9 +279,9 @@ Uvar-Uvar
 In the traditional case without implicit constraints, we have the following transition:
 
 \[
-F[\forall y : A . G[y M_1 \cdots M_n \doteq y N_1 \cdots N_n  ]]
+F[\forall y : A . G[y M \doteq y N  ]]
 \UnifiesTo
-F[\forall y : A . G[ M_1 \doteq \wedge N_1 \cdots \wedge M_1 \cdots N_n ]]
+F[\forall y : A . G[ M_1 \doteq \wedge N_1 \cdots]]
 \]
 
 However, when implicit constraints are permitted, the same universally quantified variables might take different numbers of arguments.  
@@ -286,10 +295,10 @@ We define the following matching function $\uplus$
 
 
 \[
-\infer*{
-M_i M_{i+1} \cdots M_m \uplus N_j N_{j+1} \cdots N_n 
+\infer{
+M_i M \uplus N_j N
 \Rightarrow 
-M_i \doteq N_i \wedge (M_{i+1} \cdots M_m \uplus N_{j+1} \cdots N_n)
+M_i \doteq N_i \wedge (M \uplus N)
 }{
 M_i \neq \{ a : A = B \}
 &
@@ -298,26 +307,26 @@ N_i \neq \{ a : A = B \}
 \]
 
 \[
-\{ a : A = M_i \} M_{i+1} \cdots M_m \uplus \{ a : A' = N_j \} N_{j+1} \cdots N_n 
+\{ a : A = M_i \} M \uplus \{ a : A' = N_j \} N
 \Rightarrow
-M_i \doteq N_i \wedge (M_{i+1} \cdots M_m \uplus N_{j+1} \cdots N_n)
+M_i \doteq N_i \wedge (M \uplus N)
 \]
 
 
 \[
-\infer[]{
-\{ a : A = M_i \} M_{i+1} \cdots M_m \uplus N_j \cdots N_n 
+\infer{
+\{ a : A = M_i \} M \uplus N
 \Rightarrow 
-M_{i+1} \cdots M_m \uplus N_{j+1} \cdots N_n
+M \uplus N
 }{
-a \notin \m{ConstraintsPrefix}(N_j \cdots N_n)
+a \notin CN(N)
 }
 \]
 
 Using this dropping match, we can define the transition as follows.
 
 \[
-\infer[]{ 
+\infer{ 
 F[\forall y : A . G[y M_1 \cdots M_m \doteq y N_1 \cdots N_n  ]]
 \UnifiesTo
 F[\forall y : A . G[ Q  ]]
@@ -358,22 +367,6 @@ an Exists-And transformation is possible, then repeating
 until $E_2$ no longer contains any existentially 
 quantified variables.  This process is always terminating,
 although potentially significantly slower.   
-
-
-The following cases are based on unification 
-of a formula of the form
-
-\[
-\Gamma[
-\exists x : \Pi u_1 : A_1 \cdots \Pi u_n : A_n . A 
-\\
-F[\forall y_1 : A'_1 . G_1 
-[ \cdots \forall y_p : A'_p . G_p 
-[ x y_{\phi(1)} \cdots y_{\phi(n)} \doteq M ]
-\cdots
-]]]
-\]
-
 
 \subsection{Implementation}
 
