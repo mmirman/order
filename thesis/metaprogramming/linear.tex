@@ -1,0 +1,270 @@
+\section{Linear Predicates}
+
+One major drawback of the type class paradigm outlined in the previous section is the
+inability for a typeclass to uniquely determine membership of type in a type class based
+on floating predicates in the environment with matching signatures. While ideal behavior
+is possible for theorems in the calculus of constructions which exhibit ideal parametricity,
+the type “type” has the trivial inhabitant “type” and thus implementations
+will nearly always resolve to this version.
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn serializeable : [T] { serializer : T −> string −> type } type
+   | serializable-auto-find = [T] [ Serializer : T -> string -> type ]
+      serializable T { serializer = Serializer }
+
+\end{lstlisting}
+\caption{This would be nice}
+\label{lin:nice}
+\end{figure}
+
+For example, it would be very nice if the predicates in figure \ref{lin:nice} would automatically
+resolve to a reasonable instance of serializable.
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn serialize : {T} { serializer : T −> string −> type } T -> string -> type
+  as ?\T : type . ?\ serializer : T -> string -> type . \v : T . \s : string 
+   . serializer v s
+
+\end{lstlisting}
+\caption{Nice implementation}
+\label{lin:imp}
+\end{figure}
+
+We could in fact then implement serialize as above in the definition in figure \ref{lin:imp}.
+However, this kind of implementation will fail to determine the correct instance of ``serializer''.
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+query writeBool = serialize true ``true''
+===>
+query writeBool = 
+   serialize 
+       {T = bool}
+       { serializer = \ x : bool . \ y : string . type } 
+       true ``true''
+
+\end{lstlisting}
+\caption{Trivial Failure}
+\label{lin:fail}
+\end{figure}
+
+Rather, it will infer a trivial predicate as seen in the query in figure \ref{lin:fail}
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn show : {T}{shower : T -> string } T -> string
+  as ?\T : type . ?\ shower : T -> string . \ v : T . shower v 
+
+query writeBool = print (show true)
+===>
+query writeBool = print (show {T = bool}{shower = \ x : bool . nil })
+
+\end{lstlisting}
+\caption{Functions also fail}
+\label{lin:ffail}
+\end{figure}
+
+One might think that functions, as an alternative to predicates, are immune to this scenario. 
+However, unless specified with their properties (tedious) functions have similar drawbacks as is seen in the program in figure \ref{lin:ffail}.
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn show : {T}
+            {shower : T -> string}
+            {reader : string -> maybe T}
+            {comp1  : [v] reader (shower v) =:= just v}
+            {comp2  : [v] fromJust (reader s) (\x . shower x =:= s) type}
+            T -> string
+   as ?\ T : type
+    . ?\ shower : T -> string
+    . ?\ reader : _
+    . ?\ comp1  : _
+    . ?\ comp2  : _
+    . \ v : T
+    . shower v
+
+\end{lstlisting}
+\caption{Kind of a success using proofs}
+\label{lin:success}
+\end{figure}
+
+One can sometimes work around this by including metatheorems about the implicit
+functions as seen in the figure \ref{lin:success}. However, proving the metatheorems is often tedious
+or impossible, or sometimes slow for the compiler.
+
+One potential method to solve this ambiguity problem involves substructural dependent
+quantification, where types indicate that the function argument can only be
+used only once in the term, although as many times as one would like in types. While
+this is a subject of ongoing and future work, I’ve included a description of these ideas.
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn serializeBool : bool -o string -o type
+   | serializeBool-true = serializeBool true ``true''
+   | serializeBool-false = serializeBool false ``false''
+
+defn serialize : {T}{ serializer : T -o string -o type } T -> string -> type
+  as ?\ T 
+   . ?\ serializer : T -o string -o type ]
+   .  \ v : T 
+   .  \ s : string 
+   . serializer v s
+
+\end{lstlisting}
+\caption{Linear types would be useful here}
+\label{lin:linideal}
+\end{figure}
+
+$F : A \lolli B$ shall mean that the function $F$ only consumes a single resource of type $A$.  
+$F : \forall_o x : A . B$ shall mean the same in a dependent setting.
+
+
+The problem is solved in the figure \ref{lin:linideal} since the only function which linearly 
+consumes a single boolean and a single string in the program and outputs a type is ``serializeBool''.  
+Other functions that do this might be added later, but functions of the form 
+$(\lambda x : \m{bool}. \lambda s : \m{string} . \m{type})$ are not possible.  
+Unfortunately, something alon gthe lines of 
+$(\lambda x : \m{bool}. \lambda s : \m{string} . \m{isString} s \wedge \m{isBool} x)$ might be possible, 
+but these are significantly more manageable provided one is careful.  
+
+Fortunately, the fact that we are working with higher order abstract syntax in the calculus of constructions means that linear dependent products are actually implementable withing Caledon.
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn restriction : type
+   | linear = restriction
+   | unused = restriction
+
+defn restrictor : restriction -> restriction -> restriction -> type
+   | restrictor-linear1 = restrictor linear unused linear
+   | restrictor-linear2 = restrictor linear linear unused 
+   | restrictor-unused = restrictor unused unused unused
+
+
+defn restrict : restriction -> [ T : type ] [ P : T -> type ] ( [ x : T ] P x ) -> type
+   | restrict-unused = 
+     restrict unused T (\ x : T . P) (\ x : T . G)
+
+   | restrict-linear = 
+     restrict linear T (\ x : T . T) (\ x : T . x)
+
+   | restrict-app = 
+      restrict Ba T (\ x : T . P x (G x)) (\ x : T . (F x) (G x))
+   <- restrict Bb T (\ x : T . [z : Q x] P x z ) (\ x : T . F x)
+   <- restrict Bc T (\ x : T . Q x ) (\ x : T . G x)
+
+   | restrict-lam = 
+      restrict B T (\ x : T . [y : A] P x y) (\ x : T . \ y : A . F y x)
+   <- [ y : A ] restrict B T (\ x : T . P x y) (\ x : T . F y x)
+
+   | restrict-eta = 
+      restrict B T (\ x : T . [y : A x] P x y) (\ x : T . \ y : A x. F x y)
+   <- restrict B T (\ x : T . [y : A x] P x y) (\ x : T . F x)
+
+\end{lstlisting}
+\caption{Linearity in Caledon}
+\label{lin:linimp}
+\end{figure}
+
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+fixity lambda lolli
+fixity lambda llam
+
+defn lolli : [ T : type ] ( T -> type ) -> type
+   | llam = [T]{TyF}[F : [x : T] TyF x]
+            restrict linear T TyF F => ( lolli x : T . TyF x)
+
+defn lapp : {A : type} { T : A -> type } [ f : lolli x : A . T x ] [ a : A ] T a -> type
+   | lapp-imp = lapp (llam _ _ F _) V (F V)
+
+fixity arrow -o
+defn -o : type -> type -> type
+  as \t : type . \t2 : type . lolli t (\x : t . t2)
+
+\end{lstlisting}
+\caption{Linear Dependent Product}
+\label{lin:lindep}
+\end{figure}
+
+
+In the figure \ref{lin:linimp} the predicate ``restrict linear'' encodes the test that an arbitrary function, even one with a dependent type, is linear \citep{benton1993term} if its argument is used
+exactly once in the term and potentially many times in the type.  
+``lolli'' is the linear dependent type constructor and ``llam'' is the linear function constructor.
+Provided the code from figure \ref{lin:linimp} was in the environment, figure \ref{lin:linideal} would in fact work.
+
+
+Even more of these cases could be made less ambiguous through use of an ordered dependent type 
+constructor, but this is significantly more complicated to define (although certainly possible).
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn sum : nat -o nat -o nat -o type
+   | sum-zero = [N : nat]
+                [Sum : nat -o nat -o type]
+                [Sum' : nat -o type]
+                [Sum'' : type]
+     lapp sum zero Sum -> lapp Sum N Sum' -> lapp Sum' N Sum'' -> Sum''
+   | sum-succ = [N M R : nat]
+                [Sum1 Sum2 : nat -o nat -o type ]
+                [ Sum1' Sum2' : nat -o type ]
+                [ Sum1'' Sum2'' : type ]
+       lapp sum N Sum1 ->
+       lapp Sum1 M Sum1' -> 
+       lapp Sum1' R Sum1'' -> Sum1''
+    -> lapp sum (succ N) Sum2 -> 
+       lapp Sum1 M Sum2' ->
+       lapp Sum2' (succ R) Sum2'' -> Sum2''
+   
+\end{lstlisting}
+\caption{Use of a linear type}
+\label{lin:use}
+\end{figure}
+
+
+Of course, as seen in figure \ref{lin:use}, actually using this linear dependent product is a bit
+absurd.  It requires flattening application into a logic programming form where the target
+is in fact a type variable.
+
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+fixity application lapp
+defn sum : nat -o nat -o nat -o type
+   | sum-zero = [N : nat] *APP=lapp* sum zero N N
+   | sum-succ = [N M R : nat] 
+        *APP=lapp* sum N M R 
+     -> *APP=lapp* sum (succ N) M (succ R)
+\end{lstlisting}
+\caption{Example of a syntax for flattening application}
+\label{lin:flat}
+\end{figure}
+
+
+That the end result is a type variable means that the family checking algorithm
+would no longer be applicable. In this case it might be beneficial to either hard code
+linearity or provide a syntax for flattening successive applications using a predicate as
+seen in figure \ref{lin:flat}
+
+Syntax for applications could potentially extend the notion of a family such that
+predicates using them can also be frozen. In this case the applicator $x$ used with 
+$*APP = x*$ would be declared as such so that the compiler could check that its type matches the form $\{ A : \m{type} \}\{ T : A \rightarrow \m{type} \}[f : \m{some}-\m{product} x : A . T x] [ a : A] T a \rightarrow \m{type}$.
