@@ -1,1 +1,25 @@
 \section{Results}
+
+In this thesis I designed a logic programming language with a type system based on the
+Calculus of Constructions which integrated the notion of an implicitly quantified type in
+a manner useful for automating proof search. I demonstrated a series of reductions from
+this language to the Calculus of Constructions where the output of the language could
+be interpreted as meaningful theorems. I provided an abstract machine for the language
+based on higher order unification with proof search, and demonstrated an elaboration
+method to this machine. The semantics of the language based on this compilation and
+evaluation joined the notions of type inference and traditional evaluation in a way that
+does not appear to have been examined in great detail in the past.
+
+I provided a method to constrain proof search of a predicate to a small subset of the
+axioms in the environment using families. I demonstrated a way to explicitly control
+whether a predicate was searched in a breadth first or depth first manner, allowing
+constructs similar to fork and join to be defined.
+
+I gave usage examples of usage of the Caledon language and demonstrated functionality
+equivalent to type classes and ways to extend the applicability of this feature using library defined linearity checking.  
+
+Finally, I provided an implementation of this language in Haskell and provided a
+standard library. Since previous dependently typed logic languages have not included
+polymorphism, standard libraries were not reasonable or possible to include. However,
+with the addition of polymorphism, generic lists, type logic, printing, monad and
+functor libraries become possible and useful.
