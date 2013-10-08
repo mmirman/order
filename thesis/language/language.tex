@@ -1,10 +1,11 @@
-In this chapter I discuss the some of the details of the 
-specification details of the Caledon language.  
+The Caledon language implementation has a few unique properties, not all related to
+the exposed logic of the language. In this chapter I discuss the some of the details of
+the specification of the Caledon language, and its implementation. The algorithm for
+actually performing higher order unification and type inference is unusual in that it
+uses a zipper style context implemented by a finger tree based sequence, and does not
+perform linear passes on the unification problem. Families are introduced as a notion
+of a coherent set of axioms for proof search, falling under the same searchable family.
+Nondeterminism control is also discussed as a way of letting the programmer choose
+between sequential and concurrent execution, or efficient or complete searches. Methods
+of interacting with the world also need to be defined.
 
-The section on the pipeline introduces the order that programs are typechecked and run. 
-The section on inference discusses the benefits of typechecking in a lazy environment.
-The section on families introduces the notion of a coherent set of axioms for proof search, 
-falling under the same searchable family.
-The section on controlled nondeterminism extends the notion of a searchable 
-family and introduces the technique of nondeterminism control. 
-The last section on IO describes some techniques of defining, controlling, and implementing IO.
