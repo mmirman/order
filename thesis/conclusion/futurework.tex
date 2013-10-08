@@ -1,12 +1,24 @@
 \section{Future Work}
 
-Universe checking would be an ideal way to ensure separation of phases and allow compilation. 
-Modal provability logics might also be used for this purpose.  
-In general, running of these programs in the current implementation is excruciatingly slow, 
-as types need to be recorded and searched during runtime.  
-Algorithms that take advantage of totality checking \citep{altenkirch2010termination}, 
+Although this thesis presented a language, little work was done to provide a framework
+for proving theorems about this language. In general, compilation for a language
+where the programs are theorems for a consistent logic allows for significant optimization
+capability. In Twelf, totality, modes, and worlds allowed predicates to be converted
+to programs. In general, running of Caledon programs in the current implementation
+is excruciatingly slow, as types need to be recorded and searched during runtime. Algorithms
+that take advantage of totality checking \citep{altenkirch2010termination}, 
 uniqueness checking \citep{anderson2004verifying}, 
 worlds checking\citep{anderson2004verifying}, 
 mode checking\citep{anderson2004verifying}, 
 and universe checking \citep{harper1991type}, 
-could be implemented and applied as they were for twelf and agda.  
+could be implemented and applied as they were for Twelf and Agda.  It would be useful to have a type system for a logic programming
+language which could ensure closed predicates were theorems. More work needs to be
+done to automate typeclass instancing as was demonstrated in the section on Linearity.
+While implemented, universe checking during unification has yet to be proven entirely
+correct.
+
+The possible applications of the language have only been shallowly addressed and
+it is clear that much more interesting programs are possible. While derivatives of one
+holed types are possible in the language, automatically providing traversals for these
+zipper types is an unexplored topic. While I have demonstrated a concise method of
+creating concurrency, libraries for controlling concurrency using the IO primitives have yet to be designed.
