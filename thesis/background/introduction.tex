@@ -1,7 +1,26 @@
-``To be fair, even in last century's typed languages, 
-types had a beneficial organisational effect on programmers. 
-This century, it's just possible types will have a comparable effect on programs. 
-Types are concepts and now mechanisms supporting program-discovery as well as error-discovery. 
-I think that's more than just gravy.''
- - Conor McBride
+Higher order logic programming languages such as $\lambda$Prolog represent a significant
+step towards a self-contained language for writing languages \citep{miller1988overview}. 
+Twelf on the other hand
+demonstrates the power of higher order logic programming as a meta-logical framework
+\citep{pfenning1999system}. However, both of these approaches have drawbacks. $\lambda$Prolog lacks a type system expressive enough to express many invariants for its own code. Twelf’s type system
+is so conservative that it lacks polymorphism, a fundamental requirement for building
+libraries. It is enlightening to note that extended with polymorphism, a dependently
+typed logic language like Twelf becomes powerful enough to use the proofs generated
+by proof search as code itself. In most languages, type inference is only considered a
+static transformation and analysis pass. In order to take advantage of a logic programming language’s ability to generate its own code so elegantly, we modify the purpose of type
+inference to instead be considered as the execution of the language.
+
+
+Type inference can usually be worded as a translation from language terms to unification
+problems. In this paper, we consider these unification problems to be the target
+language for the compilation of a correctly parsed program. Since the Calculus of Constructions
+\citep{coquand1986calculus} contains polymorphism, dependent types, and type functions, it is used
+as the basis for the source language. While type inference for the Calculus of Constructions and even Twelf is undecidable\citep{Dowek93tlca} and thus often abandoned as a goal in entirety, we allow the
+type inference procedure to be specified with the same semantics as the language itself,
+making the procedure essentially programmable.
+
+To control the use of inference programmatically, implicit arguments similar to those
+in Agda are included. As implicit arguments may be filled by proof search in addition
+to simple unification, they are similar to the type classes of Haskell. Markedly, these
+features require that the source terms are no longer unchanged by type inference.
 
