@@ -1,2 +1,89 @@
 \section{Controlled Nondeterminism}
 
+A logic program need not only be a deterministic depth first pattern search. It is in fact
+the case that for purely declarative axioms, the depth first strategy is usually very incomplete
+and not representative of one’s intuition of what should and should not halt.
+Depth first search can be made to be more efficient in many cases and when used intentionally
+it will constrict nondeterminism. Concurrency in a program with IO has
+well known use cases and advantages. The breadth first proof search strategy can conveniently
+be represented by a program where every pattern match forks and executes
+concurrently. Clearly, this is not ideal if used everywhere. Thus an ideal implementation
+would allow one to control which patterns are searched in parallel and which
+are searched in sequence. In the following snippet of the code, the distinction between
+breadth first and depth first queries are used to emulate the concept of concurrency and
+cause the program to have more complex behavior.
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+query main = runBoth false
+
+defn runBoth : bool -> type
+  >| run0 = runBoth A
+            <- putStr ``ttt ``
+            <- A =:= true
+   | run1 = runBoth A 
+            <- putStr ``vvvv''
+            <- A =:= true
+   | run2 = runBoth A
+            <- putStr ``qqqq''
+            <- A =:= true
+  >| run3 = runBoth A
+            <- putStr `` jjj''
+            <- A =:= false
+
+\end{lstlisting}
+\caption{Nondeterminism control}
+\label{nondet:ex1}
+\end{figure}
+
+In example \ref{nondet:ex1}, the query main should print to the screen something similar to “ttt
+vqvqvqvq jjj”. This is because despite proof search failing on the first three axioms due
+to an incorrect match, the fail is deferred until after IO has been performed. The middle
+axioms, run1 and run2 are declared to be breadth first axioms while run0 and run3 are
+declared to be depth first axioms.
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn fail : type
+  as true =:= false
+
+defn then : type -> type -> type
+  >| then-A = Fst `then` Snd <- Fst <- fail
+  >| then-B = Fst `then` Snd <- Snd
+
+query main = print ``Hello `` `then` print ``world!''
+
+\end{lstlisting}
+\caption{Sequential predicate}
+\label{nondet:seq}
+\end{figure}
+
+The predicate “then” in figure \ref{nondet:seq} executes its first routine and then its second sequentially.
+To understand how this works it is beneficial to step through the query
+“main”. When “main” is called, it will first initiate a goal of the form “then (print ‘Hello
+’) (print ‘world!’)”. Because the axioms “then-A” and “then-B” are both preceded by > |,
+the “then-A” is attempted, the search of which is constrained to be entire. Since “(print
+’Hello ’)” succeeds and does not nondeterministically branch, “fail” will be initiated as
+the next goal. Fail will certainly fail, and the current branch will end. “then-B” is the
+next attempt. It will succeed since “(print ’world!’)” succeeds.
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn while : type -> type -> type
+   | while-A = Fst `while` Snd <- Fst
+   | while-B = Fst `while` Snd <- Snd
+
+query main = print ``aaaa'' `while` print ``bbbb''
+
+\end{lstlisting}
+\caption{Concurrent predicate}
+\label{nondet:con}
+\end{figure}
+
+
+The predicate “while” in figure \ref{nondet:con} executes its first routine at the same time as its
+second. The result of “main” might then be “abababab”. It is important to note that in this notion of concurrency, neither thread is the ``original'' thread.
