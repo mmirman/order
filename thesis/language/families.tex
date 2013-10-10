@@ -1,2 +1,98 @@
 \section{Type Families}
 
+Permitting entirely polymorphic axioms at the top level can be problematic in that it significantly
+complicates efficient proof search, and can introduce unintended falsehoods.
+To remedy this, axioms are grouped together by conclusion, essentially ensuring program
+definitions are local and not spread out across the source code. This enables a
+proof search to be optimized by only having to search for axioms in the family of the head of the goal. In some respects this acts as an automated and enforced version of
+the “freeze” command from Twelf. Mutually recursive definitions can be automatically
+inferred.
+
+
+\begin{figure}[H]
+
+\[
+\infer[\Pi-\m{ty}]
+{
+T_2 \; \m{ty}
+}{
+\Pi x : T_1 . T_2 \m{ty}
+}
+\]
+
+\[
+\infer[?\Pi-\m{ty}]
+{
+T_2 \; \m{ty}
+}{
+?\Pi x : T_1 . T_2 \m{ty}
+}
+\]
+
+\[
+\infer[\m{prop}-\m{ty}]
+{
+\m{prop}\;\m{ty}
+}{
+}
+\]
+
+\[
+\infer[\Pi-\m{fam}]
+{
+\Pi x : T_1 . T_2 @ n
+}{
+T_2 @ n 
+&
+x \neq n
+}
+\]
+
+
+\[
+\infer[?\Pi-\m{fam}]
+{
+?\Pi x : T_1 . T_2 @ n
+}{
+T_2 @ n 
+&
+x \neq n
+}
+\]
+
+
+\[
+\infer[\m{var}-\m{fam}]
+{
+n @ n
+}{
+}
+\]
+
+\[
+\infer[\m{app}-\m{fam}]
+{
+T_1 \; T_2 @ n
+}{
+T_1 @ n
+}
+\]
+
+\[
+\infer[?\m{app}-\m{fam}]
+{
+T_1 \; \{ x = T_2  \} @ n
+}{
+T_1 @ n
+}
+\]
+\label{fam:relation}
+\caption{The family relationship}
+\end{figure}
+
+In figure \ref{fam:relation}, the “fam” relation is used to ensure that an axiom belongs to a family,
+whereas the “ty” relation ensures that a family type actually results in a type.
+
+Grouping axioms together as families and preventing entirely polymorphic results
+ensures that entirely polymorphic results will be consistent. It is possibly to relax this constraint at the expense of full program speed - the only time a polymorphic axiom is
+introduced into the proof search context is locally within an axiom’s assumptions.

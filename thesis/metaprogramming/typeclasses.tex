@@ -20,6 +20,7 @@ defn serializeBool : bool -> string -> type
 \end{figure}
 
 
+
 \begin{figure}[H]
 \begin{lstlisting}
 
@@ -31,7 +32,7 @@ query printQuery = exists S : string . serializeBool false S
 \label{prog:bidi}
 \end{figure}
 
-Notice that the predicate \ref{prog:serialize} in the sense that both of the queries in 
+Notice that the predicate \ref{prog:serializing} in the sense that both of the queries in 
 \ref{prog:bidi} will resolve. 
 
 The serialize predicate is a useful one and we would like it to be polymorphic in all types for which we've implemented a serialize function.  This is possible using implicit arguments.
