@@ -1,11 +1,16 @@
 \section{Logic Programming}
 
-Logic programming languages such as Prolog and Twelf were initialy proposed as tools for AI.  
-It was later discovered that when properly constrained, these languages merely represented an alternate
-formulation of imperative code with powerful pattern matching, and backtracking tools.  The Caledon language
-is a logic programming language in the style of Twelf.  In this section I present some basic intution of logic 
-programming, rather than explaining it technically, and demonstrate the descriptive
-power of the system implemented in Caledon.
+Logic programming languages such as Prolog were originally designed as part of the AI
+program, in much the same way Lisp was. Automated reasoning’s natural goal would
+be to be able to arbitrarily prove theorems. A logic programming language would be
+a set of axioms and a predicate, and if the predicate could be proven through those axioms,
+the automated theorem prover would halt. These proof search procedures were
+then constrained into useful programming semantics. When performed in a backtracking
+manner, the process of proof search represented an formulation of procedural code
+with powerful pattern matching. The Caledon language is a higher order backtracking
+logic programming language in the style of Twelf. In this section I present some basic
+intution for logic programming, rather than explaining it technically, and demonstrate the 
+descriptive power of the system implemented in Caledon.
 
 \FloatBarrier
 \subsection{Basics}
@@ -37,22 +42,20 @@ add (Succ a) b = Succ c
 
 We can read the logic programming definition as we would read the functional definition with pattern
 matching, knowing that an intelligent compiler would be able to convert the first into the second.  
-
-Of course there are exceptions to the rule, as generalized pattern matching and 
-goal search allows one to define essentially nondeterministic programs.  A common use for logic programming
-has been to search for solutions to combinitorial games such as tic-tac-toe, without the programmer worrying about the order
-of the search.  As this tends to produce inneficient code, this use style is discouraged.  Rather, a more imperative 
-view of logic programming is encouraged where pattern match and search is performed in the order it appears.  
+search allows one to define essentially nondeterministic programs. A common use for
+logic programming has been to search for solutions to combinatorial games such as tic-tac-toe, 
+without the programmer worrying about the order of the search. As this tends
+to produce ineficient code, this use style is discouraged. Rather, a more procedural view of logic programming is encouraged where pattern match and search is performed
+in the order it appears.
 
 \begin{figure}[H]
 \begin{lstlisting}
-query prg = p t1 ... tn
-
 defn p : T_1 -> ... -> T_r -> prop
   >| n1 = p T_1 ... T_r <- p_1,1 ... <- p_1,k_1
 ...
   >| nN = p T_1 ... T_r <- p_n,1 ... <- p_n,k_n
 
+query prg = p t1 ... tr
 \end{lstlisting}
 \caption{Format of a Caledon Logic Program}
 \label{code:format}
@@ -60,42 +63,11 @@ defn p : T_1 -> ... -> T_r -> prop
 
 In this view, a program of the form \ref{code:format}
 should be considered a program which first attempts to prove using axiom n1 by matching prg with ``p T1 ... Tr'' and then
-attempting to prove $p_{1,1}$ and so on.    With enough understanding of this reading of a logic program, generalizations might be made
-to allow for more control of the search.  In the following snippet of the code, the distinction between breadth first and depth first
-queries are used to emulate the concept of concurrency and cause the program to have more complex behavior.
+attempting to prove $p_{1,1}$ and so on.
 
-\begin{figure}[H]
-\begin{lstlisting}
-query main = runBoth false
-
-defn runBoth : bool -> prop
-  >| run0 = runBoth A 
-             <- putStr ``ttt ``
-             <- A =:= true
-
-   | run1 = runBoth A
-             <- putStr ``vvvv''
-             <- A =:= true
-
-   | run2 = runBoth A
-             <- putStr ``qqqq''
-             <- A =:= true
-
-  >| run3 = runBoth A
-             <- putStr `` jjj''
-             <- A =:= false
-\end{lstlisting}
-\caption{Nondeterminism control}
-\label{code:nondet}
-\end{figure}
-
-In example \ref{code:nondet}, the query main should print to the screen something similar to ``ttt vqvqvqvq jjj''.  This is because
-despite proof search failing on the first three axioms due to an incorrect match, 
-the fail is defered until after io has been performed.  The middle axioms, run1 and run2 are declared to be
-breadth first axioms while run0 and run3 are declared to be depth first axioms.  
 
 \FloatBarrier
-\subsection{Higher Order Abstract Syntax}
+\subsection{Higher Order Logic Programming}
 
 Just as imperative programs benefit from the addition of higher order functions, logic programs benefit from the addition of both
 higher order predicates and patterns.  
@@ -128,7 +100,7 @@ func (And a b) = code2
 \label{code:Fideal}
 \end{figure}
 
-In higher order logic programming languages like $\lambda$ Prolog, this sort of simplification 
+In higher order logic programming languages like $\lambda$Prolog, this sort of simplification 
 is in fact possible to express as shown in \ref{code:lprolog}.
 
 \begin{figure}[H]
@@ -145,8 +117,7 @@ defn func : term -> term -> prop
 \FloatBarrier
 \subsection{Higher Order Programming}
 
-Fortunately, higher order functions need not be restricted to patterns.  Lisp style macros provide even more ways
-to generalize code.  
+Fortunately, higher order functions need not be restricted to patterns.  Macros provide even more ways to generalize code. 
 
 A great example is the function application operator from Haskell.  
 We can define this in Caledon as shown in \ref{code:macros}
@@ -154,16 +125,75 @@ We can define this in Caledon as shown in \ref{code:macros}
 \begin{figure}[H]
 \begin{lstlisting}
 fixity right 0 @
-defn @ : {at bt:prop} (at -> bt) -> at -> bt
-  as ?\ at bt . \ f . \ a . f a
+defn @ : (At -> Bt) -> At -> Bt
+  as ?\ At Bt . \ f : At -> Bt . \ a : At . f a
 
-defn func : term -> term -> prop 
-  | f1 = func (var A) R <- [code1]
-  | f2 = func (F Var Val) @ f Var R <- [code]
-  | f3 = func (and A B) R <- [code2]
 \end{lstlisting}
-\caption{Macros for expressive syntax}
+\caption{Definitions for expressive syntax}
 \label{code:macros}
 \end{figure}
 
-In many cases, allowing these macros allows for significant simplification of syntax.
+In many cases, allowing these definitions allows for significant simplification of syntax.
+The reader familiar with languages like Twelf, Haskell, and Agda might notice the 
+implicit abstraction of the type variables At and Bt in the type of @ in \ref{code:macros}. The rest of this
+paper is concerned with formalizing these implicit abstractions and letting them have
+as much power as possible. For example, one might make these abstractions explicit by
+instead declaring at the beginning \ref{code:expHask}
+
+\begin{figure}[H]
+\begin{lstlisting}
+infixr 0 @
+(@) :: forall At Bt . (At -> Bt) -> At -> Bt
+(@) = \ f . \ a . f a
+\end{lstlisting}
+\caption{Explicit Haskell style abstractions}
+\label{code:expHask}
+\end{figure}
+
+However, in a dependently typed language, every function type is a dependent product
+(forall).  This makes it necessary to provide a new (explicit) implicit dependent product - $?\foral$ or $?\Pi$.
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+fixity right 0 @
+defn @ : {At Bt:prop} (At -> Bt) -> At -> Bt
+  as ?\ At Bt . \ f . \ a . f a
+
+\end{lstlisting}
+\caption{The (explicit) implicit equivalent of \ref{code:macros}}
+\label{code:expimp}
+\end{figure}
+
+Haskell also has type classes. For example, the type of “show” can be seen in \ref{code:showty}.
+
+\begin{figure}[H]
+\begin{lstlisting}
+show :: Show a => a -> String
+\end{lstlisting}
+\caption{The type of show}
+\label{code:showty}
+\end{figure}
+
+In Caledon, these can be written similarly as in \ref{code:cshowty}
+
+\begin{figure}[H]
+\begin{lstlisting}
+defn show : showC A => A -> string
+defn show : {unused : showC A } A -> string
+\end{lstlisting}
+\caption{Equivalent types for show in Caledon}
+\label{code:cshowty}
+\end{figure}
+
+However, since implicit arguments are a natural extension of the dependent type
+system in Caledon, no restrictions are made on the number of arguments, or difficulty
+of computing. Unfortunately, since computation is primarily accomplished by the logic
+programming fragment of the language rather than the functional fragment of the language,
+the correspondence between these programmable implicit arguments and type
+classes is not one to one. It is possible to replicate virtually all of the functionality of
+type classes in the implicit argument system, but the syntax required to do so can become
+verbose. Rather than attempting to simulate type classes, more creative uses are
+possible, such as computing the symbolic derivative of a type for use in a (albeit, slow
+and unnecessary) generic zipper library, or writing programs that compile differently
+with different types in different environments.
