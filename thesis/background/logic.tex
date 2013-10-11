@@ -19,8 +19,8 @@ We begin by defining addition on unary numbers in Caledon shown in shown in \ref
 \begin{figure}[H]
 \begin{lstlisting}
 defn add : nat -> nat -> nat -> prop
-  >| addZ = add zero A A
-  >| addS = add (succ A) B (succ C) 
+   | addZ = add zero A A
+   | addS = add (succ A) B (succ C) 
              <- add A B C
 \end{lstlisting}
 \caption{Addition in Caledon}
@@ -151,7 +151,7 @@ infixr 0 @
 \end{figure}
 
 However, in a dependently typed language, every function type is a dependent product
-(forall).  This makes it necessary to provide a new (explicit) implicit dependent product - $?\foral$ or $?\Pi$.
+(forall).  This makes it necessary to provide a new (explicit) implicit dependent product - $?\forall$ or $?\Pi$.
 
 
 \begin{figure}[H]
@@ -197,3 +197,171 @@ verbose. Rather than attempting to simulate type classes, more creative uses are
 possible, such as computing the symbolic derivative of a type for use in a (albeit, slow
 and unnecessary) generic zipper library, or writing programs that compile differently
 with different types in different environments.
+
+
+
+
+\section{Initial Examples}
+
+
+In the previous section I gave an introduction to the notion of logic programming using
+both the familiar language of Haskell and the new language of Caledon. In this section
+I will build upon these ideas by introducing logic programming with polymorphism
+through building a set of standard polymorphic type logic library.
+
+There are a few ways of defining sums in Caledon.
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+defn and : type -> type -> type
+   | pair = and A B <- A <- B
+
+defn fst : and A B -> A -> type
+   | fstImp = fst (pair Av Bv) Av
+
+defn snd : and A B -> B -> type
+   | sndImp = snd (pair Av Bv) Bv
+\end{lstlisting}
+\caption{Logical conjunction}
+\label{code:lconj}
+\end{figure}
+
+
+In this first, simplest way (as seen in figure \ref{coe:lconj}, we define a predicate for “and” and
+predicates for construction and projection. This method has the advantage of doubling
+as a form of sequential predicate.
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+query main = and (print ``hello ``) (print `` world!'')
+\end{lstlisting}
+\caption{Use of logical conjunction}
+\label{code:lconjuse}
+\end{figure}
+
+In the figure \ref{code:lconjuse} the query will output ``hello world!''.
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn and : type -> type -> type
+  as \ a : type . \ b : type . 
+      [ c : type ] (a -> b -> c) -> c
+
+defn pair : A -> B -> and A B
+  as ?\ A B : type .
+      \ a b .
+      \ c : type .
+      \ proj : A -> B -> c .
+        proj a b
+
+defn fst : and A B -> A
+  as ?\ A B : type .
+      \ pair : [c : type] (A -> B -> c) -> c .
+        pair A (\ a b . a)
+
+defn snd : and A B -> A
+  as ?\ A B : type .
+      \ pair : [c : type] (A -> B -> c) -> c .
+        pair B (\ a b . b)
+
+\end{lstlisting}
+\caption{Church style conjunction}
+\label{code:cconj}
+\end{figure}
+
+In the case of figure \ref{code:cconj}, we do not add any axioms without their proofs.   
+In this example we also introduce the dependent product written in the form $[ a : t_1 ] t_2$.
+
+This case mimics the version usually seen in the Calculus of Constructions and has the advantage of
+the projections being functions rather than predicates.
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn churchList : type −> type
+  as \A : type . [ lst : type] lst −> (A −> lst −> lst ) −> lst
+
+defn consCL : [ B : type ] B -> churchList B -> churchList B
+  as \ C : type .
+     \ V : C .
+     \ cl : churchList C .
+     \ lst : type .
+     \ nil : lst .
+     \ cons : C -> lst -> lst .
+     cons V (cl lst nil cons)
+
+defn nilCL : [ B : type ] churchList B
+  as \ C : type .
+     \ lst : type .
+     \ nil : lst .
+     \ cons : C -> lst -> lst .
+       nil
+
+defn mapCL : { A B } ( A -> B) -> churchList A -> churchList B
+  as ?\ A B : type .
+      \ F : A -> B.
+      \ cl : churchList A .
+      \ lst : type .
+      \ nil : lst .
+      \ cons : B -> lst -> lst .
+        cl lst nil (\ v . cons (F v))
+
+defn foldrCL : { A B } ( A -> B -> A) -> A -> churchList B -> A 
+  as ?\ A B : type . 
+      \ F : A -> B -> A .
+      \ bc : A .
+      \ cl : churchList B .
+        cl A bc (\ v : B . \ c : A . F c v)
+
+\end{lstlisting}
+\caption{Church style list}
+\label{code:clist}
+\end{figure}
+
+In the Church form of a list, folds and maps are possible to implement as functions
+rather than predicates. However, their implementation is verbose and doesn’t permit
+more complex functions.
+
+
+\begin{figure}[H]
+\begin{lstlisting}
+
+defn list : type -> type
+   | nil = list A
+   | cons = A -> list A -> list A
+
+defn concatList : list A -> list A -> list A -> type
+   | concatListNil = [ L : list A ] concatList nil L L
+   | concatListCons = 
+          concatList (cons (V : T) A) B (cons V C) 
+       <- concatList A B C
+
+defn concatList : list A -> list A -> list A -> type
+   | concatListNil = [ L : list A ] concatList nil L L
+   | concatListCons = 
+          concatList (cons (V : T) A) B (cons V C) 
+       <- concatList A B C
+
+defn mapList : (A -> B -> type ) -> list A -> list B -> type
+   | mapListNil = [ F : A -> B ] mapList F nil nil
+   | mapListCons = [F : A -> B ] 
+            mapList F (cons V L) (cons (F V) L')
+            <- mapList F L L'
+
+defn pmapList : (A -> B -> type) -> list A -> list B -> type
+   | pmapListNil = [ F : A -> B -> type] pmapList F nil nil
+   | pmapListCons = [F : A -> B -> type] 
+            pmapList F (cons V L) (cons V' L')
+            <- F V V'
+            <- mapList F L L'
+\end{lstlisting}
+\caption{Logic List}
+\label{code:llist}
+\end{figure}
+
+The logic programming version can be seen in figure \ref{code:llist}. It is important to note that
+we can now map a predicate over a list rather than just mapping a function over a list.
