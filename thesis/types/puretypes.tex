@@ -9,10 +9,10 @@ Pure type systems are generalizations of the lambda cube
 relationships between terms and types.
 With proper selection of constants, sorts, axioms, and relations
 pure type systems can embed the calculus of constructions \citep{coquand1986calculus}
-and almost any other type system one could imagine.
+and many other type systems one might want to construct.
 
 As generalizations these systems are important, as it has been proven by Jutting \citep{jutting1993typing} that 
-type checking for pure type systems with finite axiom sets are decidable.  Thus, by showing how a system is a pure type system, 
+type checking for normalizing pure type systems with finite axiom sets are decidable.  Thus, by showing how a system is a pure type system and is normalizing, 
 you get decidability of type checking nearly for free.
 
 It has also been shown that these systems have utility.  
@@ -121,7 +121,7 @@ s \in S
 &
 \Gamma \vdash V : A
 &
-\text{x is free for V in B}
+\text{V is free for x in B}
 }
 \]
 
@@ -159,19 +159,20 @@ s \in S
 \end{definition}
 
 
-As Barendgregt points out, the common type theories can be recast as pure type systems
+As Barendgregt\citep{barendregt1991introduction} points out, the common type theories can be recast as pure type systems
 by choice of axioms.  
 In the simplest example, the only axioms chosen are $(*,\Box)$ along with 
 the single relationship $(*,*,*)$. This system describes the simply typed lambda calculus, 
 where only terms can depend on terms.  We say that $A \rightarrow B \equiv \Pi x : A . B$ iff $ x \notin FV(B)$.
 
 \begin{theorem} 
-Subject Reduction: If $\Gamma \vdash A : T$ and $A \equiv_\beta B$ then $\Gamma \vdash B : T$
+Subject Reduction: If $\Gamma \vdash A : T$ and $A \Rightarrow_\beta B$ then $\Gamma \vdash B : T$
 \end{theorem}
 
 Geuvers and Nederhof \citep{geuvers1991modular} proved subject reduction for any calculus on the $\lambda$ cube.
-This property can be proved syntactically by induction on the structure of terms $A$ and 
-there exists Twelf and Agda verified proofs of this property.  Note that this is a usefull property 
+This property can be proved syntactically by induction on the structure of the typing derivation 
+and there exist Twelf and Agda verified proofs of this property.  
+Note that this is a useful property 
 to maintain even in the face of inconsistency of a system as it at the very least allows 
 for a consistent understanding of typing terms.
 
@@ -179,7 +180,7 @@ for a consistent understanding of typing terms.
 Uniqueness of Types: If $\Gamma \vdash A : T$ and $\Gamma \vdash A : T'$ then $T \equiv_\beta T'$
 \end{theorem}
 
-The beta reducable uniqueness of types has also been shown for any system on the $\lambda$ cube.  
+The uniqueness of types with respect to $\beta$ reduction has also been shown for any system on the $\lambda$ cube.  
 This last property is important to showing the decidability of type inference in 
 the caledon language without implicits.
 

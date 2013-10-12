@@ -5,9 +5,6 @@ Since caledon might extend the calculus of constructions, it is important to vie
 As Barendgregt points out, the common type theories can be recast as pure type systems
 by choice of axioms. 
 
-Jutting \citep{jutting1993typing} gave a proof that both typechecking and inference
-in a pure type system with a finite axiom set is decidable.
-
 Roorda \citep{roorda2001pure} gave an implementation of a functional programming language with 
 pure type system and demonstrated its utility.
 
@@ -16,17 +13,14 @@ This is the pure type system where.
 \begin{definition}
 \textbf{(PTS for $CC$)}
 
-\[
-A = \{ *, \Box \}
-\]
+\begin{align}
+A &= \{ *, \Box \}
+\\
+S &= \{ (* : \Box) \}
+\\
+R &= \{ (*,*,*),(*,\Box,\Box),(\Box,\Box,\Box),(\Box,*,*)\}
+\end{align}  
 
-\[
-S = \{ (* : \Box) \}
-\]
-
-\[ 
-R = \{ (*,*,*),(*,\Box,\Box),(\Box,\Box,\Box),(\Box,*,*)\}
-\]  
 \label{coc:types}
 \end{definition}
 
@@ -36,10 +30,9 @@ and types can depend on types and terms.
 It has the well known strong normalization property, implying the termination of 
 all lambda terms typable by $CC$ \citep{Geuvers94ashort} \citep{geuvers1991modular}.
 
-It is necessary to be carefull with the types of equalities allowed in the conversion rule, 
+It is necessary to be careful with the types of equalities allowed in the conversion rule, 
 as with more allowed equalities certain proofs
-become significantly more complex.  For example, if $\eta$ reduction is permited, 
-the church rosser theorem becomes no longer easily provable.
+become significantly more complex.
 
 \begin{definition}
 If $\Gamma \vdash_{CC} P : T : K$ means $\Gamma \vdash_{CC} P : T$ and $\Gamma \vdash_{CC} T : K$
@@ -47,45 +40,6 @@ If $\Gamma \vdash_{CC} P : T : K$ means $\Gamma \vdash_{CC} P : T$ and $\Gamma \
 
 
 \subsection{Consistency of the Calculus of Constructions}
-
-It is useful to first describe a few theorems and definitions relevant to $CC$.  
-
-It is important to show that we can classify \citep{Geuvers94ashort} terms of $CC$.
-
-\begin{definition}
-Classifications:
-
-\[
-\m{Kind} := \{ A | \exists \Gamma . \Gamma \vdash_{CC} A : \Box \}
-\]
-
-\[
-\m{Type} := \{ A | \exists \Gamma . \Gamma \vdash_{CC} A : * \}
-\]
-
-\[
-\m{Constr} := \{ A | \exists T,\Gamma . \Gamma \vdash_{CC} A : T:\Box \}
-\]
-
-\[
-\m{Obj} := \{ A | \exists T,\Gamma . \Gamma \vdash_{CC} A : T:* \}
-\]
-
-\end{definition}
-
-\begin{theorem}
-Classification:
-$\m{Kind}\cap \m{Type} = \emptyset$ 
-and
-$\m{Constr}\cap \m{Obj} = \emptyset$ 
-\end{theorem}
-
-Write proof here.
-
-As Geuvers points out, this can also proved using the Church-Rosser theorem, 
-Subject Reduction and Uniqueness of Types theorem.  
-The theorem defines an important technique for breaking down judgements into
-different cases.
 
 \begin{definition}
 $ \m{Term}_{CC}  = \{ M : \exists T,\Gamma . \Gamma \vdash_{cc} M : T \}$
@@ -102,51 +56,42 @@ property that it does not depend too much on the definition of the set $SN$
 (strongly normalizing). The only properties required are that $S \subseteq SN$ 
 where $S$ is the set of sorts in the system. In the case of $CC$ $\Box,* \in SN$.
 It also requires that $\Pi x : A . B \in SN$, and $\lambda x : A . B \in SN$ 
-for any $A,B$.  Lastly it requires that saturated subsets of $SN$ are closed under
+for any $A,B$.  For those familiar with Geuvers' proof, 
+it is important to note that the proof requires that saturated subsets of $SN$ are closed under
 arbitrary intersection, and function space generation.
 
 However, this proof is restricted to normalization in the calculus where only $\beta$ reduction 
 is considered and not $\eta$ conversion.  The proof for the calculus with full reduction properties is
-in Guevers' thesis \citep{geuvers1993logics}.  While evaluation of terms in Caledon without considering proof search does
-not involve $\eta$ conversion, unification makes significant use of $\eta$ reduction and it is important to note
+in Guevers' thesis \citep{geuvers1993logics}.  While normalization of terms in Caledon without considering proof search does
+not involve $\eta$ conversion, unification could potentially involve $\eta$ expansion and it is helpful to note
 the consistency of the calculus of constructions even when $\eta$ reduction is considered.  
 It is also important to note that in the Curry style calculus where types are omited from lambda abstractions, 
 the church rosser theorem under $\eta$ conversion appears essentially for free\citep{miquel2001implicit}. Strong normalization 
-follows, and by replacement of types, strong normalization follows for the Tarski style calculus.
+follows, and by replacement of types, strong normalization follows for the Curry style calculus.
 
 \subsection{Impredicativity in the Calculus of Constructions}
 
 It is also important to note that while the term language of the calculus of constructions is strongly normalizing, 
-the predicates in the calculus of constructions are impredicative, meaning that small types can be generalized over all small types.
+the predicates in the calculus of constructions are impredicative, meaning that small types (meaning propositions) can be generalized over all small types.
 This adds yet another layer of computation into the Caledon language which might not terminate.  
 Furthermore, the predicate language is insufficient to prove properties of larger types. 
 Luo \citep{luo1989ecc} solves this by introducing universes into the Extended Calculus of Constructions.  
 As defined by Luo, the Extended Calculus of Constructions is no longer a pure type system.
 
 Harper \citep{harper1991type} provided an analysis of a few pure type systems with universes.
-Agda, Idris, CoQ,
-and Plastic \citep{callaghan2001implementation} all implement this teqchnique. 
+Agda, Idris, Coq,
+and Plastic \citep{callaghan2001implementation} all implement this technique.
 Idris implementation uses a topological sort to allow for implicit universes
 and thus does not allow the universes to become an annoyance in code. 
 As Caledon is not intended to be a theorem prover, the impredicativity of the theorem layer is ignored and no 
-predicative universe heirarchy is provided to construct metatheorems natively.
+predicative universe hierarchy is provided to construct native metatheorems.
 
 With the addition of inconsistent impredicative inductive types, it is possible to provide an implementation 
 of the universe heirachy as a higher order datatype who's inhabitants are consistent.  This kind of implementation 
 allows for metatheorem verification in a restricted subset of the language, albeit with the loss of 
 simple cumulative universe inference.
 
-\begin{lstlisting}
-fixity pre 1 %* $\diamond$ *)
-fixity lambda %* $\Pi$ *)
-fixity lambda lam
-unsound tm : {S : tm ty} tm S %* $\rightarrow$ *) prop
-   | ty  = tm ty
-   | %* $\diamond $ *)   = tm ty %* $\rightarrow$ *) tm ty
-   | %* $\Pi$ *)   = [T : tm ty] (tm T %* $\rightarrow$ *) tm T) %* $\rightarrow$ *) tm $ %* $\diamond $ *) T
-   | lam = [T : tm ty][F : tm T %* $\rightarrow$ *) tm T] tm {S = %* $\diamond$ *) T} (%* $\Pi$ *) A : T . F A)
-   | raise = tm T %* $\rightarrow$ *) tm $ %* $\diamond$ *) T
-\end{lstlisting}
+
 
 \subsection{Theorems in Caledon}
 
@@ -166,19 +111,25 @@ If $\Gamma \vdash_{CICC} P : T : \m{prop}$ in the caledon language, then $T$ is 
 \end{definition}
 
 Terms can be considered this way since the consistency of the calculus of constructions implies the strong normalization
-of terms such as $P$.  No unbounded proof search is necessary to evaluate $P$.
+of terms such as $P$.  No unbounded computation is necessary to normalize $P$.  
+Specifically, proof search is not involved in the normalization procedure.
 
-When $CC$ was first developed, therems were proven and generated by explicitly defining
+When $CC$ was first developed, theorems were proven and generated by explicitly defining
 constructors and destructors for records and sum types.  Later, the inductive calculus of constructions was developed 
-\citep{coquand1990inductively} which more accurately forms the basis of the CoQ programming language.  These types of inductive
+\citep{coquand1990inductively} which more accurately forms the basis of the Coq programming language.  These types of inductive
 constructions have been omited from Caledon to allow the addition of inductively defined, universally quantified predicates.
 This omits the confusion that would be generated from having both inductively defined data and predicates in the system, as 
 dependently typed logic programming treats predicates as both data and code.
 
-Unfortunately, simple $CC$ does not make for a powerfull theorem proving language.  This can significantly 
-limit the utility of powerfull theorem searching techniques.
+Unfortunately, simple $CC$ does not make for an expressive or useful theorem proving language.  
+This can significantly limit the utility of theorem searching techniques.  
+In order to make it more useful, a predicative hierarchy of universes 
+was appended to the language which would allow for inclusion of more meta-mathematics techniques.
+As it turns out, this universe hierarchy is can be essential to meta-programming in Caledon.  
+While most of the rest of thesis assumes a simple impredicative universe, I explain the 
+universe construction here, and allow the reader to extrapolate for the remainder of the thesis.
 
-The original calculus of constructions with a universe heirarchy included an impredicative type.
+The original calculus of constructions with a universe hierarchy included an impredicative type.  
 
 \begin{definition}
 \textbf{(PTS for $CC_\omega$)}
@@ -213,5 +164,5 @@ $\m{type}_i : \m{type}_i$ necessary.
 
 In the case where an impredicative universe is included, the extra axiom $\m{prop} : \m{type}$ would
 need to be included, which would mean searching among two possibilities, rather than a single possibility 
-when attempting to find a type for a metatheoretic hole.  The added nondeterminism tends to cause
-an explosion in the time complexity of type inference.
+when attempting to find a type to replace a proof hole with. 
+The added nondeterminism tends to cause an explosion in the time complexity of type inference.

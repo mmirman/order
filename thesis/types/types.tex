@@ -2,7 +2,7 @@ In this section I introduce the specifics of the \textit{Caledon Implicit Calcul
 The internal Caledon type system is an extension of the well known Calculus of Constructions with the 
 addition of implicit bindings, and explicit type constraints for implicit instantiation.  
 While the inspiration for this comes from the theorem prover Agda, it appears as though no formal treatment
-has been provided. In this section provides a background on pure type systems, the history of the calculus of constructions
+has been provided. This section provides a background on pure type systems, the history of the calculus of constructions
 and introduces a formal defintion and treatment of $CICC$ with $\eta$ conversions for the purpose of type checking
 and proof search.
 
@@ -11,10 +11,8 @@ the Bicolored Calculus of Constructions ($CC^{Bi}$) \citep{luther2001more},
 the Implicit Calculus of Constructions ($ICC$) \citep{miquel2001implicit}.
 
 It is comprised of two parts: The Caledon Implicit Calculus of Constructions ($CICC$), 
-and the Implicit Caledon Implicit Calculus of Constructions ($CICC^-$).
-
+and the Implicit Caledon Implicit Calculus of Constructions ($CICC^-$). 
 $CICC$ is a custom modification of $CC^{Bi}$ with Church style binders and explicit constraints 
-where alpha conversion is not available for certain binders.
-
+where alpha conversion is not available for certain binder like constructs.
 $CICC^-$ Is intended to be a combination of the first two, or a partial 
 erasure system for $CICC$. 
