@@ -1,0 +1,48 @@
+
+G |- M : A   G |- A' ; K     A =~ A'
+-----------------------------------
+        G |- M : A'
+
+
+             ------------------ x
+G |- M : A   G |- \x : B. A x ; K     A =~ \x : B . A x
+-------------------------------------------------------
+        G |- M : \x . A x
+
+    by inversion, this is a contradiction
+  -------------------- x
+  G |- \x : B . A x ; K
+
+G |- M : \x : B . A    G |- A : K     \x : B . A =~ A
+------------------------------------------------------
+        G |- M : A
+
+and we have subject reduction, so
+and by inversion, this is a contradiction.
+---------------------x
+G' |- \x : B . A : K 
+
+
+so if we prevent 
+=>/sigma1 : sigma A F => sigma A' F <- A => A'.
+=>/sigma2 : sigma A F => sigma A F' <- {A} F A => F' A.
+
+=>/pi1 : pi A F => pi A' F <- A => A'.
+=>/pi2 : pi A F => pi A F' <- {A} F A => F' A.
+
+from occuring, we severely limit the locations of an eta conversion
+to top level, or within an application.
+
+G |- M : A B     G |- A' B : K     A B =~ A' B
+----------------------------------------------
+        G |- M : A' B
+
+
+G |- A' : Pi x : F . K        G |- B : F
+----------------------------------------
+     G |- A' B : K
+
+
+--- can we convert a typing derivation using eta reduction to 
+--- one without eta reduction if the type is already
+--- eta reduced?

@@ -1,0 +1,162 @@
+%{
+Gm |- Pm :: x : A      Gl,x:A,Gr |- Pl]Ol,Or[Pr :: z : C
+----------------------------------------------------------------- cut 
+  Gl,Gm,Gr |- Pl]Ol, #x.Pm,Or[Pr :: z : C
+
+this rule is a valid cut, even though it is ambiguous where x might be used in the anticedent, it is not
+ambiguous in the succedent.
+
+  --------------------------------------  Id_A
+  x : A |- 0] [x <-> y] , * [0 :: y : A
+
+===========================================================================================================
+
+ Gl', y : A |- Pl]O[Pr :: x : B            Gr' |- Pm :: y : A             Gl, x : B , Gr |- Pl']Ol,Or[ Pr' :: z : C
+-------------------------------------      ------------------------------------------------------------------------
+Gl' |- Pl](y),O [x.Pr :: x : A ->> B           Gl, x:A ->> B, Gr' , Gr |- Pl'] Ol,#y.Pm,Or [x<y>.Pr' :: z : C
+--------------------------------------------------------------------------------------------------------------
+       Gl,Gl',Gr',Gr |-  Pl'] Ol,#x.(Pl] (y),O [x.Pr) , #y.Pm, Or [x<y>Pr'  :: z : C
+or
+       Gl,Gl',Gr',Gr |-  Pl'] Ol,#y.Pm, #x.(Pl] (y),O [x.Pr) , Or [x<y>Pr'  :: z : C
+
+----->
+
+                         Gl', y : A |- Pl] O [Pr :: x : B    Gl, x : B , Gr |- Pl']Ol,Or[ Pr' :: z : C
+                        ----------------------------------------------------------------------------
+Gr' |- Pm :: y : A          Gl, Gl', y : A, Gr |- Pl'] Ol,#x.(Pl] O [Pr), Or [ Pr' :: z : C
+------------------------------------------------------------------------------------------
+    Gl,Gl',Gr',Gr |-  Pl'] Ol,#y.Pm,#x.(Pl] O [Pr), O' [ Pr' :: z : C
+or
+    Gl,Gl',Gr',Gr |-  Pl'] Ol,#x.(Pl] O [Pr), #y.Pm, O' [ Pr' :: z : C
+
+the following should respect all scope rules:
+     Pl'] Ol,#y.Tm, #x.(Pl] (y),O [x.Pr) , Or [x<y>Pr'  
+===> Pl'] Ol,#y.Tm,#x.(Pl] O [Pr), O' [ Pr'
+
+despite there being only 1 transformation that works in all scopes directly, the typing rules for other cuts
+should imply that the move-new transformation will apply to other transformations.
+
+
+
+Pl => Sl]Ol+Or[Sr
+Pr => Sl']Ol'+Or'[Sr'
+Pm => Pm'
+#x. Pl | Pm | Pr => Sl] #x.Pm', (Sl']Ol'++Or[Sr),Ol++Or'[Sr'
+
+ Gm |- T :: x : C     x : C |- 0] [x <-> x] [ 0 :: x : C
+ --------------------------------------------------------
+      Gm |- 0]#x.T, [x <-> x] [0 :: x : C
+
+Gm |- Pm :: x : A      Gl,x:A,Gr |- Pl | Pr :: z : C
+----------------------------------------------------- cut
+  Gl,Gm,Gr |- #x. Pl | Pm | Pr :: z : C
+
+}%
+
+nm : type.
+
+process : type.
+tree : type.
+
+end : process -> process -> tree.
+
+forward : nm -> nm -> tree -> tree.
+new : (nm -> tree) -> (nm -> tree) -> tree.
+in : (nm -> tree) -> tree.
+
+0 : process.
+from : nm -> process -> process.
+out : nm -> nm -> process -> process.
+
+outLeft : nm -> tree -> nm -> tree -> type.
+outLeft/end : outLeft X (end (out X Y L) R) Y (end L R).
+outLeft/bind/new : outLeft X (new T1 T2) Y (new T1 T2')
+                <- {z} outLeft X (T2 z) Y (T2' z).
+outLeft/bind/in : outLeft X (in T2) Y (in T2')
+                <- {z} outLeft X (T2 z) Y (T2' z).
+
+outRight : nm -> tree -> nm -> tree -> type.
+outRight/end : outRight X (end L (out X Y R)) Y (end L R).
+outRight/bind/new : outRight X (new T1 T2) Y (new T1 T2')
+                <- {z} outRight X (T2 z) Y (T2' z).
+outRight/bind/in : outRight X (in T2) Y (in T2')
+                <- {z} outRight X (T2 z) Y (T2' z).
+
+fromLeft : tree -> nm -> tree -> type.
+fromLeft/end : fromLeft (end (from X L) R) X (end L R).
+fromLeft/bind/new : fromLeft (new T1 T2) Y (new T1 T2')
+                <- {z} fromLeft (T2 z) Y (T2' z).
+fromLeft/bind/in : fromLeft (in T2) Y (in T2')
+                <- {z} fromLeft (T2 z) Y (T2' z).
+
+fromRight : tree -> nm -> tree -> type.
+fromRight/end : fromRight (end L (from X R)) X (end L R).
+fromRight/bind/new : fromRight (new T1 T2) Y (new T1 T2')
+                <- {z} fromRight (T2 z) Y (T2' z).
+fromRight/bind/in : fromRight (in T2) Y (in T2')
+                <- {z} fromRight (T2 z) Y (T2' z).
+
+=> : tree -> tree -> type. %infix right 0 =>.
+
+=>/talkL : new ([y] Pm y) ([y] new ([x] in [y'] TI x y) ([x] TO x y))
+        => new ([y] Pm y) ([y] new ([x] TI' x y) ([x] TO' x y))
+        <- ({X}{Y} outLeft X (TI X Y) Y (TI' X Y))
+        <- ({X}{Y} fromLeft (TO X Y) X (TO' X Y)).
+
+=>/talkR : new ([y] Pm y) ([y] new ([x] in [y'] TI x y) ([x] TO x y))
+        => new ([y] Pm y) ([y] new ([x] TI' x y) ([x] TO' x y))
+        <- ({X}{Y} outRight X (TI X Y) Y (TI' X Y))
+        <- ({X}{Y} fromRight (TO X Y) X (TO' X Y)).
+
+=>/newL : new A B => new A' B
+       <- {x} A x => A' x.
+=>/newR : new A B => new A B'
+       <- {x} B x => B' x.
+
+=>/move-new : new ([x] Tm x) ([x] new ([y] Tl y) ([y] Tr x y)) 
+           => new ([y] Tl y) ([y] new ([x] Tl x)  ([x] Tr x y)).
+
+
+
+=>* : tree -> tree -> type. %infix right 0 =>*.
+=>*/done : A =>* A.
+=>*/step : A =>* A'' <- A => A' <- A' =>* A''.
+
+
+
+%{
+note that move-new should be derivable (operationally) via the linearity theorem.  
+
+    Pl]Cl, #x.T, #y.T', Cr [ Pr
+==> Pl]Cl, #y.T, #x.T', Cr [ Pr  provided x isn't free in T'.
+                    
+                    Gm' |- T' :: y : A         Gl,x: A, y : A, Gr |- Pl]Cr [ Pr :: z : Z
+                    --------------------------------------------------------------------------
+Gm |- T :: x : A    Gl,x:A,Gm',Gr |- Pl]#y.T',Cr [ Pr :: z : Z
+----------------------------------------------------------------
+Gl,Gm,Gm',Gr |- Pl]#x.T, #y.T', Cr [ Pr :: z : Z
+
+==>
+                    Gm |- T :: x : A         Gl,x: A, y : A, Gr |- Pl] Cr [ Pr :: z : Z
+                    --------------------------------------------------------------------------
+Gm' |- T' :: y : A    Gl,Gm,y:A,Gr |- Pl] #y.T,Cr [ Pr :: z : Z
+----------------------------------------------------------------
+Gl,Gm,Gm',Gr |- Pl]#y.T', #x.T, Cr [ Pr :: z : Z
+
+via cut!
+
+ Gl', y : A |- Pl]O[Pr :: x : B            Gr' |- Pm :: y : A             Gl, x : B , Gr |- Pl']Or[ Pr' :: z : C
+-------------------------------------      ------------------------------------------------------------------------
+Gl' |- Pl](y),O [x.Pr :: x : A ->> B           Gl, x:A ->> B, Gr' , Gr |- Pl'] #y.Pm,Or [x<y>.Pr' :: z : C
+--------------------------------------------------------------------------------------------------------------
+       Gl,Gl',Gr',Gr |-  Pl'] #x.(Pl] (y),O [x.Pr) , #y.Pm, Or [x<y>.Pr'  :: z : C
+
+---->
+
+                         Gl', y : A |- Pl] O [Pr :: x : B    Gl, x : B , Gr |- Pl']Or[ Pr' :: z : C
+                        ----------------------------------------------------------------------------
+Gr' |- Pm :: y : A          Gl, Gl', y : A, Gr |- Pl'] #x.(Pl] O [Pr), Or [ Pr' :: z : C
+------------------------------------------------------------------------------------------
+    Gl,Gl',Gr',Gr |-  Pl'] #y.Pm,#x.(Pl] O [Pr), Or [ Pr' :: z : C
+
+}% 

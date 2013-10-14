@@ -1,0 +1,350 @@
+%{
+
+ Πºx:A . B 
+
+means x is only used once in the term that inhabits B, 
+but any number of times in B itself.
+
+if they are ordered, they must always be used in the correct order!
+
+λº x . B  means x is only used once in B. (curry style)
+λº x : A . B  means x is only used once in the term B, but any number of times in the types of B.  (church style)
+
+S = {prop , set, type}
+
+A = { prop, set } : type
+
+R = { (A, B, B) | A ∈ S, B ∈ S }
+
+defn nat  : set 
+   | zero = nat
+   | succ = nat ->> nat
+
+defn add : nat ->> nat ->> nat ->> Prop
+   | addZero = Πº A     : nat . add zero A A 
+   | addSucc = Πº A B C : nat . 
+               add A B C ->> add (succ A) B (succ C) 
+
+  Ψ;Σ₁;Ω₁;Γ ⊢ A : K₁      Ψ,a;Σ₂; Ω₂,a ; Γ, a : A ⊢ B : K₂
+—————————————————————————–——————————————————————————————————–
+          Ψ;Σ₁,Σ₂;Ω₁,Ω₂;Γ |- Πº a : A . B  : K₂
+
+
+Ψ;Σ₁;Ω₁;Γ ⊢ A : K₁       Ψ;Σ₁,Σ₂,a;Ω₂,a;Γ,a:A |- B            Ψ,a';Σ₂;Ω₂,a;Γ, a' : A ⊢ B' : K₂  where K₂ is not prop.
+—————————————————————————————————————————————————–———————————–————————————————————————————————–———————-
+           Ψ;Σ₁,Σ₂;Ω₁,Ω₂;Γ |- λº a : A . B  : Πº a' : A . B'
+
+
+Ψ';Σ₁;Ω₁;Γ ⊢ A : K₁     Ψ,a;Σ₂; Ω₂,a ; Γ, a : A ⊢ B : prop    Ψ' is a proper subset of Ψ
+———————————————————————————————————–—————————————————————————–———————————————————————————
+        Ψ;Σ₁,Σ₂;Ω₁,Ω₂;Γ |- Πº a : A . B  : prop
+
+a calculus with "termination" (progress theorem?) and theorem equivalence, but not totality/coverage?
+
+
+Ψ;Σ;Ω;Γ |- A : prop     Ψ;Σ;Ω;Γ ⊢ B : prop       Ψ;Σ;Ω;Γ |- R₁ ≐ R₂
+——————————————————————————————————————————————————————————————————–
+       Ψ;Σ;Ω;Γ |- R₁ | R₂ : prop
+
+R₁ ≐ R₂ 
+ ————————————————————————————————————
+ ∀ All : nat . (zero ≐ All \/ succ A ≐ All)
+ ∀ All : nat . (zero ≐ All \/ succ A ≐ All)
+
+}%
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+%% pure type system %%
+%%%%%%%%%%%%%%%%%%%%%%
+sort : type.
+axiom : sort -> sort -> type.
+relation : sort -> sort -> sort -> type.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% calculus of constructions %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+* : sort.
+# : sort.
+
+axiom/*/# : axiom * #.
+
+relation/only : relation A B B.
+
+%freeze sort axiom relation.
+
+
+%%%%%%%%%%%
+%% terms %%
+%%%%%%%%%%%
+%%——————————%%
+  tm : type.
+%%——————————%%
+srt : sort -> tm.
+Π : tm -> (tm -> tm) -> tm.  %% LINEAR PI! Π the variable can be used anywhere in 
+lam : tm -> (tm -> tm) -> tm.
+
+app : tm -> tm -> tm.
+
+
+%%%%%%%%%%%%%%%%
+%% reductions %% 
+%%%%%%%%%%%%%%%%
+%%——————————————————————%%
+  --> : tm -> tm -> type. %infix right 0 -->.
+%%——————————————————————%%
+
+%abbrev <-- : tm -> tm -> type = [A][B] B --> A. %infix left 0 <--.
+-->/eq   : A --> A.
+-->/beta : app (lam _ F) V --> F V.
+-->/pi1  : Π A F --> Π A' F <- A --> A'.
+-->/pi2  : Π A F --> Π A F' <- {x} F x --> F' x.
+-->/app1 : app A B --> app A' B <- A --> A'.
+-->/app2 : app A B --> app A B' <- B --> B'.
+-->/lam1 : lam A F --> lam A' F <- A --> A'.
+-->/lam2 : lam A F --> lam A F' <- {x} F x --> F' x.
+%freeze -->.
+
+%%——————————————————————%%
+  -->* : tm -> tm -> type. %infix right 0 -->*.
+%%——————————————————————%%
+%abbrev *<-- : tm -> tm -> type = [A][B] B --> A. %infix left 0 *<--.
+
+id  : A -->* A.
+, : A -->* B -> B --> C -> A -->* C. %infix right 10 ,.
+%freeze -->*.
+
+
+
+%%%%%%%%%%%%%%%%
+%% conversion %%
+%%%%%%%%%%%%%%%%
+
+<-> : tm -> tm -> type. %infix right 0 <->.
+reduce : A -->* B -> A <-> B.
+expand : B -->* A -> A <-> B.
+,, : A <-> B -> B <-> C -> A <-> A. %infix none 8 ,,.
+
+%abbrev red- : A --> B -> A <-> B = [T : A --> B] reduce (id , T).
+%abbrev exp- : A --> B -> B <-> A = [T : A --> B] expand (id , T).
+
+%abbrev <->/eq : A <-> A = reduce id.
+
+%freeze <->.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% church rosser theorems %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+flip : A <-> B -> B <-> A -> type.
+%mode flip +A -B.
+
+subst : ({x} M x <-> M' x)
+      -> N --> N'
+      -> M N <-> M' N'
+      -> type.
+%mode subst +R +S -S'.
+
+%% these all hold if the church rosser theorem holds.
+church-rosser : A --> B -> A --> C -> B -->* D -> C -->* D -> type.
+%mode (church-rosser +A +B -C -D).
+
+church-rosser* : A -->* B -> A -->* C -> B -->* D -> C -->* D -> type.
+%mode (church-rosser* +A +B -C -D).
+
+big-rosser : A <-> B -> A -->* C -> B -->* C -> type.
+%mode big-rosser +A -B -C.
+
+trans-->* : A -->* B -> B -->* C -> A -->* C -> type.
+%mode trans-->* +A +B -C.
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% equality theorems %%
+%%%%%%%%%%%%%%%%%%%%%%%
+red*toEq : A -->* B -> A <-> B -> type.
+%mode red*toEq +A -C.
+
+trans<-> : A <-> B -> C <-> B -> A <-> C -> type.
+%mode trans<-> +A +B -C.
+
+equivPi : A <-> A' -> ({x} B x <-> B' x ) -> Π A B <-> Π A' B' -> type.
+%mode equivPi +A +B -C.
+
+eq : sort -> sort -> type.
+eq/sort : eq A A.
+
+eqSrt : srt K1 <-> srt K2 -> eq K1 K2 -> type.
+%mode eqSrt +A -B.
+
+isPi : Π A B --> C -> C --> Π A' B' -> type.
+%mode isPi +A -B.
+
+is*Pi : Π A B -->* C -> C -->* Π A' B' -> type.
+%mode is*Pi +A -B.
+
+redPi : Π A B --> Π A' B' -> A --> A' -> ({x : tm} B x --> B' x) -> type.
+%mode redPi +A -C -B.
+
+red*Pi : Π A B -->* Π A' B' -> A -->* A' -> ({x} B x -->* B' x) -> type.
+%mode red*Pi +A -C -B.
+
+eqPi : Π A B <-> Π A' B' -> A <-> A' -> ({x} B x <-> B' x) -> type.
+%mode eqPi +A -B -C.
+- : eqPi T A<->A' F_B<->B'
+ <- big-rosser T PiAB-->*D PiA'B'-->*D
+ <- is*Pi PiAB-->*D D-->*PiA''B''
+ <- trans-->* PiAB-->*D D-->*PiA''B'' PiAB-->*PiA''B''
+ <- red*Pi PiAB-->*PiA''B'' A-->*A'' F_B-->*B''
+
+ <- trans-->* PiA'B'-->*D D-->*PiA''B'' PiA'B'-->*PiA''B''
+ <- red*Pi PiA'B'-->*PiA''B'' A'-->*A'' F_B'-->*B''
+ 
+ <- red*toEq A'-->*A''  A'<->A''
+ <- red*toEq A-->*A''   A<->A''
+ <- trans<-> A<->A'' A'<->A'' A<->A'
+
+ <- ({x} red*toEq (F_B'-->*B'' x) (F_B'<->B'' x))
+ <- ({x} red*toEq (F_B-->*B'' x) (F_B<->B'' x))
+ <- ({x} trans<-> (F_B<->B'' x ) (F_B'<->B'' x) (F_B<->B' x)).
+
+
+%%%%%%%%%%%%%%%
+%% linearity %%
+%%%%%%%%%%%%%%%
+
+%%—————–——————————————————————%%
+    ⊢o : (tm -> tm) -> type.
+%%—————–——————————————————————%%
+
+lin/var : ⊢o ([x] x).
+lin/pi1 : ⊢o ([x] Π (A x) ([z] B z x)) <- ⊢o A.
+lin/pi2 : ⊢o ([x] Π A ([z] B z x))     <- {z} ⊢o ([x] B z x).
+
+lin/app1 : ⊢o ([x] app (A x) B) <- ⊢o A.
+lin/app2 : ⊢o ([x] app A (B x)) <- ⊢o B.
+
+lin/lam : ⊢o ([x] lam (T x) ([z] F z x)) <- {z} ⊢o ([x] F z x).
+
+%%%%%%%%%%%%
+%% typing %%
+%%%%%%%%%%%%
+
+%%—————————————————————%%
+  ; : tm -> tm -> type.  %infix none 0 ;.
+%%—————————————————————%%
+
+judge/axiom : axiom K1 K2 -> srt K1 ; srt K2.
+
+judge/pi : A ; srt K1   
+        -> ({x} x ; A -> P x ; srt K2 )
+        -> relation K1 K2 K3
+        -> Π A ([x] P x) ; srt K3.
+
+judge/lam : ({x} x ; A -> F x ; P x)
+         -> Π A ([x] P x) ; srt K
+         -> ⊢o F
+         -> lam A ([x] F x) ; Π A ([x] P x).
+
+judge/app : M ; Π A ([x] B x)  
+	 -> N ; A
+         -> app M N ; B N.
+
+judge/conv : M ; A 
+          -> A <-> A'
+          -> A' ; srt K
+	  -> M ; A'.
+
+
+hasSort : A ; S -> S ; srt K -> type.
+%mode hasSort +A -B.
+
+
+
+can-judge-pi  : Π A B ; C -> C <-> srt K1 -> A ; srt K2 -> ({x} x ; A -> B x ; srt K1) -> type.
+%mode (can-judge-pi +A1 +C1 -B1 -D).
+- : can-judge-pi (judge/pi A;K F_B;K relation/only) K1<->K1' A;K F_B;K
+ <- eqSrt K1<->K1' eq/sort.
+- : can-judge-pi (judge/conv PiAB;K K<->K' K';K'') K'<->sK A B
+ <- can-judge-pi PiAB;K (K<->K' ,, K'<->sK) A B.
+
+can-judge-lam : lam A F ; C -> C <-> Π A B -> Π A B ; srt K -> ({x} x ; A -> F x ; B x) -> ⊢o F -> type.
+%mode can-judge-lam +A +C +D -R -T.
+
+- : can-judge-lam (judge/lam (F_F;B : {x} x ; A -> F x ; B x)
+		 PiAB;Srt
+		 LinF
+		 : lam A F ; Π A B)
+     PiAB<->PiAB'
+     PiAB';Srt
+     ([x][x;A : x ; A] judge/conv (F_F;B x x;A : F x ; B x) (F_B<->B' x) (F_B';Srt x x;A) )
+     LinF
+ <- eqPi PiAB<->PiAB' A<->A F_B<->B'
+ <- can-judge-pi PiAB';Srt <->/eq _ F_B';Srt.
+- : can-judge-lam (judge/conv LamAF;C' C'<->C C;K') C<->PiAB PiAB;srt Conv LinF
+ <- can-judge-lam LamAF;C' (C'<->C ,, C<->PiAB) PiAB;srt Conv LinF.
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% subject reduction %%
+%%%%%%%%%%%%%%%%%%%%%%%
+subj-con : A <-> A' -> A ; T -> A' ; T' -> T <-> T' -> type.
+subj-red : A --> A' -> A ; T -> A' ; T' -> T <-> T' -> type.
+subj-exp : A' --> A -> A ; T -> A' ; T' -> T <-> T' -> type.
+
+%mode (subj-red +A +B -C -D) (subj-exp +A +B -C -D) (subj-con +A +B -C -D).
+
+- : subj-red E (judge/conv M;A' A'<->A A;srt) (judge/conv M';A' A'<->A A;srt) O
+ <- subj-red E M;A' M';A' O.
+
+- : subj-red 
+     (-->/lam1 A-->A') 
+     (judge/lam F_xA_F;B PiAB;srt LinF) 
+     (judge/lam 
+	([x][x;A'] F_xA_F;B x (judge/conv x;A' (exp- A-->A') A;srt))
+	(judge/pi A';srt ([x][x;A'] F_x;A_B;srt x (judge/conv x;A' (exp- A-->A') A;srt)) 
+	   relation/only
+	   )
+	LinF
+	)
+     (red- (-->/pi1 A-->A'))
+ <- can-judge-pi PiAB;srt (<->/eq) A;srt F_x;A_B;srt
+ <- subj-red A-->A' A;srt A';srt _.
+
+- : subj-red 
+     -->/beta
+     (judge/app (judge/conv LmAF;C C<->PiAB PiAB;srt) V;A)
+     (F;B V V;A)
+     <->/eq
+ <- can-judge-lam LmAF;C C<->PiAB PiAB;srt F;B _.
+
+- : subj-red 
+     -->/beta
+     (judge/app LmAF;PiAB V;A)
+     (F;B V V;A)
+     <->/eq
+ <- hasSort LmAF;PiAB PiAB;srt
+ <- can-judge-lam LmAF;PiAB <->/eq PiAB;srt F;B _.
+
+- : subj-red -->/eq A A <->/eq.
+- : subj-red (-->/app1 M-->M' : app M N --> app M' N) 
+             (judge/app M;PiAB N;A  : app M N ; B N) 
+             (judge/app M';PiA'B' (judge/conv N;A R1 A';Srt)  : app M' N ; B' N) 
+             (R N : B N <-> B' N) 
+ <- subj-red (M-->M' : M --> M')
+             (M;PiAB : M ; Π A B)
+             (M';PiA'B' : M' ; Π A' B')
+             (O : Π A B <-> Π A' B')
+ <- eqPi O (R1 : A <-> A') (R : {x} B x <-> B' x)
+ <- hasSort N;A A;Srt
+ <- subj-con R1 A;Srt A';Srt _.
+
+- : subj-red (-->/app2 N-->N' : app M N --> app M N') 
+             (judge/app M;PiAB N;A  : app M N ; B N)
+             (judge/app (judge/conv M;PiAB PiAB<->PiA'B PiA'B;srt) N';A')
+             BN<->BN'
+ <- subj-red N-->N' N;A N';A' A<->A'
+ <- equivPi A<->A' ([x] (<->/eq : B x <-> B x)) PiAB<->PiA'B
+ <- subst ([x] (<->/eq : B x <-> B x)) N-->N' BN<->BN'
+ <- hasSort N';A' A';Srt
+ <- hasSort M;PiAB PiAB;srt
+ <- subj-con PiAB<->PiA'B PiAB;srt PiA'B;srt _
+ <- flip A<->A' A'<->A.
+

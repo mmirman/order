@@ -1,0 +1,14 @@
+*.aux
+_region_.tex
+*.brf
+*.bbl
+*.log
+*.dvi
+*.pdf
+*.out
+*~
+*.blg
+*.toc
+*.lot
+*.gz
+*.lof

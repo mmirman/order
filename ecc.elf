@@ -1,0 +1,90 @@
+
+kind : type.
+
+* : kind.
+# : kind.
+
+
+tm : type.
+
+knd : kind -> tm.
+pi : tm -> (tm -> tm) -> tm.
+sigma : tm -> (tm -> tm) -> tm.
+lam : tm -> (tm -> tm) -> tm.
+
+app : tm -> tm -> tm.
+
+pair : tm -> (tm -> tm) -> tm -> tm -> tm.
+
+proj1 : tm -> tm.
+proj2 : tm -> tm.
+
+%%%%%%%%
+%% => %%
+%%%%%%%%
+=> : tm -> tm -> type. %infix right 0 =>.
+
+=>/eq : A => A.
+
+=>/app1 : app A B => app A' B <- A => A'.
+=>/app2 : app A B => app A B' <- B => B'.
+
+=>/beta : app (lam _ F) V => F V.
+=>/sigma1 : proj1 (pair _ _ A B) => A.
+=>/sigma2 : proj2 (pair _ _ A B) => B.
+=>/proj1 : proj1 A => proj1 A' <- A => A'.
+=>/proj2 : proj2 A => proj2 A' <- A => A'.
+
+=>/sigma1 : sigma A F => sigma A' F <- A => A'.
+=>/sigma2 : sigma A F => sigma A F' <- {A} F A => F' A.
+
+=>/lam1 : lam A F => lam A' F <- A => A'.
+=>/lam2 : lam A F => lam A F' <- {A} F A => F' A.
+
+=>/pi1 : pi A F => pi A' F <- A => A'.
+=>/pi2 : pi A F => pi A F' <- {A} F A => F' A.
+
+%%%%%%%%%
+%% ==  %%
+%%%%%%%%%
+== : tm -> tm -> type. %infix right 0 ==.
+==/eq1 : A == B <- A => B.
+==/eq2 : A == B <- B => A.
+
+
+; : tm -> tm -> type.  %infix none 0 ;.
+
+judge/prop : knd * ; knd #.
+judge/pi : A ; knd K1   -> ({x} x ; A -> P x ; knd K2 )
+        -> pi A ([x] P x) ; knd K2.
+
+judge/sigma : A ; knd K   -> ({x} x ; A -> P x ; knd # )
+           -> sigma A ([x] P x) ; knd #.
+
+judge/lam : ({x} x ; A -> F x ; P x)
+         -> pi A ([x] P x) ; knd K
+         -> lam A ([x] F x) ; pi A ([x] P x).
+
+judge/app : M ; pi A ([x] B x)  
+         -> N ; A
+         -> app M N ; F N.
+
+judge/pair : M ; pi A ([x] B x)  
+         -> M ; A
+         -> N ; B M 
+         -> sigma A ([x] B x) ; knd K
+         -> pair A ([x] B x) M N ; sigma A ([x] B x).
+
+judge/proj1 : M ; sigma A ([x] B x)
+	   -> proj1 M ; A.
+
+judge/proj2 : M ; sigma A ([x] B x)
+	   -> proj2 M ; B (proj1 M).
+
+judge/conv : M ; A 
+          -> A == A'
+          -> A' ; knd K
+	  -> M ; A'.
+
+
+
