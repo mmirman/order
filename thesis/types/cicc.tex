@@ -103,7 +103,7 @@ defn rec : nat -> prop -> prop
   as \ nm : nat . \ N : kind . nat_1 nm * N
 
 defn get : [N : kind] [nm : nat] nat_1 nm * N -> N
-  as \ N : kind . \nm : nat . \ c : (string2 nm, N) . snd c
+  as \ N : kind . \nm : nat . \ c : (nat_1 nm, N) . snd c
 
 defn put : [N : kind] [nm : nat] nat_1 nm ->  N -> nat_1 nm * N
   as \ N : kind . \nm : nat . \nmnm : nat_1 nm . \ c : N . pair nmnm N
@@ -113,7 +113,10 @@ defn put : [N : kind] [nm : nat] nat_1 nm ->  N -> nat_1 nm * N
 \end{figure}
 
 We can further convert this into traditional dependent types by constructing
- type invariants as seen in \ref{code:ideal}.
+ type invariants as seen in \ref{code:ideal}.   Note that we shall refer loosely 
+to the encoding in church numerals of a name $x$ as $\bar{x}$.  $\bar{\bar{x}}$ refers to the 
+inhabitant of the type $\m{nat_1}\;\bar{x}$.   $\m{get}$ and $\m{put}$ shall be used as 
+aliases for the definitions outlined above.
 
 Then $?\lambda x : A . B$ and $?\Pi x : A . B$ 
 becomes $\lambda y : \m{rec}\;\bar{x}\;A . [get A \bar{x} y / x ] B$
@@ -125,7 +128,7 @@ would become $N\;( \m{put} \; T \; \bar{x} \; \bar{\bar{x}} \; A)$.
 One might notice that $N$ in $\m{get}$ is of type $\m{kind}$.  
 In simple $CC$, this is unfortunately not an actual type. 
 Rather, it refers to the use of either $\m{type}$ or $\m{prop}$.  
-Allowing $N : \m{type}$ is not permited in the standard $CC$ since it is the subject of quantification.
+Allowing $N : \m{type}$ is not permited in the standard $CC$ since it is quantified.
 This is possible in $CC_\omega$ however.
 In this case, $\m{kind}$ would always refer to the next universe after the highest
 universe mentioned in the program.
@@ -180,9 +183,11 @@ x \notin DV(\Gamma)
 \Gamma,x:A \vdash_{ci} x :A
 }
 {
-\Gamma \vdash_{ci} A:s
+\Gamma , x : A \vdash_{ci} A:s
 &
 s \in S
+& 
+x \notin FV(A)
 }
 \]
 
@@ -226,13 +231,17 @@ s \in S
 \Gamma \vdash_{ci} \lambda x : T . M : (\Pi x : T . U)
 }
 {
-\Gamma , x : T \vdash_{ci} M : U
+\begin{split}
+\Gamma , x : T &\vdash_{ci} M : U
+\\
+\Gamma &\vdash_{ci} (\Pi x : T . U) : s
+\end{split}
 &
-\Gamma \vdash_{ci} (\Pi x : T . U) : s
-&
-s \in S
-&
-x \notin FV(M) \cup BN(M) \cup GN(U)
+\begin{split}
+s &\in S
+\\
+x &\notin BN(M) \cup GN(U)
+\end{split}
 }
 \]
 
@@ -244,13 +253,17 @@ x \notin FV(M) \cup BN(M) \cup GN(U)
 \Gamma \vdash_{ci} ?\lambda x : T . M : (?\Pi x : T . U)
 }
 {
-\Gamma , x : T \vdash_{ci} M : U
+\begin{split}
+\Gamma , x : T &\vdash_{ci} M : U
+\\
+\Gamma &\vdash_{ci} (?\Pi x : T . U) : s
+\end{split}
 &
-\Gamma \vdash_{ci} (?\Pi x : T . U) : s
-&
-s \in S
-&
-x \notin FV(M) \cup BN(M) \cup GN(U)
+\begin{split}
+s &\in S
+\\
+x &\notin BN(M) \cup GN(U)
+\end{split}
 }
 \]
 
@@ -265,6 +278,8 @@ x \notin FV(M) \cup BN(M) \cup GN(U)
 \Gamma \vdash_{ci} M : \Pi x : T . U
 &
 \Gamma \vdash_{ci} N : T
+&
+GN(N) \cap GN(U) = \emptyset
 }
 \]
 
@@ -283,6 +298,8 @@ x \notin FV(M) \cup BN(M) \cup GN(U)
 x \notin GN(M)
 &
 x \notin BN(U)
+&
+GN(N) \cap GN(U) = \emptyset
 }
 \]
 
@@ -299,39 +316,25 @@ Most of the theorems relating to $CICC$ can be obtained by a simple projection i
 \begin{definition}
 \textbf{ (Projection from $CICC$ to $CC$) }
 
-\[
-\CICCproj{v} := v
-\]
-
-\[
-\CICCproj{s} := s
-\]
-
-\[
-\CICCproj{E_1 \; E_2} := \CICCproj{E_1} \; \CICCproj{E_2}
-\]
-
-\[
-\CICCproj{E_1 \; \{ x : T = E \}} := \CICCproj{E_1} \; (\m{put}\;\CICCproj{T}\;\bar{x}\; \bar{\bar{x}}; \CICCproj{E_2} )
-\]
-
-\[
-\CICCproj{\lambda v : T . E } := \lambda v : \CICCproj{T} . \CICCproj{E}
-\]
-
-\[
-\CICCproj{?\lambda v : T . E } := \lambda y : \m{rec}\;\bar{v}\; \CICCproj{T} . \CICCproj{ [ \m{get}\; \CICCproj{T}\; \bar{v}\; y  / v ] E}
+\begin{align}
+\CICCproj{v} &:= v
+\\
+\CICCproj{s} &:= s
+\\
+\CICCproj{E_1 \; E_2} &:= \CICCproj{E_1} \; \CICCproj{E_2}
+\\
+\CICCproj{E_1 \; \{ x : T = E \}} &:= \CICCproj{E_1} \; (\m{put}\;\CICCproj{T}\;\bar{x}\; \bar{\bar{x}}; \CICCproj{E_2} )
+\\
+\CICCproj{\lambda v : T . E } &:= \lambda v : \CICCproj{T} . \CICCproj{E}
+\\
+\CICCproj{?\lambda v : T . E } &:= \lambda y : \m{rec}\;\bar{v}\; \CICCproj{T} . \CICCproj{ [ \m{get}\; \CICCproj{T}\; \bar{v}\; y  / v ] E}
 \;\text{ where $y$ is fresh}
-\] 
-
-\[
-\CICCproj{\Pi v : T . E } := \Pi v : \CICCproj{T} . \CICCproj{E}
-\]
-
-\[
-\CICCproj{?\Pi v : T . E } := \Pi y : \m{rec}\;\bar{v}\;\CICCproj{T} . \CICCproj{ [ \m{get}\;\CICCproj{T}\; \bar{v}\; y  / v ] E}
+\\
+\CICCproj{\Pi v : T . E } &:= \Pi v : \CICCproj{T} . \CICCproj{E}
+\\
+\CICCproj{?\Pi v : T . E } &:= \Pi y : \m{rec}\;\bar{v}\;\CICCproj{T} . \CICCproj{ [ \m{get}\;\CICCproj{T}\; \bar{v}\; y  / v ] E}
 \;\text{ where $y$ is fresh}
-\]
+\end{align}
 
 \label{cicc:proj}
 \end{definition}
@@ -347,12 +350,71 @@ If $\Gamma \vdash_{ci} A : T$ then $\Gamma \vdash_{ci}$
 \label{ci:wfctxt}
 \end{lemma}
 
+The proof of this lemma is by induction on the structure of the derivation $\Gamma \vdash_{ci} A : T$.  The base case is the ``axioms'' case:
+
+\[
+\infer[\m{axioms}]
+{
+\Gamma \vdash_{ci} c : s
+}
+{
+\Gamma \vdash_{ci}
+&
+(c,s) \in A
+}
+\] 
+
+which gives us $\Gamma \vdash_{ci}$ for free.
+
+In the other cases, for example the ``prod'' case:
+\[
+\infer[\m{prod}]
+{
+\Gamma \vdash (\Pi x : A . B) : s_3
+}
+{
+\Gamma \vdash A : s_1
+&
+\Gamma,x:A \vdash B : s_2
+&
+(s_1,s_2,s_3) \in R
+}
+\]
+
+we usually have one assumption where the context is not modified at all, for example in 
+$\Gamma \vdash A : s_1$.  In this case we apply the induction hypothesis.  
+
+\begin{lemma}
+
+If $\Gamma, x : N \vdash_{ci} A : T$ and $\Gamma \vdash_{ci} S : N$ and $x$ is free for $S$ in $A$ and $T$,
+then $\Gamma \vdash_{ci} A[S/x] : T[S/x]$. 
+
+\label{ci:sub}
+\end{lemma}
+
+This proof is by lexicographic induction on the structure of the typing derivation $\Gamma, x : N \vdash_{ci} A : T$.  The base case is the ``start'' case, which works because $x \notin FV(N)$ since 
+$x : N$.  
+
+The next cases ``gen'' and ``gen*'' taking special note that ``free for'' is defined such that
+bound and generalized names act the same.   
+The case of ``app'' is made possible by ensuring that the applicant and type of the function do not
+share any bound names.
+
+
 \begin{lemma}
 
 If $\Gamma \vdash_{ci} A : T$ then $\Gamma \vdash_{ci} T : s$ for some sort $s$
 
 \label{ci:wtt}
 \end{lemma}
+
+This lemma can be proved again by induction on the structure of the derivation of $\Gamma \vdash_{ci} A : T$.
+
+In the case where $T \in S$, then $T$ is either $\m{prop}$ or $\m{type}_i$ for some $i$.  If it is 
+$\m{prop}$ then $T : \m{type}_0$ otherwise $T : \m{type}_{i+1}$.
+
+The interesting cases are thus $\m{gen}$, $\m{gen}*$, $\m{app}$ and $\m{inst/b}$.  
+In the first two cases, we would simply apply the typing rules $\m{prod}$ and $\m{prod}*$ respectively.  In the $\m{app}$ and $\m{inst/b}$ cases, we apply the substitution, lemma.
 
 \begin{theorem}
 
