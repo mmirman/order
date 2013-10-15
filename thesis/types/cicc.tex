@@ -1,3 +1,7 @@
+
+\newtheorem{tcases}{Case}
+
+
 \section{Caledon Implicit Calculus of Constructions}
 
 
@@ -84,7 +88,7 @@ BN(\m{otherwise}) &= \emptyset
 
 As defined above, bound names and bound variables can no longer be treated the same in the semantics.  
 Specifically, $?\lambda x : A . B$ does not have the same semantics as $?\lambda y : A . [y / x] B$.  
-This implies that alpha conversion is now severely limited.  
+This implies that alpha conversion is now limited.  
 
 There are a few ways to deal with this.  
 The most attractive possibility is to interpret names as a kind of record modifier.
@@ -141,175 +145,8 @@ universes.
 
 This intuitive conversion leads to the following typing rules for $CICC$.
 
-\begin{definition}
-\textbf{(Typing for $CICC$)}
 
-\[ \begin{array}{lr}
-\infer[\m{wf/e}]
-{
-\cdot \vdash_{ci} 
-}{}
-&
-\infer[\m{wf/s}]
-{
-\Gamma, x : T \vdash_{ci} 
-}
-{
-\Gamma \vdash_{ci} T : s
-&
-x \notin DV(\Gamma)
-}
-\end{array} \]
-
-%% axioms %%
-%%%%%%%%%%%%
-\[
-\infer[\m{axioms}]
-{
-\Gamma \vdash_{ci} c : s
-}
-{
-\Gamma \vdash_{ci}
-&
-(c,s) \in A
-}
-\]
-
-%% start %%
-%%%%%%%%%%%
-\[
-\infer[\m{start}]
-{
-\Gamma,x:A \vdash_{ci} x :A
-}
-{
-\Gamma , x : A \vdash_{ci} A:s
-&
-s \in S
-& 
-x \notin FV(A)
-}
-\]
-
-%% prod %%
-%%%%%%%%%%
-\[
-\infer[\m{prod}]
-{
-\Gamma \vdash (\Pi x : A . B) : s_3
-}
-{
-\Gamma \vdash A : s_1
-&
-\Gamma,x:A \vdash B : s_2
-&
-(s_1,s_2,s_3) \in R
-}
-\]
-
-%% prod* %%
-%%%%%%%%%%%
-\[
-\infer[\m{prod}*]
-{
-\Gamma \vdash (?\Pi x : A . B) : s_3
-}
-{
-\Gamma \vdash A : s_1
-&
-\Gamma,x:A \vdash B : s_2
-&
-(s_1,s_2,s_3) \in R
-}
-\]
-
-%% gen %%
-%%%%%%%%%
-\[
-\infer[\m{gen}]
-{
-\Gamma \vdash_{ci} \lambda x : T . M : (\Pi x : T . U)
-}
-{
-\begin{split}
-\Gamma , x : T &\vdash_{ci} M : U
-\\
-\Gamma &\vdash_{ci} (\Pi x : T . U) : s
-\end{split}
-&
-\begin{split}
-s &\in S
-\\
-x &\notin BN(M) \cup GN(U)
-\end{split}
-}
-\]
-
-%% gen* %%
-%%%%%%%%%%
-\[
-\infer[\m{gen}*]
-{
-\Gamma \vdash_{ci} ?\lambda x : T . M : (?\Pi x : T . U)
-}
-{
-\begin{split}
-\Gamma , x : T &\vdash_{ci} M : U
-\\
-\Gamma &\vdash_{ci} (?\Pi x : T . U) : s
-\end{split}
-&
-\begin{split}
-s &\in S
-\\
-x &\notin BN(M) \cup GN(U)
-\end{split}
-}
-\]
-
-%% app %%
-%%%%%%%%%
-\[
-\infer[\m{app}]
-{
-\Gamma \vdash_{ci} M N : U [N/x]
-}
-{
-\Gamma \vdash_{ci} M : \Pi x : T . U
-&
-\Gamma \vdash_{ci} N : T
-&
-GN(N) \cap GN(U) = \emptyset
-}
-\]
-
-%% inst/b %%
-%%%%%%%%%%%%
-\[
-\infer[\m{inst/b}]
-{
-\Gamma \vdash_{ci} M \{ x : T = N \} : U [N/x]
-}
-{
-\Gamma \vdash_{ci} M : ?\Pi x : T . U
-&
-\Gamma \vdash_{ci} N : T
-& 
-x \notin GN(M)
-&
-x \notin BN(U)
-&
-GN(N) \cap GN(U) = \emptyset
-}
-\]
-
-\label{cicc:typing}
-\end{definition}
-
-
-\subsection{Main Results}
-
-Most of the theorems relating to $CICC$ can be obtained by a simple projection into $CC$.
+The simplest, albeit not the most constructive method of defining typeability for $CICC$ can be obtained by a simple projection into $CC$.
 
 \newcommand{\CICCproj}[1]{ \left\llbracket #1 \right\rrbracket_{ci}}
 
@@ -343,146 +180,194 @@ It is significant that church numerals be used for the representation of the nam
 as no extra axioms need to be included in the context of the translation for the translation to be valid.  
 This necessity is seen in \ref{ci:sound}.
 
-\begin{lemma}
-
-If $\Gamma \vdash_{ci} A : T$ then $\Gamma \vdash_{ci}$
-
-\label{ci:wfctxt}
-\end{lemma}
-
-The proof of this lemma is by induction on the structure of the derivation $\Gamma \vdash_{ci} A : T$.  The base case is the ``axioms'' case:
-
-\[
-\infer[\m{axioms}]
-{
-\Gamma \vdash_{ci} c : s
-}
-{
-\Gamma \vdash_{ci}
-&
-(c,s) \in A
-}
-\] 
-
-which gives us $\Gamma \vdash_{ci}$ for free.
-
-In the other cases, for example the ``prod'' case:
-\[
-\infer[\m{prod}]
-{
-\Gamma \vdash (\Pi x : A . B) : s_3
-}
-{
-\Gamma \vdash A : s_1
-&
-\Gamma,x:A \vdash B : s_2
-&
-(s_1,s_2,s_3) \in R
-}
-\]
-
-we usually have one assumption where the context is not modified at all, for example in 
-$\Gamma \vdash A : s_1$.  In this case we apply the induction hypothesis.  
-
-\begin{lemma}
-
-If $\Gamma, x : N \vdash_{ci} A : T$ and $\Gamma \vdash_{ci} S : N$ and $x$ is free for $S$ in $A$ and $T$,
-then $\Gamma \vdash_{ci} A[S/x] : T[S/x]$. 
-
-\label{ci:sub}
-\end{lemma}
-
-This proof is by lexicographic induction on the structure of the typing derivation $\Gamma, x : N \vdash_{ci} A : T$.  The base case is the ``start'' case, which works because $x \notin FV(N)$ since 
-$x : N$.  
-
-The next cases ``gen'' and ``gen*'' taking special note that ``free for'' is defined such that
-bound and generalized names act the same.   
-The case of ``app'' is made possible by ensuring that the applicant and type of the function do not
-share any bound names.
-
-
-\begin{lemma}
-
-If $\Gamma \vdash_{ci} A : T$ then $\Gamma \vdash_{ci} T : s$ for some sort $s$
-
-\label{ci:wtt}
-\end{lemma}
-
-This lemma can be proved again by induction on the structure of the derivation of $\Gamma \vdash_{ci} A : T$.
-
-In the case where $T \in S$, then $T$ is either $\m{prop}$ or $\m{type}_i$ for some $i$.  If it is 
-$\m{prop}$ then $T : \m{type}_0$ otherwise $T : \m{type}_{i+1}$.
-
-The interesting cases are thus $\m{gen}$, $\m{gen}*$, $\m{app}$ and $\m{inst/b}$.  
-In the first two cases, we would simply apply the typing rules $\m{prod}$ and $\m{prod}*$ respectively.  In the $\m{app}$ and $\m{inst/b}$ cases, we apply the substitution, lemma.
-
-\begin{theorem}
-
-\textbf{(Soundness of extraction)}  
-
-\begin{alignat}{4}
-\Gamma &\vdash_{ci}&  & \implies & \CICCproj{\Gamma} & \vdash_{cc} &
-\\
-\Gamma &\vdash_{ci}& A : T & \implies & \CICCproj{\Gamma} & \vdash_{cc} & \CICCproj{A} : \CICCproj{ T }
-\end{alignat}
-
-\label{ci:sound}
-\end{theorem}
-
-It is easy to see how this proof follows from the 
-definition \ref{cicc:proj}, and the two lemmas \ref{ci:wfctxt} and \ref{ci:wtt}.
-
 \begin{definition}
-$ \m{Term}_{ci}  = \{ M : \exists T,\Gamma . \Gamma \vdash_{ci} M : T \}$
+\textbf{(Typing for $CICC$)} We say $\Gamma \vdash_{ci} A : T$ iff $\CICCproj{\Gamma} \vdash_{cc} \CICCproj{A} : \CICCproj{T}$
+\label{cicc:typing}
 \end{definition}
 
-\begin{theorem}
-\textbf{(Consistency)}  $\not \exists M \in \m{Term}_{ci}. \vdash M : \Pi x : \m{prop} . x$
-\label{ci:cons}
-\end{theorem}
-
-This follows clearly from the soundness of the extraction, 
-\ref{ci:sound}, the consistency of $CC$ \ref{cc:cons}, and the fact that we 
-have obviously more possible reductions in $CC$ than in $CICC$.  
-
-Before we can prove the strong normalization theorem, we need to show that reductions in the extracted calculus 
-correspond to reductions in $CICC$. 
+What is then important is that we can translate back from the calculus of constructions after 
+transformations have occurred.
 
 \begin{theorem}
-\textbf{(Semantic Equivalence)} 
-$\forall M \in \m{Term}_{cicc}$ such that $\CICCproj{M} \rightarrow_{\beta\eta*} N'$
-implies 
-$\exists M' \in \m{Term}_{cicc}$ such that $M \rightarrow_{\beta\eta\alpha} M'$ and $\CICCproj{M'} \equiv N'$
-\label{ci:se}
+\textbf{(Projection Substitution)}  
+
+$\CICCproj{[A/x] B} = [ \CICCproj{A} / x ] \CICCproj{B}$ provided $x$ is free for $A$ in $B$.
+
 \end{theorem}
 
-While the proof here is somewhat technical, the result is obvious, as the extraction and calculus
-have been written so as to ensure that the result is true.
+The proof of this theorem is by inductio on the structure of B.
+
+\begin{tcases}
+Suppose $B$ is the variable $x$.
+\end{tcases}
+
+$\CICCproj{[A/x] x} = \CICCproj{A} = [\CICCproj{A}/x]x = [\CICCproj{A} / x ] \CICCproj{x}$
+
+\begin{tcases}
+Suppose $B$ is a different variable $v$.
+\end{tcases}
+
+$\CICCproj{[A/x] v} = v = [\CICCproj{A}/x]v = [\CICCproj{A} / x ] \CICCproj{v}$
+
+\begin{tcases}
+The most interesting case is $B = ?\lambda v : T . E$
+\end{tcases}
+
+Then
+\[
+\CICCproj{A}/x ]\CICCproj{? \lambda : T . E } 
+= [ \CICCproj{A} / x ] ( \lambda v : \m{rec} \; \bar{v} \;\CICCproj{T} . 
+   \CICCproj{ [ \m{get} \; \CICCproj{T} \; \bar{v} \; y / v ] E } )
+\]
+
+where $y$ is fresh.
+
+Then 
+\[
+= ( \lambda v : \m{rec} \; \bar{v} \;([ \CICCproj{A} / x ] \CICCproj{T}) . 
+    [ \CICCproj{A} / x ] \CICCproj{ [ \m{get} \; \CICCproj{T} \; \bar{v} \; y / v ] E } )
+\]
+\[
+= ( \lambda v : \m{rec} \; \bar{v} \;\CICCproj{[ A / x] T} . 
+    [ \CICCproj{A} / x ] [ \m{get} \; \CICCproj{T} \; \bar{v} \; y / v ] \CICCproj{E } )
+\]
+
+Then by the induction hypothesis on $T$ and $E$ and the fact that 
+$[\CICCproj{A} / x ] \m{get} = \m{get}$ 
+and $[\CICCproj{A} / x ] \m{rec} = \m{rec}$ 
+and $x \neq y$ since $y$ is fresh, we get: 
+
+\[
+= ( \lambda v : \m{rec} \; \bar{v} \;\CICCproj{[ A / x] T} . 
+   [ \m{get} \; \CICCproj{[A / x ]T} \; \bar{v} \; y / v ]  [ \CICCproj{A} / x ] \CICCproj{E } )
+\]
+since we know that $v$ isn't free in $A$ by the fact that $x$ is free for $A$ in $B$ 
+(provided $x$ is actually used anywhere in $E$) we get the following:
+\[
+= ( \lambda v : \m{rec} \; \bar{v} \;\CICCproj{[ A / x] T} . 
+   \CICCproj{ [ \m{get} \; \CICCproj{[A / x ]T} \; \bar{v} \; y / v ] [ A / x ] E } )
+\]
+\[
+= \CICCproj{ ?\lambda v : [ A / x] T . [ A / x ] E }
+\]
+\[
+= \CICCproj{ [ A / x] (?\lambda v : T . E) }
+\]
+
+\begin{lemma}
+\textbf{(Reduction Translation)}
+Forall $M, N \in \m{Term}_{ci}$ if $M \rightarrow_{\beta\eta*} N$ then 
+$\CICCproj{M} \rightarrow_{\beta\eta*} \CICCproj{N}$
+\label{cicc:red}
+\end{lemma}
+
+Proof of this lemma is by lexicographic induction on the structure of $M \rightarrow N$ and $M$.
 
 \begin{theorem}
-\textbf{(Subject Reduction)} If $\Gamma \vdash_{ci} M : T$ and $M \rightarrow_{\beta\eta\alpha*} M'$ then $\Gamma \vdash_{ci} M' : T$
+\textbf{(Semantic Equivalence)}
+
+Forall $M \in \m{Term}_{ci}$ such that $\CICCproj{M} \rightarrow_{\beta\eta*} N'$ and 
+$\Gamma \vdash M : T$ implies that there exists $M' \in \m{Term}_{cicc}$ such that 
+$M \rightarrow_{\beta\eta*} M'$ and $\CICCproj{M'} \equiv N'$
+
+\label{cicc:equiv}
 \end{theorem}
 
-In non dependent type theories, this theorem is rather trivial.  However, in $CC$, this theorem depends heavily on the Church-Rosser 
-theorem.  Fortunately, $CICC$ can be considered a bicoloring of the syntax of $CC$, and the proof of subject reduction 
-for $CC$ can be leveraged to $CICC$ using a forgetfull extraction.
+The proof is by induction on the form of $\CICCproj{M} \rightarrow_{\beta\eta} N'$
+and then induction to arbitrary numbers of reductions.  
+
+Here we only show the case of $\beta$ reduction.  $\eta$ reduction/expansion is analogous.
+
+Now assume $\CICCproj{M} \rightarrow_{\beta\eta} N'$ is of the form 
+$\CICCproj{E} \rightarrow_{\beta} V$.  
+Then it is of the form $(\lambda x : T_a . R) E_2 \rightarrow_{beta} [ \CICCproj{E_2}/ x ] R $
+where $V = [ \CICCproj{E_2} / c ] R$ and $(\lambda x : T_a . R) E_2 = \CICCproj{E_1} E_2 = \CICCproj{E}$.
+
+Then since $\CICCproj{E_1} = (\lambda x : T_a . R)$ we know that $E_1 = \lambda x : T_a' . R'$ 
+or that $E_1 = ?\lambda v : T_a' . R'$.  We examine these two cases.
+
+\setcounter{tcases}{0}
+
+\begin{tcases}
+We begin with the case of $E_1 = \lambda x : T_a' . R'$
+\end{tcases}
+
+Then because $\Gamma \vdash_{ci} M : T$ and $M = (\lambda x : T_a' . R') E'_2$, 
+we know that $\Gamma \vdash_{ci} (\lambda x : T_a' . R') : \Pi x : T_a' . T_2$.
+and thus 
+$\CICCproj{\Gamma} \vdash_{cc} 
+\CICCproj{(\lambda x : T_a' . R')} : \CICCproj{\Pi x : T_a' . T_2}$.
+
+Then $\CICCproj{\Gamma} \vdash_{cc} (\lambda x : \CICCproj{T_a'} . \CICCproj{R'}) \CICCproj{E_2} : \CICCproj{T}$ is the result of the ``app'' rule.  
+
+Since the ``app'' rule has to have been applied, we know that 
+$\CICCproj{M} = 
+\CICCproj{(\lambda x : T_a' . R') E_2} 
+= (\lambda x : \CICCproj{T_a'} . \CICCproj{R'}) \CICCproj{E_2}$.
+
+Thus, $\CICCproj{E_2'} = E_2$ and $\CICCproj{T_a'} = T_a$ and $\CICCproj{R'} = R$. 
+
+Since we are performing a $\beta$ reduction, we know that $x$ is free for $\CICCproj{E_2}$ in 
+$\CICCproj{R'}$.  Then by the projection substitution theorem \ref{cicc:proj}, 
+$\CICCproj{[E_2/x]R'} = [ \CICCproj{E_2} / x ] \CICCproj{R'} $ where $\CICCproj{R'} = R$.
+
+Thus, $\CICCproj{[E_2 / x] R'} = V$
+
+\begin{tcases}
+The last case is where $E_1 = ?\lambda x : T' . R'$
+\end{tcases}
+
+Because $\Gamma \vdash_{ci} M : T$ and $M = (?\lambda x : T_a' . R') E_2'$
+we know that $\Gamma \vdash_{ci} (?\lambda x : T_a' . R') : ?\Pi x : T_a' . T_2$ clearly.  
+
+Then $\CICCproj{\Gamma} \vdash_{cc} \CICCproj{?\lambda x : T_a' . R'} E_2 : \CICCproj{T}$
+ must be the result of the is the result of the ``app'' rule. 
+
+Thus, we know that $\CICCproj{\Gamma} \vdash_{cc} \CICCproj{?\lambda x : T_a' . R'} : \Pi y : T_3 . T_4$ for some $T_3$ and $T_4$.
+
+By uniqueness of forms and inversions, we get that 
+\[
+\Pi y : T_3 . T_4 
+= \Pi y : \m{rec} \bar{x}\CICCproj{T_a'} . \CICCproj{[ \m{get} \CICCproj{T_a'} \bar{x} y / x ] T_2}
+\]
+since 
+\[
+\CICCproj{?\lambda x : T_a' . R'} 
+= 
+\lambda y : \m{rec} \bar{x}\CICCproj{T_a'} . \CICCproj{[ \m{get} \CICCproj{T_a'} \bar{x} y / x ] R'}
+\]
+
+Thus, we know that 
+\[
+\CICCproj{M} = 
+\CICCproj{(?\lambda x : T_a' . R')} (\m{put} \CICCproj{T'}\bar{x}\bar{\bar{x}} \CICCproj{E_2})
+\]
+
+Thus, $M = (?\lambda x : T_a' . R')\{ x : T_2' = E_2\} $ and $\CICCproj{T_a'} = T$ 
+and $\CICCproj{R'} = R$.  Since we are performing a $\beta$ reduction, we know that
+$x$ is free for $\CICCproj{E_2}$ in $\CICCproj{R'}$.  
+Then by the projection substitution theorem \ref{cicc:proj}, 
+$\CICCproj{[E_2/x]R'} = [ \CICCproj{E_2}/x ] \CICCproj{R'}$
+where $\CICCproj{R'} = R$
+
+Thus, $\CICCproj{[E_2/x] R'} = V$
+
+
 
 \begin{theorem}
 \textbf{(Strong Normalization)} $\forall M \in \m{Term}_{ci}. SN(M)$
 \label{ci:sn}
 \end{theorem}
 
-That we can cleanly translate into the calculus of constructions without loss or gain of 
-semantical translation implies strong normalization for $CICC$ with $\beta\eta$ equivalence, 
-and $\eta$ expansion.  This is the most important theorem of the section, as it implies that typchecking a Caledon 
-statement will allow that statement to be compiled to pattern form to be used in proof search.  
-Without this theorem typechecking is a weak property and valid programs might not be useable.  
-While type safety in the presence of the strong normalization theorem does not ensure bounded proof search, 
-it does ensure bounded unification.
-The strong normalization theorem is to logic programming languages as 
-the progress theorem is to functional programming languages.
+Strong normalization is simply a consequence of the semantic equivalence \ref{cicc:equiv} and the 
+reduction translation lemma \ref{cicc:red}.
 
-That $CICC$ is simply an extention of $CC$ and not a modification of $CC$ implies we have the completeness theorem, \ref{ci:comp}.
+That we can cleanly translate into the calculus of constructions without loss or gain of 
+semantic translation implies strong normalization for $CICC$ with $\beta$ reduction and 
+ $\eta$ expansion.  This is the most important theorem of the section, as it implies that typechecking a Caledon 
+statement will allow that statement to be compiled to pattern form to be used in proof search.  
+
+That $CICC$ is simply an extension of $CC$ and not a modification of $CC$ implies we have the completeness theorem, \ref{ci:comp}.
 
 \begin{theorem}
 \textbf{(Completeness)}  $\forall M,T \in \m{Term}_{cc}. \vdash_{cc} M : T \implies \vdash_{ci} M : T$
