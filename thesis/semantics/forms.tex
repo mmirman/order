@@ -2,15 +2,13 @@
 
 \begin{definition}
 Spine Form
-\[
-N ::= P
+\begin{align}
+N &::= P
    \orr \lambda V : N . N 
-\]
-
-\[
-P ::= V 
+\\
+P &::= V 
   \orr P N 
-\]
+\end{align}
 \label{def:spine}
 \end{definition}
 
@@ -20,7 +18,7 @@ This simplifies the presentation of the unification algorithm,
 as then $\Pi$ can be considered a traditional constructor
 that can also be used to direct the unification procedure.
 
-Spine terms have the incredibly useful property that if they are always in head normal form, 
+Spine terms have the incredibly useful property that they are always in head normal form, 
 meaning that the head of every term is a constructor, 
 and every argument is either a constructor or lambda term.
 
@@ -51,7 +49,7 @@ $\Gamma$ is the universal context.
 
 \[ \begin{array}[2]{lr}
 \infer[\m{P/CON}]{
-\Delta ; \Gamma \vdash \lambda c \;M_1\cdots M_m \Pat
+\Delta ; \Gamma \vdash c \;M_1\cdots M_m \Pat
 }{
 \Delta ; \Gamma \vdash M_1 \Pat
 &
@@ -61,7 +59,7 @@ $\Gamma$ is the universal context.
 }
 &
 \infer[\m{P/VAR}]{
-\Delta ; \Gamma \vdash \lambda u \;M_1\cdots M_m \Pat
+\Delta ; \Gamma \vdash u \;M_1\cdots M_m \Pat
 }{
 \Delta ; \Gamma \vdash M_1 \Pat
 &
@@ -77,7 +75,7 @@ u \in \Gamma
 \[ \begin{array}[2]{lr}
 \infer[\m{P/PROP}]{
 \Delta ; u_1 ,\cdots u_p 
-\vdash \lambda x \;u_{\phi(1)}\cdots u_{\phi(m)} \Pat
+\vdash x \;u_{\phi(1)}\cdots u_{\phi(m)} \Pat
 }{
 \phi \text{ is a partial permutation}
 &
@@ -85,7 +83,7 @@ x \in \Delta
 }
 &
 \infer[\m{P/VAR}]{
-\Delta ; \Gamma \vdash \lambda M \Pat
+\Delta ; \Gamma \vdash M \Pat
 }{
 \Delta ; \Gamma \vdash M' \Pat
 &
@@ -104,9 +102,9 @@ calculus of constructions, which the metatheory of Caledon is based on,
 relies on the fact that expressions are also presented in 
 \textit{long $\beta\eta$-normal form} (or \textit{canonical form}), 
 meaning that they are $\eta$ expanded to conform to their type signature.  
-In the intial publication of this paper, it was taken as a hypothesis that 
-CC was strongly long $\beta\eta$-normal form normalizing.  This is now known
-to be the case.
+In the initial publication of this paper, it was taken as a hypothesis that 
+every well-typed term in $CC$ has a unique $\beta$-normal $\eta$-long form.  This is now known
+to be the case \citep{abel2010towards}.
 
 \newcommand{\FormFor}{\;\Rightarrow\;}
 \begin{definition}
