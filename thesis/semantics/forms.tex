@@ -130,7 +130,7 @@ Canonical Forms
 
 \[
 \infer[\m{F/lam}]{
-\Gamma \vdash \lambda x : A . M \FormFor \lambda x : A . B
+\Gamma \vdash \lambda x : A . M \FormFor \Pi x : A . B
 }{
 \Gamma,x : A\vdash M \FormFor B
 &
@@ -158,7 +158,7 @@ where $D$ is atomic
 
 It has been proven that the standard calculus of constructions is 
 long $\beta\eta$-normal form strongly normalizing.  
-Unfortunately, normalzation into this form is not possible without type 
+Unfortunately, normalization into this form is not possible without type 
 information.  Later, a typed substitution algorithm will be given which 
 ensures normalization into this form.  
 
