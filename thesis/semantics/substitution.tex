@@ -3,7 +3,7 @@
 The higher order unification algorithm described is only defined on the pattern form provided in the previous section.
 As the pattern fragment is a restriction on $\beta\eta$ long-normal form, it is necessary to provide a normalizing
 substitution that preserves $\beta\eta$ long-normal form.  The presentation here
-revolves around heredetary substitution, a notion first described by Pfenning et al. \citep{pfenning1991logic} for
+revolves around hereditary substitution, a notion first described by Pfenning et al. \citep{pfenning1991logic} for
 a calculus with only $\beta$ reduction.
 
 Other presentations are possible, such as traditional substitution followed by Normalization by Evaluation 
@@ -11,7 +11,7 @@ for $\beta\eta$ conversions\citep{abel2010towards}.
 While this is a proven total method in a typed setting, it's mechanics
 are complex and not particularly enlightening.  
 Keller et al. \citep{keller2010normalization}
-extended Heredetary substitution to $\eta$ expansion, but only in the simply typed case. 
+extended Hereditary substitution to $\eta$ expansion, but only in the simply typed case. 
 The presentation here extends this version into $CC$.
 
 \subsection{Untyped Substitution}
@@ -107,69 +107,47 @@ N ::= P
 \begin{definition}
 \textbf{(Typed Hereditary Substitution)}
 
-\[
-[S / x : A]^n_{\Gamma } P := \m{E}([S / x : A]^p_{\Gamma } P)
-\]
-
-\[
-[S / x : A]^n_{\Gamma } (\lambda y : B . N) := \lambda y:B . [S / x : A]^n_{\Gamma, y : B} N
-\]
-
-\[
-\m{E}^M(M \uparrow P) := M
-\]
-
-\[
-\m{E}(N \downarrow A) := \eta^{-1}_A (N)
-\]
-
-\[
-\eta^{-1}_{\Pi x : A . B}(N) := \lambda z : A . N \; \eta^{-1}_A(z)
-\] where $z$ is fresh
-
-\[
-\eta^{-1}_{P}(N) := N
-\]
-
-\[ 
-[ N / x : A]^p_{\Gamma} x := N \uparrow A
-\]
-
-\[
-[S / x : A]^p_{\Gamma} y := y \downarrow \Gamma(x)
-\] 
-
-\[
-[S / x : A]^p_{\Gamma } P\;N := 
+\begin{align}
+[S / x : A]^n_{\Gamma } P &:= \m{E}([S / x : A]^p_{\Gamma } P)
+\\
+[S / x : A]^n_{\Gamma } (\lambda y : B . N) &:= \lambda y:B . [S / x : A]^n_{\Gamma, y : B} N
+\\
+\m{E}(M \uparrow P) &:= M
+\\
+\m{E}(N \downarrow A) &:= \eta^{-1}_A (N)
+\\
+\eta^{-1}_{\Pi x : A . B}(N) &:= \lambda z : A . \eta^{-1}_B(N \; \eta^{-1}_A(z))
+ \text{ where $z$ is fresh}
+\\
+\eta^{-1}_{P}(N) &:= N
+\\
+[ N / x : A]^p_{\Gamma} x &:= N \uparrow A
+\\
+[S / x : A]^p_{\Gamma} y &:= y \downarrow \Gamma(x)
+\\
+[S / x : A]^p_{\Gamma } P\;N &:= 
 \m{H}_{\Gamma} ( [S/x : A]^p_{\Gamma} P , [S/x : A]^n_{\Gamma} N) 
-\]
-
-\[
+\\
 \m{H}_{\Gamma} ((\lambda v : A_1 . N) \uparrow \Pi v' : A_1 . A_2 , P) 
-:= [P/v : A_1]^n_{\Gamma} N \uparrow [P/v']^n A_2
-\]
-
-\[
-\m{H}_{\Gamma}(P \downarrow \Pi y : B_1 . B_2 , N) := P\; N \downarrow [N/y]^nB_2
-\]
+&:= [P/v : A_1]^n_{\Gamma} N \uparrow [P/v']^n A_2
+\\
+\m{H}_{\Gamma}(P \downarrow \Pi y : B_1 . B_2 , N) &:= P\; N \downarrow [N/y]^nB_2
+\end{align}
 
 \label{def:tyhered}
 \end{definition} 
 
-In these last two rules, when initializing the universal type, it is important that the substitution be non typed
-or $\eta$ expanding as this would lead to an unecessary circularity.  Types need not be in $\eta$-long form
-when used for $\eta$ expanding in substitution since they are not unified with.
-
-While we could omit the distinction between $\uparrow$ and $\downarrow$ from
-these rules, it would in practice result in excess computation.
+In these last two rules, when initializing the dependent product, it is important that the substitution be neither typed
+nor $\eta$ expanding as this leads to an unnecessary circularity.  Types need not be in $\eta$-long form
+when used for $\eta$ expanding in substitution since they are not being unified against anything.
 
 Also, note that in the hereditary part of the recurrence, 
-it is possible to omit cases for improperly formated terms.  $A \downarrow T$ has the invarient that
-$A$ must be already in a cononical form within the context it is used since it existed previously in the
-equation.  Similarly, $A \uparrow T$ has the invarient that $A$ must be locally in a canonical form.
-This permits significant amounts of reduction of steps.
+it is possible to omit cases for improperly formatted terms.  $A \downarrow T$ has the invarient that
+$A$ must be already in a canonical form within the context it is used since it existed previously in the
+equation.  Similarly, $A \uparrow T$ has the invariant that $A$ must be locally in a canonical form.
+This permits significant reduction of steps.
 
-The usefull property of this hereditary substitution is spelled in \ref{thm:hed-sound}
+The useful property of this hereditary substitution is spelled in \ref{thm:hed-sound}
 
 \begin{theorem}
 \textbf{(Soundness of Heredetary Substitution)}
