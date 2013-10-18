@@ -30,17 +30,29 @@ U ::= U \wedge U
 The following new transformations are added to represent proof search:
 
 \begin{align}
-G_\Pi : M \in \Pi x : A . B   \UnifiesTo \forall x : A . \exists y : B . y \doteq M x \wedge y \in B
+G_\Pi : M \in \Pi x : A . B   &\UnifiesTo \forall x : A . \exists y : B . y \doteq M x \wedge y \in B
 \\
-G^1_\m{Atom} : \forall x : A . F[M\in C]  \UnifiesTo \forall x : A . F[x \in A >> M \in C]
-\;\text{ where $C$ is an atomic type}
+\begin{split}
+G^1_\m{Atom} : \forall x : A . F[M\in C]  &\quad\UnifiesTo \forall x : A . F[x \in A >> M \in C]
 \\
-G^2_\m{Atom} : F[M\in C]  \UnifiesTo \forall x : A . F[c_0 \in A >> M \in C]
-\;\text{ where $c_0 : A$ is a constant and $C$ is an atomic type}
+&\quad\text{ where $C$ is an atomic type}
+\end{split}
 \\
-D_\Pi : N\in \Pi x : A . B >> M \in C \UnifiesTo \exists x : A ( N x \in B >> M \in C) \wedge x \in A
+\begin{split}
+G^2_\m{Atom} : F[M\in C] &\quad\UnifiesTo\forall x : A . F[c_0 \in A >> M \in C]
 \\
-D_\m{Atom} : N\in a N_1 \cdots N_n >> M \in a M_1 \cdots M_n \UnifiesTo N_1 \doteq M_1 \wedge \cdots \wedge N_n \doteq M_n \wedge N \doteq M
+&\quad\text{ where $c_0 : A$ is a constant and $C$ is an atomic type}
+\end{split}
+\\
+D_\Pi : 
+F[N\in \Pi x : A . B >> M \in C ]
+&\UnifiesTo 
+F[\exists x : A ( N x \in B >> M \in C) \wedge x \in A]
+\\
+D_\m{Atom} : 
+F[N\in a N_1 \cdots N_n >> M \in a M_1 \cdots M_n] 
+&\UnifiesTo 
+F[N_1 \doteq M_1 \wedge \cdots \wedge N_n \doteq M_n \wedge N \doteq M]
 \end{align}
 
 \subsection{Proof Sharing}
