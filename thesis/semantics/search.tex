@@ -5,7 +5,7 @@ and the context can be considered an unordered set (even though for implementati
 In a dependently typed logic programming language where types direct proof search, types must be maintained in the context
 and the context thus must maintain order.   Since search dynamically poses unification problems, which may not be 
 entirely solvable until later in the search, unification and proof search are naturally mutually recursive procedures.
-As it is important to maintain the mixed quantifier prefix thought proof search, it is desirable to provide a version 
+As it is important to maintain the mixed quantifier prefix throughout proof search, it is desirable to provide a version 
 of the algorithm where unification and proof search are not distinct procedures. 
 \citep{pfenning1991logic} gave a succinct formulation where inhabitance and immediate implication were represented
 directly in the unification calculus.  
@@ -29,25 +29,19 @@ U ::= U \wedge U
 
 The following new transformations are added to represent proof search:
 
-\[
+\begin{align}
 G_\Pi : M \in \Pi x : A . B   \UnifiesTo \forall x : A . \exists y : B . y \doteq M x \wedge y \in B
-\]
-
-\[
+\\
 G^1_\m{Atom} : \forall x : A . F[M\in C]  \UnifiesTo \forall x : A . F[x \in A >> M \in C]
-\]
-
-\[
+\;\text{ where $C$ is an atomic type}
+\\
 G^2_\m{Atom} : F[M\in C]  \UnifiesTo \forall x : A . F[c_0 \in A >> M \in C]
-\]  where $c_0 : A$ is a constant
-
-\[
+\;\text{ where $c_0 : A$ is a constant and $C$ is an atomic type}
+\\
 D_\Pi : N\in \Pi x : A . B >> M \in C \UnifiesTo \exists x : A ( N x \in B >> M \in C) \wedge x \in A
-\]
-
-\[
+\\
 D_\m{Atom} : N\in a N_1 \cdots N_n >> M \in a M_1 \cdots M_n \UnifiesTo N_1 \doteq M_1 \wedge \cdots \wedge N_n \doteq M_n \wedge N \doteq M
-\]
+\end{align}
 
 \subsection{Proof Sharing}
 
