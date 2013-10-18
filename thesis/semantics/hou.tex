@@ -1,8 +1,6 @@
 \section{Higher Order Unification}
 
-Unification lies at the heart of the semantics of the Caledon language.
-
-Checking for the reducability of two full lambda terms has long been known to be only semidecidable.  
+Checking for the reducability of two full lambda terms has long been known to be only semi-decidable.
 The matter becomes even more complicated when checking for the equality of terms with variables bound
 by both existential and universal quantifiers.  Research from the past thirty years has constrained
 the problem to a decidable subset known as the pattern fragment.
@@ -23,13 +21,13 @@ U ::= U \wedge U
 \end{definition}
 
 When $\doteq$ is taken to mean $\equiv_{\beta\eta\alpha*}$, the unification problem is to determine 
-whether a statement $U$ is ``true'' in the common sense, and provide a proof of the truth of the statement. 
+whether a statement $U$ is ``true'' in the standard sense, and provide a proof of the truth of the statement. 
 
 Unification problems of the form 
-$\forall x : T_1 . \exists y : T_2 . U $ can be converted to the form
+$\forall x : T_1 . \exists y : T_2 . U $ can be solved by solving those of the form
 $\exists y : \Pi x : T_1 . T_2 . \forall x : T_1 . [y\; x / y ]U $ 
-in the process known as raising. Unification
-statements can always quantified over unused variables: $U \implies Q x : T . U$.  
+in the process known as raising. 
+Unification statements can always quantified over unused variables: $U \implies Q x : T . U$ (where $Q ::= \exists | \forall $).  
 
 Thus, statements can always be converted to the form
 \[
@@ -124,13 +122,13 @@ Furthermore, rather than explicitly writing down the result of unification,
 we shall use $\exists x. F \UnifiesTo \exists x . [ L / x] F$ 
 to stand for $\exists x. F \UnifiesTo \exists x . x \doteq L \wedge [ L / x] F$
 
-The unification rules are symetric, so any rule of the form 
-$M \doteq N \sim N \doteq M$ practically.
+The unification rules are symmetric, so any rule of the form 
+$M \doteq N$ is equivalent to $N \doteq M$ practically.
 
 Also, for the purpose of typed normalizing heredetary substitution, 
 a formula prefix $F[e]$ of the form 
 $Qx_1:A_1 . E_1\wedge \cdots Qx_n : A_n . e$ shall be considered as a context
-$x_1 : A_1 ,\cdots ,x_n : A_n$ when written $\nu^-1(F)$.
+$x_1 : A_1 ,\cdots ,x_n : A_n$ when written $\nu^{-1}(F)$.
 
 \setcounter{tcase}{0}
 
@@ -152,9 +150,9 @@ Lam-Lam
 \end{tcase}
 
 \[
-\lambda x : A . M \doteq \lambda x : A . N
+F[\lambda x : A . M \doteq \lambda x : A . N ]
 \UnifiesTo
-\forall x : A . M \doteq N
+F[ \forall x : A . M \doteq N ]
 \]
 
 While this rule is not explicitly necessary as it is covered by the Lam-Any rule, 
@@ -164,7 +162,7 @@ this helps to reduce the number of substitutions from an original name.
 
 Lastly, these reductions make the 
 assumption that no variable name is bound more than once.
-This can seem restrictive, but it is possible to 
+This can seem restrictive during implementation, but it is possible to 
 work past by alpha converting everywhere and annotating
 new variables with their original names, and alpha converting
 back to the original after unification. The other option is again
@@ -202,15 +200,14 @@ Raising
 \end{tcase}
 
 \[
-F[Q y : A . \exists x : B . G]
+F[\forall y : A . \exists x : B . G]
 \UnifiesTo
-F[\exists x' : (\Pi y : A . B) . Q y : A . [x' y / x : B]_{F, x : \Pi y : A . B , y : A} G]
+F[\exists x' : (\Pi y : A . B) . \forall y : A . [x' y / x : B]_{F, x : \Pi y : A . B , y : A} G]
 \]
 
 This rule is important, as correct or 
 incorrect application of this rule can result in 
 terminating or non terminating reductions sequences.
-
 
 \begin{tcase}
 Exists-And
@@ -242,7 +239,7 @@ provided no existential variables are declared in $E_2$.
 While this restriction prevents most application of this rule, 
 equations can still be flattened to the form
 \[
-Qx_1:A_1\cdots Qx_n : A_n . M_1 \doteq N_1 \wedge M_m \doteq N_n
+Qx_1:A_1\cdots Qx_n : A_n . M_1 \doteq N_1 \wedge \cdots \wedge M_m \doteq N_n
 \]
 
 transforming $E_2$ first with the Raising rule untill 
@@ -393,7 +390,7 @@ also mention their names.
 Another potential option is to maintain the type of the existential variable 
 with each mention of the existential variable.  
 While in this situation it is simplest to implement reconstruction, 
-types might be enormous and it would be preferable to metion them only once.  
+types might be enormous and it would be preferable to mention them only once.  
 
 The last option is to perform unification with untyped substitution in certain cases.  
 While there is no proof at the moment that unification on the pattern subset of 
@@ -404,5 +401,5 @@ the correctness of the algorithm, only the potential totality.
 Ideally, knowledge that type checking terminated would be convincing enough
 so it is not necessary to continue with the reconstruction.  However, reconstruction
 is necessary for implementing the multi-pass proof search described previously.  
-Furthermore, reconstruction is usefull since the exposed typing rules do not admit 
-coherence.  In these cases, it is desirable to see what was infered by type inference.
+Furthermore, reconstruction is useful since the exposed typing rules are incoherent, 
+meaning there could be multiple coercions to demonstrate a subtyping relation.  In these cases, it is desirable to see what was infered by type inference.
