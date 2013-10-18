@@ -110,7 +110,7 @@ N ::= P
 \begin{align}
 [S / x : A]^n_{\Gamma } P &:= \m{E}([S / x : A]^p_{\Gamma } P)
 \\
-[S / x : A]^n_{\Gamma } (\lambda y : B . N) &:= \lambda y:B . [S / x : A]^n_{\Gamma, y : B} N
+[S / x : A]^n_{\Gamma } (\lambda y : B . N) &:= \lambda y: [S / x ] B. [S / x : A]^n_{\Gamma, y : B} N
 \\
 \m{E}(M \uparrow P) &:= M
 \\
@@ -147,21 +147,153 @@ $A$ must be already in a canonical form within the context it is used since it e
 equation.  Similarly, $A \uparrow T$ has the invariant that $A$ must be locally in a canonical form.
 This permits significant reduction of steps.
 
+In general, it is provable that for any PTS that is strongly normalizing for $\beta$ reduction and 
+$\eta$ expansion, this algorithm will terminate and substitution will be defined.  
+This is a direct consequence of \ref{thm:betaeta}.  
+Since every step of the algorithm applies either an $\eta$ expansion or 
+a $\beta$ reduction, the algorithm must halt when substituting for well typed terms.
+
 The useful property of this hereditary substitution is spelled in \ref{thm:hed-sound}
+
+\begin{theorem}
+\textbf{(Soundness of $\eta$ Expansion)}
+If  $\Gamma \vdash F : A$ 
+and $F$ is in $\beta$-normal form then
+$\eta^{-1}_{A}(F)$ is in $\eta$-long form
+\label{thm:hed-long}
+\end{theorem}
+
+The proof of this is trivial since all that occurs is the complete $\eta$ expansion 
+of every possible term. 
+
+Note, in the following theorems the $\Gamma \vdash N \; \m{Norm}$ means that $N $ is in $\beta$-normal 
+$\eta$-long form (ignoring types).
 
 \begin{theorem}
 \textbf{(Soundness of Heredetary Substitution)}
 If  $\Gamma \vdash S : A$ 
-and $\Gamma \vdash x : A$ 
-and $\Gamma \vdash S \; \m{pattern}$ 
-and $\Gamma \vdash N \; \m{pattern}$ 
+and $\Gamma \vdash S \; \m{Norm}$ 
+and $\Gamma \vdash N \; \m{Norm}$ 
 and $x$ is free for $S$ in $N$
 and $[S / x : A]^n N$ is defined, 
-then
-and $\Gamma \vdash ([S / x : A]^n N) \; \m{pattern}$ 
+then $\Gamma \vdash ([S / x : A]_\Gamma^n N) \; \m{Norm}$ 
 \label{thm:hed-sound}
 \end{theorem}
+\begin{theorem}
+\textbf{(Soundness of Heredetary Application-1)}
+If  $\Gamma \vdash P : \Pi v' : A_1 . A_2$ 
+and $\Gamma \vdash N : A_1$ 
+and $\Gamma \vdash P \; \m{Norm}$ 
+and $\Gamma \vdash N \; \m{Norm}$ 
+then $E(H_\Gamma(P \downarrow \Pi v' : A_1 . A_2 , N)) \; \m{Norm}$ 
+\label{thm:hed-app1}
+\end{theorem}
+\begin{theorem}
+\textbf{(Soundness of Heredetary Application-2)}
+If  $\Gamma \vdash (\lambda v : A_1 . N) : \Pi v' : A_1 . A_2$ 
+and $\Gamma \vdash P : A_1$ 
+and $\Gamma \vdash P \; \m{Norm}$ 
+and $\Gamma \vdash N \; \m{Norm}$ 
+and $v$ is free for $P$ in $N$
+then $\Gamma \vdash E(H_\Gamma((\lambda v : A_1 . N) \uparrow \Pi v' : A_1 . A_2 , P)) \; \m{Norm}$ 
+\label{thm:hed-app2}
+\end{theorem}
 
-In general, it is provable that for any PTS that is strongly normalizing for $\beta$ reduction and 
-$\eta$ expansion, this algorithm will terminate and substitution will be defined.  
-This is a direct consequence of \ref{thm:betaeta}.
+The proof for these theorems is by mutual induction:  
+for substitution on the structure of $[S/x : A]_\Gamma^n N = E([S/x : A]_\Gamma^p N)$, 
+for application-1 on the structure of $E(H_\Gamma(P \downarrow \Pi v' : A_1 . A_2 , N))$,
+and for application-2 on the structure of $E(H_\Gamma((\lambda v : A_1 . N) \uparrow \Pi v' : A_1 . A_2 , P))$.
+
+
+\begin{tcases}
+\textbf{Substitution} Suppose $N$ is of the form $(\lambda y : B . N')$.
+\end{tcases}
+
+\[
+[S/x : A]_{\Gamma}^n (\lambda y : B . N') 
+= \lambda y : [S / x] B . [S / x : A]^n_{\Gamma, y : B} N'
+\]
+
+And thus by the induction hypothesis, 
+$\Gamma \vdash [S / x : A]^n_{\Gamma, y : B} N' \; \m{Norm}$
+and thus
+$\Gamma \vdash  \lambda y : [S / x] B . [S/x : A]_{\Gamma}^n N' \; \m{Norm}$
+
+\begin{tcases}
+\textbf{Substitution} Suppose $N$ is of the form $P \; N'$.
+\end{tcases}
+
+\[
+[S/x : A]_{\Gamma}^n N 
+= E( H_\Gamma([S/x : A]_{\Gamma}^n P, [S/x : A]_{\Gamma}^n N') )
+\]
+
+And thus by the induction hypothesis, 
+$\Gamma \vdash [S/x : A]_{\Gamma}^n P \; \m{Norm}$
+and
+$\Gamma \vdash  [S/x : A]_{\Gamma}^n N' \; \m{Norm}$
+
+Thus, $E( H_\Gamma([S/x : A]_{\Gamma}^n P, [S/x : A]_{\Gamma}^n N') )$ by 
+mutual induction using \ref{thm:hed-app1}.
+
+\begin{tcases}
+\textbf{Substitution} Suppose $N$ is of the form $x$.
+\end{tcases}
+
+\[
+[S/x : A]_{\Gamma}^n x 
+= E( S \uparrow A)
+= S
+\]
+
+and by argument, $\Gamma \vdash S\; \m{Norm}$ already.
+
+\begin{tcases}
+\textbf{Substitution} Suppose $N$ is of the form $y$.
+\end{tcases}
+
+\[
+[S/x : A]_{\Gamma}^n y 
+= E( y \downarrow \Gamma(y))
+= \eta_{\Gamma(y)}^{-1}(y)
+\]
+
+which by theorem \ref{thm:hed-long} should be in $\beta$-normal, $\eta$-long form.
+
+\begin{tcases}
+\textbf{Application-1} 
+\end{tcases}
+
+\[
+E(H_\Gamma(P \downarrow \Pi v' : A_1 . A_2 , N))
+= 
+E(P N \downarrow [N/v'] A_2)
+=
+\eta_{[N/v'] A_2}^{-1}(P N)
+\]
+
+Since $\Gamma \vdash N \; \m{Norm}$ and $\Gamma \vdash P \; \m{Norm}$, 
+
+Thus, $P N$ is in $\beta$-normal form, and so 
+$\Gamma \vdash \eta_{[N/v'] A_2}^{-1}(P N) \; \m{Norm}$
+
+\begin{tcases}
+\textbf{Application-2} 
+\end{tcases}
+
+\[
+E(H_\Gamma((\lambda v : A_1 . N) \uparrow \Pi v' : A_1 . A_2 , P))
+=
+E( [ P / v : A_1 ]_\Gamma^n N \uparrow [ P / v' ]^n A_2)
+=
+[P / v : A_1 ]_\Gamma^n N
+\]
+
+Since $\Gamma \vdash (\lambda v : A_1 . N) : \Pi v' : A_1 . A_2$, we know that
+$(\lambda v : A_1 . N) P$ must normalize and thus $[P/ v : A_1 ]_\Gamma^n N$ is defined.
+Thus, since $\Gamma \vdash P \; \m{Norm}$ and $\Gamma \vdash N \; \m{Norm}$ and 
+$\Gamma \vdash P : A_1$, we know that
+$\Gamma \vdash [P/ v : A_1 ]_\Gamma^n N \; \m{Norm}$
+
+Thus, 
+$\Gamma \vdash E(H_\Gamma((\lambda v : A_1 . N) \uparrow \Pi v' : A_1 . A_2 , P)) \; \m{Norm}$
