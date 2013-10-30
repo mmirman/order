@@ -1,17 +1,17 @@
 \section{Pure Type Systems}
 
 The type system for caledon is a pure type system \citep{mckinna1993pure} 
-extended with explicit recursive types and implicit types.  In this section
-I discuss what a pure type system is and what it's properties are.
+extended with explicit recursive types and implicit types.  In this section,
+I discuss what a pure type system is and what its properties are.
 
 Pure type systems are generalizations of the lambda cube
 \citep{barendregt1991introduction} which allow for arbitrary 
 relationships between terms and types.
-With proper selection of constants, sorts, axioms, and relations
-pure type systems can embed the calculus of constructions \citep{coquand1986calculus}
+With proper selection of constants, sorts, axioms, and relations,
+pure type systems can embed the ``Calculus of Constructions'' \citep{coquand1986calculus}
 and many other type systems one might want to construct.
 
-As generalizations these systems are important, as it has been proven by Jutting \citep{jutting1993typing} that 
+As generalizations, these systems are important, as it has been proven by Jutting \citep{jutting1993typing} that 
 type checking for normalizing pure type systems with finite axiom sets are decidable.  Thus, by showing how a system is a pure type system and is normalizing, 
 you get decidability of type checking nearly for free.
 
@@ -173,8 +173,8 @@ Geuvers and Nederhof \citep{geuvers1991modular} proved subject reduction for any
 This property can be proved syntactically by induction on the structure of the typing derivation 
 and there exist Twelf and Agda verified proofs of this property.  
 Note that this is a useful property 
-to maintain even in the face of inconsistency of a system as it at the very least allows 
-for a consistent understanding of typing terms.
+to maintain, even in the face of inconsistency of a system, because at the very least, the 
+property allows for a consistent understanding of typing terms.
 
 \begin{theorem}
 Uniqueness of Types: If $\Gamma \vdash A : T$ and $\Gamma \vdash A : T'$ then $T \equiv_\beta T'$
