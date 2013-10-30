@@ -1,7 +1,7 @@
 \section{The Calculus of Constructions}
 
-The type system for Caledon is based on the Calculus of Constructions as defined by Coquand \citep{coquand1986calculus}.
-Since caledon might extend the calculus of constructions, it is important to view it as a pure type system. 
+The type system for Caledon is based on the ``Calculus of Constructions'' as defined by Coquand \citep{coquand1986calculus}.
+Since caledon might extend the ``Calculus of Constructions,'' it is important to view it as a pure type system. 
 As Barendgregt points out, the common type theories can be recast as pure type systems
 by choice of axioms. 
 
@@ -24,14 +24,12 @@ R &= \{ (*,*,*),(*,\Box,\Box),(\Box,\Box,\Box),(\Box,*,*)\}
 \label{coc:types}
 \end{definition}
 
-In this sytem, terms can depend on terms and types, 
+In this system, terms can depend on terms and types, 
 and types can depend on types and terms.  
-
-It has the well known strong normalization property, implying the termination of 
-all lambda terms typable by $CC$ \citep{Geuvers94ashort} \citep{geuvers1991modular}.
-
+This pure type system has the well known strong normalization property, implying the termination of 
+all lambda terms typeable by $CC$ \citep{Geuvers94ashort} \citep{geuvers1991modular}.
 It is necessary to be careful with the types of equalities allowed in the conversion rule, 
-as with more allowed equalities certain proofs
+since if there are more allowed equalities, then certain proofs
 become significantly more complex.
 
 \begin{definition}
@@ -58,16 +56,16 @@ where $S$ is the set of sorts in the system. In the case of $CC$ $\Box,* \in SN$
 It also requires that $\Pi x : A . B \in SN$, and $\lambda x : A . B \in SN$ 
 for any $A,B$.  For those familiar with Geuvers' proof, 
 it is important to note that the proof requires that saturated subsets of $SN$ are closed under
-arbitrary intersection, and function space generation.
+arbitrary intersection and function space generation.
 
-However, this proof is restricted to normalization in the calculus where only $\beta$ reduction 
+This proof is restricted to normalization in the calculus where only $\beta$ reduction 
 is considered and not $\eta$ conversion.  The proof for the calculus with full reduction properties is
 in Guevers' thesis \citep{geuvers1993logics}.  While normalization of terms in Caledon without considering proof search does
-not involve $\eta$ conversion, unification could potentially involve $\eta$ expansion and it is helpful to note
-the consistency of the calculus of constructions even when $\eta$ reduction is considered.  
-It is also important to note that in the Curry style calculus where types are omited from lambda abstractions, 
-the church rosser theorem under $\eta$ conversion appears essentially for free\citep{miquel2001implicit}. Strong normalization 
-follows, and by replacement of types, strong normalization follows for the Curry style calculus.
+not involve $\eta$ conversion, unification could potentially involve $\eta$ expansion and it is helpful to maintain
+the consistency of the ``Calculus of Constructions'' even when $\eta$ reduction is considered.  
+It is also important to note that in the Curry-style calculus where types are omitted from lambda abstractions, 
+the Church-Rosser theorem under $\eta$ conversion appears essentially for free\citep{miquel2001implicit}. Strong normalization 
+follows, and by replacement of types, strong normalization follows for the Curry-style calculus.
 
 \subsection{Impredicativity in the Calculus of Constructions}
 
@@ -75,7 +73,7 @@ It is also important to note that while the term language of the calculus of con
 the predicates in the calculus of constructions are impredicative, meaning that small types (meaning propositions) can be generalized over all small types.
 This adds yet another layer of computation into the Caledon language which might not terminate.  
 Furthermore, the predicate language is insufficient to prove properties of larger types. 
-Luo \citep{luo1989ecc} solves this by introducing universes into the Extended Calculus of Constructions.  
+Luo \citep{luo1989ecc} solves this by introducing universes into the ``Extended Calculus of Constructions''.  
 As defined by Luo, the Extended Calculus of Constructions is no longer a pure type system.
 
 Harper \citep{harper1991type} provided an analysis of a few pure type systems with universes.
@@ -84,11 +82,11 @@ and Plastic \citep{callaghan2001implementation} all implement this technique.
 Idris implementation uses a topological sort to allow for implicit universes
 and thus does not allow the universes to become an annoyance in code. 
 As Caledon is not intended to be a theorem prover, the impredicativity of the theorem layer is ignored and no 
-predicative universe hierarchy is provided to construct native metatheorems.
+predicative universe hierarchy is provided to construct native meta-theorems.
 
 With the addition of inconsistent impredicative inductive types, it is possible to provide an implementation 
-of the universe heirachy as a higher order datatype who's inhabitants are consistent.  This kind of implementation 
-allows for metatheorem verification in a restricted subset of the language, albeit with the loss of 
+of the universe hierarchy as a higher order data-type who's inhabitants are consistent.  This kind of implementation 
+allows for meta-theorem verification in a restricted subset of the language, albeit with the loss of 
 simple cumulative universe inference.
 
 
@@ -96,8 +94,8 @@ simple cumulative universe inference.
 \subsection{Theorems in Caledon}
 
 It is important to note that in the programming language caledon, programs might not terminate.  
-The search language itself is not consistent, and is not a theorem verification language like twelf.  
-Rather, it is language for writing theorem proving programs.  
+The search language itself is not consistent, and is not a theorem verification language like Twelf.  
+Rather, it is language for writing theorem-proving programs.  
 
 \begin{definition}
 In the Caledon language, $\m{prop} = *$ and $\m{type} = \Box$
@@ -117,7 +115,7 @@ Specifically, proof search is not involved in the normalization procedure.
 When $CC$ was first developed, theorems were proven and generated by explicitly defining
 constructors and destructors for records and sum types.  Later, the inductive calculus of constructions was developed 
 \citep{coquand1990inductively} which more accurately forms the basis of the Coq programming language.  These types of inductive
-constructions have been omited from Caledon to allow the addition of inductively defined, universally quantified predicates.
+constructions have been omitted from Caledon to allow the addition of inductively defined, universally quantified predicates.
 This omits the confusion that would be generated from having both inductively defined data and predicates in the system, as 
 dependently typed logic programming treats predicates as both data and code.
 
