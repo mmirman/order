@@ -1,15 +1,15 @@
 \section{Logic Programming}
 
-Logic programming languages such as Prolog were originally designed as part of the AI
-program, in much the same way Lisp was. Automated reasoning’s natural goal would
-be to be able to arbitrarily prove theorems. A logic programming language would be
-a set of axioms and a predicate, and if the predicate could be proven through those axioms,
-the automated theorem prover would halt. These proof search procedures were
+Logic programming languages such as Prolog were originally designed as part of the ``AI
+program'', in much the same way Lisp was. Automated reasoning’s natural goal was
+to be able to arbitrarily prove theorems. A logic programming language was a 
+set of axioms and a predicate. If the predicate could be proven through those axioms,
+the automated theorem prover would halt.  These proof search procedures were
 then constrained into useful programming semantics. When performed in a backtracking
-manner, the process of proof search represented an formulation of procedural code
-with powerful pattern matching. The Caledon language is a higher order backtracking
+manner, the proof-search process represented a formulation of procedural code
+with powerful pattern matching. The Caledon language is a higher-order backtracking
 logic programming language in the style of Twelf. In this section I present some basic
-intution for logic programming, rather than explaining it technically, and demonstrate the 
+intuition for logic programming, rather than explaining it technically, and demonstrate the 
 descriptive power of the system implemented in Caledon.
 
 \FloatBarrier
@@ -45,7 +45,7 @@ matching, knowing that an intelligent compiler would be able to convert the firs
 search allows one to define essentially nondeterministic programs. A common use for
 logic programming has been to search for solutions to combinatorial games such as tic-tac-toe, 
 without the programmer worrying about the order of the search. As this tends
-to produce ineficient code, this use style is discouraged. Rather, a more procedural view of logic programming is encouraged where pattern match and search is performed
+to produce inefficient code, this use style is discouraged. Rather, a more procedural view of logic programming is encouraged where pattern match and search is performed
 in the order it appears.
 
 \begin{figure}[H]
@@ -82,7 +82,7 @@ func (Forall var val) = Exists var code
 func (Exists var val) = Forall var code
 func (And a b) = code2
 \end{lstlisting}
-\caption{Unecessarily verbose code}
+\caption{Unnecessarily verbose code}
 \label{code:verbose}
 \end{figure}
 
@@ -323,7 +323,7 @@ defn foldrCL : { A B } ( A -> B -> A) -> A -> churchList B -> A
 \end{figure}
 
 In the Church form of a list, folds and maps are possible to implement as functions
-rather than predicates. However, their implementation is verbose and doesn’t permit
+rather than predicates. However, their implementation is verbose and doesnt permit
 more complex functions.
 
 
