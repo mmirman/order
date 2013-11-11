@@ -12,24 +12,24 @@ P &::= V
 \label{def:spine}
 \end{definition}
 
-Note that we will write $\Pi V : N . P$ as a synonm for 
-$\Pi\; N \; (\lambda V : N . P)$ in the rest of the paper.
+We write $\Pi V : N . P$ as a synonym for 
+$\Pi\; N \; (\lambda V : N . P)$ in the rest of this thesis.
 This simplifies the presentation of the unification algorithm, 
 as then $\Pi$ can be considered a traditional constructor
 that can also be used to direct the unification procedure.
 
-Spine terms have the incredibly useful property that they are always in head normal form, 
+Spine terms have the incredibly useful property of always being in head normal form, 
 meaning that the head of every term is a constructor, 
 and every argument is either a constructor or lambda term.
 
 \subsection{Higher Order Patterns}
 
 While spine form is restrictive enough that its terms are always in head normal form, 
-it is not yet restrictive enough for unification problems to be decidable.  
+it is not restrictive enough for unification problems to be decidable.  
 Miller \citep{miller1991logic} showed that for any unification instance given in 
 the pattern fragment shown in \ref{def:pattern}, unification is decidable.  
 
-Pattern form is specified with respect to partial permuations $\phi$, 
+Pattern form is specified with respect to partial permutations $\phi$, 
 which are injective mappings from finite domains to finite domains.
 
 \newcommand{\Pat}{\;\m{ Pat }\;}
@@ -98,8 +98,8 @@ M \equiv_{\eta} M'
 \subsection{Canonical Forms}
 
 Pfenning's \citep{pfenning1991unification} unification algorithm for the 
-calculus of constructions, which the metatheory of Caledon is based on, 
-relies on the fact that expressions are also presented in 
+``Calculus of Constructions'', which the meta-theory of Caledon is based on, 
+relies on expressions being presented in 
 \textit{long $\beta\eta$-normal form} (or \textit{canonical form}), 
 meaning that they are $\eta$ expanded to conform to their type signature.  
 In the initial publication of this paper, it was taken as a hypothesis that 
@@ -156,12 +156,12 @@ where $D$ is atomic
 \label{def:canonical}
 \end{definition}
 
-It has been proven that the standard calculus of constructions is 
+It has been proven that the standard ``Calculus of Constructions'' is 
 long $\beta\eta$-normal form strongly normalizing.  
 Unfortunately, normalization into this form is not possible without type 
 information.  Later, a typed substitution algorithm will be given which 
 ensures normalization into this form.  
 
 The notions of canonical form and of a higher order pattern are also trivially
-extendable into church-style $CC^{Bi}$ (ie, ICC* from \citep{barras2008implicit}), 
-where stong normalization into long $\beta\eta$-normal form is also provable, as is shown by Bernardo.
+extendable into Church-style $CC^{Bi}$ (ie, ICC* from \citep{barras2008implicit}), 
+where strong normalization into long $\beta\eta$-normal form is also provable, as is shown by Bernardo.

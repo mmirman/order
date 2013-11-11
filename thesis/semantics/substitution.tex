@@ -1,17 +1,17 @@
 \section{Substitution}
 
 The higher order unification algorithm described is only defined on the pattern form provided in the previous section.
-As the pattern fragment is a restriction on $\beta\eta$ long-normal form, it is necessary to provide a normalizing
-substitution that preserves $\beta\eta$ long-normal form.  The presentation here
+As the pattern fragment is a restriction on $\beta\eta$-long-normal form, it is necessary to provide a normalizing
+substitution that preserves $\beta\eta$-long-normal form.  The presentation here
 revolves around hereditary substitution, a notion first described by Pfenning et al. \citep{pfenning1991logic} for
-a calculus with only $\beta$ reduction.
+a calculus with only $\beta$-reduction.
 
-Other presentations are possible, such as traditional substitution followed by Normalization by Evaluation 
-for $\beta\eta$ conversions\citep{abel2010towards}. 
+Other presentations are possible, such as traditional substitution followed by ``Normalization by Evaluation''
+for $\beta\eta$-conversions\citep{abel2010towards}. 
 While this is a proven total method in a typed setting, it's mechanics
 are complex and not particularly enlightening.  
 Keller et al. \citep{keller2010normalization}
-extended Hereditary substitution to $\eta$ expansion, but only in the simply typed case. 
+extended hereditary substitution to $\eta$-expansion, but only in the simply typed case. 
 The presentation here extends this version into $CC$.
 
 \subsection{Untyped Substitution}
@@ -137,12 +137,12 @@ N ::= P
 \label{def:tyhered}
 \end{definition} 
 
-In these last two rules, when initializing the dependent product, it is important that the substitution be neither typed
-nor $\eta$ expanding as this leads to an unnecessary circularity.  Types need not be in $\eta$-long form
-when used for $\eta$ expanding in substitution since they are not being unified against anything.
+In these last two rules, when initializing the dependent product, the substitution must be neither typed
+nor $\eta$-expanding as this leads to an unnecessary circularity.  Types need not be in $\eta$-long form
+when used for $\eta$-expanding in substitution, since they are not unified against anything.
 
-Also, note that in the hereditary part of the recurrence, 
-it is possible to omit cases for improperly formatted terms.  $A \downarrow T$ has the invarient that
+Also, in the hereditary part of the recurrence, 
+it is possible to omit cases for improperly formatted terms.  $A \downarrow T$ has the invariant that
 $A$ must be already in a canonical form within the context it is used since it existed previously in the
 equation.  Similarly, $A \uparrow T$ has the invariant that $A$ must be locally in a canonical form.
 This permits significant reduction of steps.
@@ -153,7 +153,7 @@ This is a direct consequence of \ref{thm:betaeta}.
 Since every step of the algorithm applies either an $\eta$ expansion or 
 a $\beta$ reduction, the algorithm must halt when substituting for well typed terms.
 
-The useful property of this hereditary substitution is spelled in \ref{thm:hed-sound}
+The useful property of this hereditary substitution is spelled out in \ref{thm:hed-sound}
 
 \begin{theorem}
 \textbf{(Soundness of $\eta$ Expansion)}
@@ -163,10 +163,10 @@ $\eta^{-1}_{A}(F)$ is in $\eta$-long form
 \label{thm:hed-long}
 \end{theorem}
 
-The proof of this is trivial since all that occurs is the complete $\eta$ expansion 
+The proof of this theorem is trivial since all that occurs is the complete $\eta$ expansion 
 of every possible term. 
 
-Note, in the following theorems the $\Gamma \vdash N \; \m{Norm}$ means that $N $ is in $\beta$-normal 
+Note, in the following theorems \ref{thm:hed-sound}\ref{thm:hed-app1}\ref{thm:hed-app2} the $\Gamma \vdash N \; \m{Norm}$ means that $N $ is in $\beta$-normal 
 $\eta$-long form (ignoring types).
 
 \begin{theorem}
