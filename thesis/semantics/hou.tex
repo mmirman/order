@@ -1,6 +1,6 @@
 \section{Higher Order Unification}
 
-Checking for the reducability of two full lambda terms has long been known to be only semi-decidable.
+Checking for the reducibility of two full lambda terms has long been known to be only semi-decidable.
 The matter becomes even more complicated when checking for the equality of terms with variables bound
 by both existential and universal quantifiers.  Research from the past thirty years has constrained
 the problem to a decidable subset known as the pattern fragment.
@@ -102,11 +102,11 @@ obvious deterministic algorithm from being extracted.
 \newcommand{\UnifiesTo}{\;\longrightarrow\;}
 
 I now present an algorithm, similar to that presented in 
-\citep{pfenning1991logic} for unification in the 
-Calculus of Constructions.  Because we have already 
+\citep{pfenning1991logic}, for unification in the 
+``Calculus of Constructions''.  Because we have already 
 presented typed hereditary substitution with $\eta$-expansion, 
-the presentation here will not add much 
-but for types in the substitutions.  
+the presentation here will will address itself to
+ types in the substitutions.    
 
 $F \UnifiesTo F'$ shall mean that $F$ can be transformed to $F'$
 without modifying the provability. 
@@ -122,10 +122,10 @@ Furthermore, rather than explicitly writing down the result of unification,
 we shall use $\exists x. F \UnifiesTo \exists x . [ L / x] F$ 
 to stand for $\exists x. F \UnifiesTo \exists x . x \doteq L \wedge [ L / x] F$
 
-The unification rules are symmetric, so any rule of the form 
+The unification rules are symmetrical, so any rule of the form 
 $M \doteq N$ is equivalent to $N \doteq M$ practically.
 
-Also, for the purpose of typed normalizing heredetary substitution, 
+Also, for the purpose of typed normalizing hereditary substitution, 
 a formula prefix $F[e]$ of the form 
 $Qx_1:A_1 . E_1\wedge \cdots Qx_n : A_n . e$ shall be considered as a context
 $x_1 : A_1 ,\cdots ,x_n : A_n$ when written $\nu^{-1}(F)$.
@@ -142,7 +142,7 @@ F[\lambda x : A . M \doteq N]
 F[\forall x : A . M \doteq \m{H}_{\nu^-1(F),x:A}(N , x)]
 \]
 
-Because application is normalizing, this can cover the case where both $N$ is also a $\lambda$ 
+Because application is normalizing, the ``Lam-Any'' can cover the case where $N$ is also a $\lambda$ 
 abstraction.
 
 \begin{tcase}
@@ -155,25 +155,25 @@ F[\lambda x : A . M \doteq \lambda x : A . N ]
 F[ \forall x : A . M \doteq N ]
 \]
 
-While this rule is not explicitly necessary as it is covered by the Lam-Any rule, 
+While the ``Lam-Lam'' rule is not explicitly necessary as it is covered by the ``Lam-Any'' rule, 
 when working
 in a substitutive system with explicit names rather than DeBruijn indexes, 
 this helps to reduce the number of substitutions from an original name. 
 
-Lastly, these reductions make the 
+These reductions make the 
 assumption that no variable name is bound more than once.
-This can seem restrictive during implementation, but it is possible to 
-work past by alpha converting everywhere and annotating
-new variables with their original names, and alpha converting
-back to the original after unification. The other option is again
+The assumption of a single binding can seem restrictive during implementation, but there are option to work
+work past this obstacle.  One can alpha convert everywhere and annotate
+new variables with their original names, then alpha convert
+back to the original after unification. Another option is
 to use DeBruijn indexes.  DeBruijn indexes have their own drawbacks
 here, as certain transformation such as ``Raising''
 or the ``Gvar-Uvar'' rules involve insertion of multiple
 variables into the context at an arbitrary point, 
 which requiring the lifting of many variable names.  
 It is possible to implement higher order unification
-with DeBruijn indexes safetly and efficiently, 
-but this is out of the scope of the thesis.
+with DeBruijn indexes safely and efficiently, 
+but such discussion is beyond the scope of this thesis.
 
 \begin{tcase}
 Uvar-Uvar
@@ -223,10 +223,11 @@ F[\exists x : A . E_1 \wedge E_2]
 Forall-And
 \end{tcase}
 
-Unfortunately moving the universal quantifier to
-capture a conjunction is not as simple, since
-if done incorrectly, existential variables might be able
-to be defined with respect to universal quantifiers that they
+
+Moving the universal quantifier to
+capture a conjunction is critical, since
+if done incorrectly, existential variables might be 
+defined with respect to universal quantifiers that they
 were not previously in the scope of.
 
 \[
@@ -236,18 +237,17 @@ F[\forall x : A . E_1 \wedge E_2]
 \]
 provided no existential variables are declared in $E_2$.
 
-While this restriction prevents most application of this rule, 
+While this restriction prevents most applications of this rule, 
 equations can still be flattened to the form
 \[
 Qx_1:A_1\cdots Qx_n : A_n . M_1 \doteq N_1 \wedge \cdots \wedge M_m \doteq N_n
 \]
 
-transforming $E_2$ first with the Raising rule untill 
-an Exists-And transformation is possible, then repeating  
+transforming $E_2$ first with the ``Raising'' rule until 
+an ``Exists-And'' transformation is possible, then repeating  
 until $E_2$ no longer contains any existentially 
 quantified variables.  This process is always terminating,
-although potentially significantly slower.   
-
+although potentially significantly slower.
 
 The following cases are based on unification 
 of a formula of the form
@@ -299,7 +299,7 @@ If $M$ has the form
 $y_{\phi(i)} M_1 \cdots M_m$ for 
 $1 \leq i \leq n$ then we can project $x$ to $y_{\phi(i)}$.
 
-Here we can perform the same transition as in the Gvar-Uvar-Outside
+Here we can perform the same transition as in the ``Gvar-Uvar-Outside''
 case but let 
 $L = \lambda u_1 : A_1 \cdots \lambda u_n : A_n .
  u_i (x_1 u_1 \cdots u_n) \cdots (x_m u_1 \cdots u_n)$.
@@ -311,7 +311,7 @@ Gvar-Gvar-Same
 $M$ has the form 
 $x y_{\psi(1)} \cdots y_{\psi(n)}$.
 
-In this case we pick the \textit{unique} permuation $\rho$ 
+In this case we pick the \textit{unique} permutation $\rho$ 
 such that $\rho(k) = \psi(i)$ for all $i$ such that $\psi(i) = \phi(i)$.
 
 Then letting
@@ -360,12 +360,11 @@ Then we can transition to
 . [L'/z : T_z]_{\Gamma, x': T_{x'}}[L / x : T_x]_{\Gamma, x': T_{x'}} F
 \]
  
-While this case appears to be only applicable rarely,
-it is the case that the Raising transition can be applied to allow this
-rule to apply.  
-Due to the restrictivity of this case, and the potential
-for non termination with unrestricted application of the Raising rule,
-it is the only case where the Raising rule is permitted.  
+While this case appears to be only rarely applicable,
+the ``Raising'' transition can be used to allow this rule to apply.
+Due to the restrictions of this case, and the potential
+for non termination with unrestricted application of the ``Raising'' rule,
+it is the only case where the ``Raising'' rule is permitted.  
 
 
 \subsection{Implementation}
@@ -394,7 +393,7 @@ types might be enormous and it would be preferable to mention them only once.
 
 The last option is to perform unification with untyped substitution in certain cases.  
 While there is no proof at the moment that unification on the pattern subset of 
-the calculus of constructions with untyped substitution for only the existential substitutions
+the ``Calculus of Constructions'' with untyped substitution for only the existential substitutions
 is total, it is not unbelievable.  Furthermore, omitting typed substitution does not alter
 the correctness of the algorithm, only the potential totality.  
 
