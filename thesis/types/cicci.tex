@@ -8,7 +8,7 @@ an original type derivation and term.
 
 We only have one syntactic difference in this calculus:  $E\; \{ V : A = E \}$ 
 is now simply $ E \; \{ V  = E \}$.  
-We might also include Curry style binders in this presentation, but they shed little 
+We might also include Curry-style binders in this presentation, but they shed little 
 extra light on the workings of type inference.
 
 \newcommand{\judgeCI}[0]{ \vdash_{i^-}}
@@ -87,19 +87,17 @@ x \notin BN(U)
 In $CICC$, as in $CC$, the strengthening rule is admissible,
 while in $CICC^{-}$, it is not.  
 
-Note that the rule $\m{abs/f}$ might appear to not make sense at first
+The rule $\m{abs/f}$ might appear to not make sense at first
 glance since it abstracts to a known term, but it can be considered
 equivalent to an existential pack without the pack proof term, since
 $x \notin FV(M)$  
 
-Further note that conversion is now restricted to $\beta$ conversion in order to 
-allow for the Church Rosser theorem which is necessary to prove subject reduction.
+Conversion is now restricted to $\beta$ to accommodate the Church-Rosser theorem which is necessary to prove subject reduction.
 
-While we no longer care about the semantics of this language since we will be
-elaborating to the sublanguage $CICC$ before evaluating and type checking further, we do not need to 
-semantic related properties.  
+We do not need semantic related properties and thus the semantics of $CICC^{-}$ is unimportant, since we will be
+elaborating to the sublanguage $CICC$ before evaluating and type checking further. 
 
-However, it is still important to note that substitution holds.
+However, the substitution theorem holds.
 
 \begin{theorem}
 \textbf{(Substitution)}
@@ -121,9 +119,9 @@ However, it is still important to note that substitution holds.
 \label{ci:sr}
 \end{theorem}
 
-\ref{ci:sr} is at the moment beleived to be true, 
-although no full formalization of them exists.  Provided reductions are restricted to $\beta$ conversion, the church rosser 
-theorem is simply provable and the proof of subject reduction is similar to that in the traditional calculus of constructions.
+\ref{ci:sr} is at the moment believed to be true, 
+although no full formalization exists.  Provided reductions are restricted to $\beta$ conversion, the Church-Rosser 
+theorem is simply provable and the proof of subject reduction is similar to that in the traditional ``Calculus of Constructions.''
 
 Without the $\m{abs/f}$ rule, subject reduction becomes unnecessary for the metatheory since 
 the single direction subtyping relation is sufficient.  However, unification becomes difficult to implement.  
@@ -410,11 +408,11 @@ and thus must be given on the typing derivation.
 \end{theorem}
 
 Since $CICC$ permits $\eta$ equivalence and $CICC^-$ does not, the extraction in the 
-reverse direction is no longer sound.  For our purposes this is not objectionable 
+reverse direction is no longer sound.  For our purposes, this is not objectionable 
 since $CICC$ is known to be consistent and there is no reason to convert back into $CICC^-$, as it is 
-used entirely as a pre-elaboration language.  Once terms are typechecked and type infered in $CICC^-$
-they are typechecked in $CICC$ and normalized in $CICC$.  While the reverse extraction is
-in general not sound, normal terms with normal types are clearly typable in $CICC^-$.
+used entirely as a pre-elaboration language.  Once terms are typechecked and type inferred in $CICC^-$,
+they are typechecked in $CICC$ and normalized in $CICC$.  
+While the reverse extraction is generally not sound, normal terms with normal types are clearly typable in $CICC^-$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Subtyping %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -463,7 +461,7 @@ Subtyping is a preordering:
 This theorem is an application of the substitution lemma.
 
 \begin{lemma}
-Domains of products are contravariant and codomains are covarient:
+Domains of products are contravariant and codomains are covariant:
 
 \[
 \begin{array}{lr}
@@ -487,20 +485,20 @@ Domains of products are contravariant and codomains are covarient:
 \end{lemma}
 
 Unlike traditional subtyping relations where an explicit subtyping rule must be included in the type system,
-this system's subtyping relation is much easier to manage during unification, as it is simply
+this system's subtyping relation is much easier to manage during unification, because it is simply
 a macro for a provability relation.  
 
-This allows one to implement higher order unification almost exactly
-as is usual without to much modification as would be the case in a lattice unification algorithm.  
-Instead, the modification is made to the search procedure, and subtyping constraints 
+This allows one to implement higher order unification with minimal modification,
+as in a lattice unification algorithm.  
+The modification is made to the search procedure, and subtyping constraints 
 are realized as search terms.  
 
 However, with the addition of the strengthening rule, 
-this kind of modification not entirely necessary, 
-as it is provable that this subtyping relation is symetric \ref{ci:sym}, 
-and thus an entirely symetric unification algorithm can be presented.
+this kind of modification is not entirely necessary, 
+since it is provable that this subtyping relation is symmetric \ref{ci:sym}, 
+and thus an entirely symmetric unification algorithm can be presented.
 
-Theorem \ref{ci:sym} isn't exactly obvious upon first glance, 
+Theorem \ref{ci:sym} is not obvious at first glance, 
 so I will provide intuitive justification first.
 
 In $CICC$, by uniqueness of types, 
@@ -510,9 +508,9 @@ $A \equiv_{\beta\eta*} B$.
 In $CICC^{-}$ however, there is no such uniqueness of 
 types properties.  
 Rather, the $\m{inst/f}$ and $\m{abs/f}$ 
-rules permit you to repsectively,
-add an initialize an implicit argument, 
-abstract implicitely upon an unused argument. 
+rules permit one to respectively
+add and initialize an implicit argument, then
+abstract implicitly upon an unused argument. 
 
 Thus if $\Gamma , x : ?\Pi z : T . A \judgeCI x : A$
 by implicit instantiation of the argument $z:T$,
@@ -630,7 +628,7 @@ Finally, we can derive the desired result:
 \BinaryInfC{$\Gamma, x : [N/z]B' \judgeCI x : A'$}
 \end{prooftree}
 
-Note that the only unexplained axioms here are 
+The only unexplained axioms here are 
 $\Gamma \judgeCI B': K$ and $\Gamma \judgeCI T' : K$ in this proof.
 Because $\Gamma, x : A' \judgeCI x : ?\Pi z:T' . B'$ is true, we know that 
 $\Gamma, x : A' \judgeCI ?\Pi z : T' . B' : K$ and thus that 
@@ -691,7 +689,7 @@ In this case we examine the $\m{abs/f}$ rule.
 \TrinaryInfC{$\Gamma, x : A \judgeCI x : ?\Pi z : T . B$}
 \end{prooftree}
 
-From this we can infer that $z \notin FV(A)$.  This is usefull since we can derive:
+From this we can infer that $z \notin FV(A)$.  This is useful since we can derive:
 \[
 \Gamma, z : T, x : A \judgeCI x : [N/z]B \wedge N : T
 \]
