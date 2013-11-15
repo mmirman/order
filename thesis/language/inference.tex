@@ -1,28 +1,30 @@
 \section{Type Inference}
 
-While the generation of unification problems is straightforward as described in the previous
-sections, the implementations of the higher order pattern unification algorithm
-is somewhat more convoluted. If it were to be implemented in Ollibot \citep{pfenning2009substructural} a much simpler, 
-yet significantly less efficient, implementation might be possible.
+While the generation of unification problems in Caledon is straightforward as described in the previous
+sections, the implementation of the higher order pattern unification algorithm
+is convoluted. If unification were to be implemented in Ollibot \citep{pfenning2009substructural}, a much simpler, 
+yet significantly less efficient implementation might be possible.
 
-It is first necessary to note that univerally quantified and lambda quantified variables
+Univerally quantified and lambda quantified variables
 are easily represented by DeBruijn indexes, since no universal quantifiers are ever
 introduced between two preexisting universal quantifiers. On the other hand, existential
-variables are introduced all over the place. Rather than complicating substitution,
-these are represented by unique names with depth indexes instead of height indexes.
-Because they are not explicitly quantified, each existential variable instance carries its
+variables are introduced at any location. Rather than complicating substitutions,
+existential variable instances are represented by unique names with depth indexes, instead of height indexes.
+Because existential variables are not explicitly named in the context, each existential variable instance carries its
 own type, lifted to the location of the instance.
 
 Since such a representation requires traversals and modifications of a tree structure,
-it is natural to use a zipper to represent the entire structure. As traversing the structure
-downwards also builds a context of universal variables and passed conjunctive
-paths, the same zipper structure could be used as the type context for DeBruijn variable
-lookup. In an imperative language with effects, this might lead to the assumption that
-the use of a vector to hold the zipper context of the unification problem is optimal. However,
-since nondeterminism is essential to proof search, difficult complications would
+a natural solution is to use a zipper to represent the entire structure. Because traversing the structure
+downward also builds a context of universal variables and passed conjunctive
+paths, the same zipper structure can likewise be used as the type context for DeBruijn variable
+lookup. In an imperative language with effects, one might think that using
+a vector to hold the zipper context of the unification problem is optimal. However,
+since nondeterminism is essential to proof search, complications
 arise if the structure is shared among threads manually.  A pure data structure based on
-finger trees \citep{hinze2006finger} known as a sequence turns out to be an ideal choice of structure. Concatenation in this structure is constant time, and splitting and lookup are logarithmic.
-This is only slightly worse than the constant lookup time for a vector, and automatically
-shares relevant unchanged sections between threads.
+finger trees \citep{hinze2006finger} known as a sequence turns out to be an 
+ideal choice of structure. Concatenation in this structure is constant time, and splitting and lookup are logarithmic.
+While logarithmic lookup time is slightly worse than the constant lookup time for a vector, its benefit is
+that it automatically shares relevant unchanged sections between threads.
 
 
+    
