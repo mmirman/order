@@ -1,12 +1,13 @@
 \section{Type Families}
 
-Permitting entirely polymorphic axioms at the top level can be problematic in that it significantly
-complicates efficient proof search, and can introduce unintended falsehoods.
-To remedy this, axioms are grouped together by conclusion, essentially ensuring program
-definitions are local and not spread out across the source code. This enables a
-proof search to be optimized by only having to search for axioms in the family of the head of the goal. In some respects this acts as an automated and enforced version of
-the “freeze” command from Twelf. Mutually recursive definitions can be automatically
-inferred.
+Permitting entirely polymorphic axioms at the top level significantly
+complicates efficient proof search and can introduce unintended falsehoods.
+To remedy this, axioms are grouped together by conclusion, ensuring program
+definitions are local and not spread out across the source code. Grouping axioms
+in this way optimizes a proof search, because it is now possible to limit the search
+for axioms to the same family of the head of the goal. Such grouping thus acts as an automated 
+and enforced version of the “freeze” command from Twelf. Mutually recursive 
+definitions are automatically inferred.
 
 \begin{figure}[H]
 
@@ -89,9 +90,11 @@ T_1 @ n
 \caption{The family relationship}
 \end{figure}
 
-In figure \ref{fam:relation}, the “fam” relation is used to ensure that an axiom belongs to a family,
+In figure \ref{fam:relation}, using the “fam” relation ensures that an axiom belongs to a family,
 whereas the “ty” relation ensures that a family type actually results in a type.
 
 Grouping axioms together as families and preventing entirely polymorphic results
-ensures that entirely polymorphic results will be consistent. It is possibly to relax this constraint at the expense of full program speed - the only time a polymorphic axiom is
-introduced into the proof search context is locally within an axiom’s assumptions.
+ensures that entirely polymorphic results will be consistent. It is possible to 
+relax this constraint at the expense of full program speed. Speed results because
+the only time a polymorphic axiom is introduced into the proof search context is 
+locally within an axiom’s assumptions.
