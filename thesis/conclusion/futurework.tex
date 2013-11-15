@@ -1,24 +1,25 @@
 \section{Future Work}
 
-Although this thesis presented a language, little work was done to provide a framework
-for proving theorems about this language. In general, compilation for a language
-where the programs are theorems for a consistent logic allows for significant optimization
+This thesis presents a new language, and more work can easily be envisioned to provide a greater
+framework for proving theorems about it. In general, compilation for a language
+where the programs are theorems for a consistent logic allows significant optimization
 capability. In Twelf, totality, modes, and worlds allowed predicates to be converted
-to programs. In general, running of Caledon programs in the current implementation
-is excruciatingly slow, as types need to be recorded and searched during runtime. Algorithms
+to programs. In general, running Caledon programs in the current implementation
+is slow, as types need to be recorded and searched during runtime. Algorithms
 that take advantage of totality checking \citep{altenkirch2010termination}, 
 uniqueness checking \citep{anderson2004verifying}, 
 worlds checking\citep{anderson2004verifying}, 
 mode checking\citep{anderson2004verifying}, 
 and universe checking \citep{harper1991type}, 
 could be implemented and applied as they were for Twelf and Agda.  It would be useful to have a type system for a logic programming
-language which could ensure closed predicates were theorems. More work needs to be
-done to automate typeclass instancing as was demonstrated in the section on Linearity.
+language which could ensure closed predicates were theorems. 
+
+More work needs to be done to automate type class instancing, as was demonstrated in the section on Linearity.
 While implemented, universe checking during unification has yet to be proven entirely
 correct.
 
-The possible applications of the language have only been shallowly addressed and
-it is clear that much more interesting programs are possible. While derivatives of one
-holed types are possible in the language, automatically providing traversals for these
-zipper types is an unexplored topic. While I have demonstrated a concise method of
-creating concurrency, libraries for controlling concurrency using the IO primitives have yet to be designed.
+The future holds futher invetigation into additional applications of the language, and
+it is clear that much more interesting programs can be written with Caledon. While derivatives of one
+holed types are possible in Caledon, automatically providing traversals for these
+zipper types is an unyet unexplored topic. While I have demonstrated a concise method of
+creating concurrency, I look forward to designing libraries for controlling concurrency using the IO primitives.
