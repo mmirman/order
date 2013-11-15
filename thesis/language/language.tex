@@ -1,11 +1,10 @@
-The Caledon language implementation has a few unique properties, not all related to
-the exposed logic of the language. In this chapter I discuss the some of the details of
-the specification of the Caledon language, and its implementation. The algorithm for
-actually performing higher order unification and type inference is unusual in that it
-uses a zipper style context implemented by a finger tree based sequence, and does not
-perform linear passes on the unification problem. Families are introduced as a notion
-of a coherent set of axioms for proof search, falling under the same searchable family.
-Nondeterminism control is also discussed as a way of letting the programmer choose
-between sequential and concurrent execution, or efficient or complete searches. Methods
-of interacting with the world also need to be defined.
+Implementation of Caledon has a few unique properties, not all related to
+the exposed logic of the language. In this chapter, I discuss some details of
+the specification and implementation of Caledon. The algorithm for
+actually performing higher order unification and type inference is unusual in Caledon, because
+Caledon uses a zipper-style context implemented by a finger-tree based sequence, and does not
+perform linear passes on the unification problem. I define families as a coherent set of
+axioms for proof search. Nondeterminism control is discussed as a way of letting the programmer choose
+between sequential and concurrent execution and between efficient and complete searches. Finally,
+I define methods of interacting with the world.
 
