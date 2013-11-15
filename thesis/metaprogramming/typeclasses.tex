@@ -1,10 +1,10 @@
 \section{Typeclasses}
 
 
-I've mentioned previously that implicit arguments along side polymorphism and proof search can subsume Haskell style type classes.
+As previously written, implicit arguments alongside polymorphism and proof search can subsume Haskell-style type classes.
 
-The easiest way to see this is through an implementation of what is known as the ``Show'' type class in Haskell.  
-In a logic programming language, a predicate that can be used to print a datatype can also be used to read a datatype, so here we shall discuss a ``serialize'' type class.
+The easiest way to see this is in an implementation of what is known as the ``Show'' type class in Haskell.  
+In a logic programming language, a predicate that can be used to print a data type can also be used to read a data type, so here we shall discuss a ``serialize'' type class.
 
 
 \begin{figure}[H]
@@ -32,12 +32,13 @@ query printQuery = exists S : string . serializeBool false S
 \label{prog:bidi}
 \end{figure}
 
-Notice that the predicate \ref{prog:serializing} in the sense that both of the queries in 
+Given the predicate \ref{prog:serializing} executes its matches in parallel, both of the queries in 
 \ref{prog:bidi} will resolve. 
 
-The serialize predicate is a useful one and we would like it to be polymorphic in all types for which we've implemented a serialize function.  This is possible using implicit arguments.
+The serialize predicate is a useful one, and we would like it to be polymorphic in all types
+for which we implement a serialize function.  This is possible using implicit arguments.
 
-We'd first create an open type for the type class serializable.
+We first create an open type for the type class serializable.
 
 \begin{figure}[H]
 \begin{lstlisting}
@@ -49,7 +50,7 @@ open serializable : [T]{ serializer : T -> string -> type } type
 \label{prog:sty}
 \end{figure}
 
-We'd then define a function ``serialize'' which unpacks the the implicit dependency of the type serializable.
+We then define a function ``serialize'' which unpacks the implicit dependency of the type serializable.
 
 
 \begin{figure}[H]
@@ -80,9 +81,9 @@ instance serialize-nat = serializable nat { serializer = serializeNat }
 \end{figure}
 
 
-To implement an instance of the serializable type class, one would add an instance axiom to the environment as in \ref{prog:inst}
+To implement an instance of the serializable type class, one adds an instance axiom to the environment as in \ref{prog:inst}
 
-Use of the function would then omit the implementation of the ``serializable'' argument and type argument such that they might be resolved automatically as in \ref{prog:uses}
+Use of the function then omits the implementation of the ``serializable'' argument and type argument, such that they might be resolved automatically as in \ref{prog:uses}
 
 
 \begin{figure}[H]
@@ -100,8 +101,9 @@ query readQueryNat = exists S : nat . serialize S ``(succ (succ zero))''
 \end{figure}
 
 
-This process can be extended to not only open type classes, but closed typeclasses where 
+This process can be extended to open type classes, as well as closed type classes, where 
 resolution involves arbitrary computation.  
-While it is difficult to point to uses of this capability that can be discussed in these confines,
-type class computation has been known to the Haskell community for quite some time and has been used in application ranging from embedding an imperative computation monad with local variable use and 
+It is difficult to fully discuss uses of this capability in the confines of this paper. However,
+type class computation has been known to the Haskell community for quite some time. Moreover, it 
+has been used in applications ranging from embedding an imperative computation monad with local variable use and 
 assignment rules similar to those of C, to an RPC framework which creates end points based on functions with arbitrarily complex type signatures.
