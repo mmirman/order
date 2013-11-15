@@ -1,15 +1,15 @@
 \section{Controlled Nondeterminism}
 
-A logic program need not only be a deterministic depth first pattern search. It is in fact
-the case that for purely declarative axioms, the depth first strategy is usually very incomplete
-and not representative of one’s intuition of what should and should not halt.
-Depth first search can be made to be more efficient in many cases and when used intentionally
-it will constrict nondeterminism. Concurrency in a program with IO has
-well known use cases and advantages. The breadth first proof search strategy can conveniently
-be represented by a program where every pattern match forks and executes
-concurrently. Clearly, this is not ideal if used everywhere. Thus an ideal implementation
-would allow one to control which patterns are searched in parallel and which
-are searched in sequence. In the following snippet of the code, the distinction between
+A logic program need not only be a deterministic depth first pattern search. For purely declarative 
+axioms, the depth first strategy is usually, in fact, incomplete 
+and not representative of what should and should not halt.
+Depth first search, however, can be more efficient in many cases and when used intentionally
+will constrict nondeterminism. Concurrency in a program with IO has
+well known uses and advantages. The breadth first proof search strategy can conveniently
+be represented by a program where every pattern-match forks and then executes
+concurrently. This is not ideal if used indiscriminately. An ideal implementation
+allows one to control the patterns that are searched in parallel and in sequence. 
+In the following snippet of the code, the distinction between
 breadth first and depth first queries are used to emulate the concept of concurrency and
 cause the program to have more complex behavior.
 
@@ -37,10 +37,10 @@ defn runBoth : bool -> type
 \label{nondet:ex1}
 \end{figure}
 
-In example \ref{nondet:ex1}, the query main should print to the screen something similar to “ttt
-vqvqvqvq jjj”. This is because despite proof search failing on the first three axioms due
+In example \ref{nondet:ex1}, the query main prints to the screen something similar to “ttt
+vqvqvqvq jjj”. This happens because, despite proof search failing on the first three axioms due
 to an incorrect match, the fail is deferred until after IO has been performed. The middle
-axioms, run1 and run2 are declared to be breadth first axioms while run0 and run3 are
+axioms, ``run1'' and ``run2'' are declared to be breadth first axioms, while ``run0'' and ``run3'' are
 declared to be depth first axioms.
 
 
@@ -61,13 +61,13 @@ query main = print ``Hello `` `then` print ``world!''
 \label{nondet:seq}
 \end{figure}
 
-The predicate “then” in figure \ref{nondet:seq} executes its first routine and then its second sequentially.
-To understand how this works it is beneficial to step through the query
+The predicate “then” in figure \ref{nondet:seq} executes its first routine and subsequently its second sequentially.
+To understand how this works, it is helpful to step through the query
 “main”. When “main” is called, it will first initiate a goal of the form “then (print ‘Hello
-’) (print ‘world!’)”. Because the axioms “then-A” and “then-B” are both preceded by > |,
+’) (print ‘world!’)”. Because the axioms “then-A” and “then-B” are both preceded by ``>|'',
 the “then-A” is attempted, the search of which is constrained to be entire. Since “(print
 ’Hello ’)” succeeds and does not nondeterministically branch, “fail” will be initiated as
-the next goal. Fail will certainly fail, and the current branch will end. “then-B” is the
+the next goal. ``fail'' will certainly fail, and the current branch will end. “then-B” is the
 next attempt. It will succeed since “(print ’world!’)” succeeds.
 
 \begin{figure}[H]
