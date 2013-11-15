@@ -3,8 +3,8 @@
 One major drawback of the type class paradigm outlined in the previous section is the
 inability for a typeclass to uniquely determine membership of type in a type class based
 on floating predicates in the environment with matching signatures. While ideal behavior
-is possible for theorems in the calculus of constructions which exhibit ideal parametricity,
-the type “type” has the trivial inhabitant “type” and thus implementations
+is possible for theorems in the ``Calculus of Constructions'' which exhibit ideal parametricity,
+the type “type” has the trivial inhabitant “type.”  Thus implementations
 will nearly always resolve to this version.
 
 \begin{figure}[H]
@@ -19,8 +19,8 @@ defn serializeable : [T] { serializer : T −> string −> type } type
 \label{lin:nice}
 \end{figure}
 
-For example, it would be very nice if the predicates in figure \ref{lin:nice} would automatically
-resolve to a reasonable instance of serializable.
+For example, it would be very nice if the predicates in figure \ref{lin:nice} automatically
+resolved to a reasonable instance of serializable.
 
 \begin{figure}[H]
 \begin{lstlisting}
@@ -34,8 +34,8 @@ defn serialize : {T} { serializer : T −> string −> type } T -> string -> typ
 \label{lin:imp}
 \end{figure}
 
-We could in fact then implement serialize as above in the definition in figure \ref{lin:imp}.
-However, this kind of implementation will fail to determine the correct instance of ``serializer''.
+We could implement serialize as above in the definition in figure \ref{lin:imp}.
+However, this kind of implementation will fail to determine the correct instance of ``serializer.''
 
 
 \begin{figure}[H]
@@ -54,7 +54,7 @@ query writeBool =
 \label{lin:fail}
 \end{figure}
 
-Rather, it will infer a trivial predicate as seen in the query in figure \ref{lin:fail}
+Rather, it will infer a trivial predicate, as seen in the query in figure \ref{lin:fail}
 
 \begin{figure}[H]
 \begin{lstlisting}
@@ -71,8 +71,9 @@ query writeBool = print (show {T = bool}{shower = \ x : bool . nil })
 \label{lin:ffail}
 \end{figure}
 
-One might think that functions, as an alternative to predicates, are immune to this scenario. 
-However, unless specified with their properties (tedious) functions have similar drawbacks as is seen in the program in figure \ref{lin:ffail}.
+One might think that functions, as an alternative to predicates, are immune to inhabitation by trivial and
+incorrect values as in the above scenario. However, unless specified with their properties (tedious), 
+functions have similar drawbacks, as is seen in the program in figure \ref{lin:ffail}.
 
 
 \begin{figure}[H]
@@ -98,13 +99,13 @@ defn show : {T}
 \end{figure}
 
 One can sometimes work around this by including metatheorems about the implicit
-functions as seen in the figure \ref{lin:success}. However, proving the metatheorems is often tedious
-or impossible, or sometimes slow for the compiler.
+functions, as in the figure \ref{lin:success}. However, proving the metatheorems is often tedious,
+impossible, or sometimes just plain slow for the compiler.
 
-One potential method to solve this ambiguity problem involves substructural dependent
-quantification, where types indicate that the function argument can only be
-used only once in the term, although as many times as one would like in types. While
-this is a subject of ongoing and future work, I’ve included a description of these ideas.
+One method under investigation to solve this ambiguity problem uses substructural dependent
+quantification, in which types indicate that the function argument can  be
+used only once in the term, but unlimited times in types. While
+this is a subject of ongoing work on my part, I have included a description of my ideas.
 
 \begin{figure}[H]
 \begin{lstlisting}
@@ -137,7 +138,8 @@ Unfortunately, something alon gthe lines of
 $(\lambda x : \m{bool}. \lambda s : \m{string} . \m{isString} s \wedge \m{isBool} x)$ might be possible, 
 but these are significantly more manageable provided one is careful.  
 
-Fortunately, the fact that we are working with higher order abstract syntax in the calculus of constructions means that linear dependent products are actually implementable withing Caledon.
+Fortunately, the fact that we are working with higher order abstract syntax in the ``Calculus of Constructions''
+means that linear dependent products are actually implementable withing Caledon.
 
 
 \begin{figure}[H]
@@ -206,11 +208,11 @@ defn -o : type -> type -> type
 In the figure \ref{lin:linimp} the predicate ``restrict linear'' encodes the test that an arbitrary function, even one with a dependent type, is linear \citep{benton1993term} if its argument is used
 exactly once in the term and potentially many times in the type.  
 ``lolli'' is the linear dependent type constructor and ``llam'' is the linear function constructor.
-Provided the code from figure \ref{lin:linimp} was in the environment, figure \ref{lin:linideal} would in fact work.
+Provided the code from figure \ref{lin:linimp} was in the environment, figure \ref{lin:linideal} in fact works.
 
 
-Even more of these cases could be made less ambiguous through use of an ordered dependent type 
-constructor, but this is significantly more complicated to define (although certainly possible).
+More of these cases could be made less ambiguous through use of an ordered dependent type 
+constructor, but this is significantly more complicated to define, although certainly possible.
 
 
 \begin{figure}[H]
@@ -241,7 +243,7 @@ defn sum : nat -o nat -o nat -o type
 
 Of course, as seen in figure \ref{lin:use}, actually using this linear dependent product is a bit
 absurd.  It requires flattening application into a logic programming form where the target
-is in fact a type variable.
+is a type variable.
 
 
 
@@ -261,10 +263,10 @@ defn sum : nat -o nat -o nat -o type
 
 
 That the end result is a type variable means that the family checking algorithm
-would no longer be applicable. In this case it might be beneficial to either hard code
-linearity or provide a syntax for flattening successive applications using a predicate as
+is no longer applicable. In this case, it is helpful to either hard code
+linearity or provide a syntax for flattening successive applications using a predicate, as
 seen in figure \ref{lin:flat}
 
 Syntax for applications could potentially extend the notion of a family such that
-predicates using them can also be frozen. In this case the applicator $x$ used with 
-$*APP = x*$ would be declared as such so that the compiler could check that its type matches the form $\{ A : \m{type} \}\{ T : A \rightarrow \m{type} \}[f : \m{some}-\m{product} x : A . T x] [ a : A] T a \rightarrow \m{type}$.
+predicates using these applications could also be frozen. In this case, the applicator $x$ used with 
+$*APP = x*$ would be declared, so that the compiler could check that its type matches the form $\{ A : \m{type} \}\{ T : A \rightarrow \m{type} \}[f : \m{some}-\m{product} x : A . T x] [ a : A] T a \rightarrow \m{type}$.
