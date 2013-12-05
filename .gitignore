@@ -12,3 +12,6 @@ _region_.tex
 *.lot
 *.gz
 *.lof
+*.nav
+*.snm
+*.vrb
