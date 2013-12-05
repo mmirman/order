@@ -1,0 +1,56 @@
+\renewcommand{\rmdefault}{ppl}
+\renewcommand{\sfdefault}{phv}
+
+\usepackage{dashrule}
+
+
+
+\newcommand{\infer}[2]{\frac{#2}{#1}}
+
+% symbols of linear logic
+\newcommand{\lolli}{\multimap}
+\newcommand{\tensor}{\otimes}
+\newcommand{\with}{\mathbin{\binampersand}}
+\newcommand{\paar}{\mathbin{\bindnasrepma}}
+\newcommand{\one}{\mathbf{1}}
+\newcommand{\zero}{\mathbf{0}}
+\newcommand{\bang}{{!}}
+\newcommand{\whynot}{{?}}
+\newcommand{\bilolli}{\mathrel{\raisebox{1pt}{\ensuremath{\scriptstyle\circ}}{\lolli}}}
+% \oplus, \top, \bot
+
+% symbols of pi-calculus
+\newcommand{\FN}{\mathsf{fn}} % free names
+% \mid for parallel composition
+\newcommand{\recv}[2]{#1(#2)}
+\newcommand{\send}[2]{\overline{#1}\langle #2\rangle}
+% \newcommand{\zero}{\boldsymbol{0}} % already above
+\newcommand{\fwd}{\leftrightarrow}
+\newcommand{\case}{\mathsf{case}}
+\newcommand{\inl}{\mathsf{inl}}
+\newcommand{\inr}{\mathsf{inr}}
+
+% symbols of linear lambda-calculus
+\newcommand{\pair}[2]{\langle #1, #2\rangle}
+\newcommand{\llet}{\m{let}\;}
+\newcommand{\iin}{\mathrel{\m{in}}}
+\newcommand{\ccase}{\m{case}\;}
+\newcommand{\oof}{\mathrel{\m{of}}}
+\newcommand{\unit}{\langle\,\rangle}
+\newcommand{\abort}{\m{abort}}
+
+% substructural operational semantics
+\newcommand{\eval}{\m{eval}}
+\newcommand{\retn}{\m{retn}}
+\newcommand{\cont}{\m{cont}}
+\newcommand{\hole}{\mbox{\tt\char`\_}}
+\newcommand{\rep}[1]{\ulcorner #1\urcorner}
+
+% ordered logic
+\newcommand{\gnab}{\mbox{!`}}
+\newcommand{\fuse}{\bullet}
+\newcommand{\esuf}{\circ}
+\newcommand{\rimp}{\twoheadrightarrow}
+\newcommand{\limp}{\rightarrowtail}
+
+\newcommand{\orr}{\; | \; }
