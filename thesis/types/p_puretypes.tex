@@ -1,0 +1,50 @@
+\section{Pure Type Systems}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Pure Type System}
+\begin{itemize}
+\item Generalization of the lambda cube \citep{barendregt1991introduction}. 
+\item Caledon elaborates into the Calculus of Constructions.
+\item The Calculus of Constructions is best understood as a PTS.
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Pure Type System Syntax}
+\begin{definition}
+\textbf{(PTS Syntax)}
+
+\[ 
+E ::=  V 
+ \orr S 
+ \orr E\;E 
+ \orr \lambda V : E . E 
+ \orr \Pi V : E . E 
+\]
+
+\end{definition}
+\end{frame}
+
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Pure Type System Rules 1}
+\begin{definition}
+\textbf{(PTS Rules)}
+\[
+\infer
+{
+\Gamma \vdash c : s
+}{
+\Gamma \vdash
+\;
+(c,s) \in A
+}
+\]
+\end{definition}
+\end{frame}
