@@ -1,31 +1,111 @@
-\subsection{Introduction}
+\subsection{Background}
 
+\begin{frame}
+\frametitle{History}
 
+\begin{itemize}
+\item Prolog generalized pattern matching with backtracking logic programming.
+\item $\lambda$Prolog gave prolog closures \citep{miller1988overview}.
+\item Twelf \citep{pfenning1999system} gave a $\lambda$Prolog like language with with dependent types.
+\end{itemize}
+\end{frame}
 
-Higher order logic programming languages such as $\lambda$Prolog represent a significant
-step toward the development of an effective self-contained language for the writing 
-of programming languages \citep{miller1988overview}. 
-Twelf, on the other hand,
-demonstrates the power of higher order logic programming as a meta-logical framework
-\citep{pfenning1999system}. Both of these approaches, however, have drawbacks. $\lambda$Prolog lacks a type system broad enough to express many invariants for its own code. Twelf’s type system
-is so conservative that it lacks polymorphism, a fundamental requirement for building
-libraries. But, if a dependently-typed logic programming language like Twelf is extended with polymorphism, it becomes powerful enough to use the proofs generated
-by its own proof search as functioning code. 
+%------------------------------------------------
 
-In most languages, the purpose of type inference is for static transformation and 
-analysis. 
-In order to take advantage of a logic programming language’s ability to generate its own code elegantly, we modify the purpose of type
-inference so that it can be conidered as the execution of the language.
-In this way, type inference can be worded as a translation from language terms to unification
-problems. In this paper, we consider unification problems to be the target
-language for the compilation of a correctly parsed program. Since the ``Calculus of Constructions''
-\citep{coquand1986calculus} contains polymorphism, dependent types, and type functions, it is used
-as the basis for the source language. While type inference for the ``Calculus of Constructions'' and even Twelf is undecidable\citep{Dowek93tlca} and thus often abandoned as a goal in its entirety. We, on the other hand, specify the 
-type inference procedure with the same semantics as the language itself,
-hus making the procedure programmable.
+\begin{frame}
+\frametitle{Twelf}
+\begin{itemize}
+\item It lacks polymorphism and thus useful libraries
+\item It can search for proofs as the method of programming 
+\item It does does not use these found proofs as programs
+\item Very good for theorem proving
+\item No IO
+\end{itemize}
 
-To control the use of inference programmatically, implicit arguments similar to those
-in Agda are included. As implicit arguments may be filled by proof search in addition
-to simple unification, our implicit arguments are similar to the type classes of Haskell. 
-These features result in the source terms being changed by type inference.
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+
+\frametitle{Caledon}
+\begin{itemize}
+\item Caledon, turns twelf into a general purpose language
+\item Has implicit multi-universe polymorphism
+\item Has IO
+\item Has nondeterminism control
+\item Has instance arguments
+\item Instance arguments support adhoc typeclasses
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Dependent types and Proof Search}
+\begin{itemize}
+
+\item Dependent types allows you to mention code in your types.
+\item Type inference allows you to generate types from your code.
+\item Logic programming allows you generate code from your code.
+\item since code is used in types, use logic programming for type inference to generate types for your code.
+\item since types are used as logic programming code, type inference should come up with logic code.
+
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Result}
+\begin{itemize}
+
+\item types get inferred types which get inferred types... 
+\item type inference becomes the runtime mechanism.
+
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Mechanism}
+\begin{itemize}
+
+\item Proof holes get filled by unification, then proof search.
+\item Instance arguments allow for the automatic insertion of holes.
+\item polymorphism permits generalization to logic programs in general.
+
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Mechanism}
+\begin{itemize}
+
+\item Proof holes get filled by unification, then proof search.
+\item Instance arguments allow for the automatic insertion of holes.
+\item polymorphism permits generalization to logic programs in general.
+
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Uses}
+\begin{itemize}
+
+\item Programs which have different types on different computers, or for different users.
+\item Metaprogramming for flexible syntax.
+\item Take derivatives of types to generate types for zipper datastructures.
+\item Ensure linearity of a type.
+
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
 
