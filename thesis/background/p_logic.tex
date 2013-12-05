@@ -1,54 +1,45 @@
-\section{Logic Programming}
+\section[Logic Primer]{Logic Programming Primer}
 
-Logic programming languages such as Prolog were originally designed as part of the ``AI
-program'', in much the same way Lisp was. Automated reasoning’s natural goal was
-to be able to arbitrarily prove theorems. A logic programming language was a 
-set of axioms and a predicate. If the predicate could be proven through those axioms,
-the automated theorem prover would halt.  These proof search procedures were
-then constrained into useful programming semantics. When performed in a backtracking
-manner, the proof-search process represented a formulation of procedural code
-with powerful pattern matching. The Caledon language is a higher-order backtracking
-logic programming language in the style of Twelf. In this section I present some basic
-intuition for logic programming, rather than explaining it technically, and demonstrate the 
-descriptive power of the system implemented in Caledon.
+\begin{frame}[fragile]
+\frametitle{Logic Programming Basics}
 
-\FloatBarrier
-\subsection{Basics}
-We begin by defining addition on unary numbers in Caledon shown in shown in \ref{code:add}.
-
-\begin{figure}[H]
 \begin{lstlisting}
 defn add : nat -> nat -> nat -> prop
    | addZ = add zero A A
    | addS = add (succ A) B (succ C) 
              <- add A B C
 \end{lstlisting}
-\caption{Addition in Caledon}
-\label{code:add}
-\end{figure}
+\end{frame}
 
-One might notice that this definition is incredibly similar to its Haskell counterpart shown in \ref{code:hask}.
+%------------------------------------------------
 
-\begin{figure}[H]
+\begin{frame}[fragile]
+\frametitle{Comparing it to Haskell}
+
 \begin{lstlisting}
 add :: nat -> nat -> nat
 add Zero a = a
 add (Succ a) b = Succ c
    where c = add a b
 \end{lstlisting}
-\caption{Addition in Haskell}
-\label{code:hask}
-\end{figure}
+\end{frame}
 
-We can read the logic programming definition as we would read the functional definition with pattern
-matching, knowing that an intelligent compiler would be able to convert the first into the second.  
-search allows one to define essentially nondeterministic programs. A common use for
-logic programming has been to search for solutions to combinatorial games such as tic-tac-toe, 
-without the programmer worrying about the order of the search. As this tends
-to produce inefficient code, this use style is discouraged. Rather, a more procedural view of logic programming is encouraged where pattern match and search is performed
-in the order it appears.
+%------------------------------------------------
 
-\begin{figure}[H]
+\begin{frame}
+\frametitle{Uses for Logic programming}
+\begin{itemize}
+\item Search allows for nondeterministic programs.
+\item Finding solutions for search games - tic-tac-toe
+\item A procedural view can be used
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Procedural View}
+
 \begin{lstlisting}
 defn p : T_1 -> ... -> T_r -> prop
   >| n1 = p T_1 ... T_r <- p_1,1 ... <- p_1,k_1
@@ -57,311 +48,61 @@ defn p : T_1 -> ... -> T_r -> prop
 
 query prg = p t1 ... tr
 \end{lstlisting}
-\caption{Format of a Caledon Logic Program}
-\label{code:format}
-\end{figure}
+\end{frame}
 
-In this view, a program of the form \ref{code:format}
-should be considered a program which first attempts to prove using axiom n1 by matching prg with ``p T1 ... Tr'' and then
-attempting to prove $p_{1,1}$ and so on.
+%------------------------------------------------
 
+\begin{frame}[fragile]
+\frametitle{Function Match}
 
-\FloatBarrier
-\subsection{Higher Order Logic Programming}
+Here's some unnecessarily verbose code.
 
-Just as imperative programs benefit from the addition of higher order functions, logic programs benefit from the addition of both
-higher order predicates and patterns.  
-
-A common request by functional programming language users is that they would like to be able to abstract patterns even more than just over
-arguments.  
-
-\begin{figure}[H]
 \begin{lstlisting}
 func (Var a) = code1
 func (Forall var val) = Exists var code
 func (Exists var val) = Forall var code
 func (And a b) = code2
 \end{lstlisting}
-\caption{Unnecessarily verbose code}
-\label{code:verbose}
-\end{figure}
+\end{frame}
 
-A serious amount of code is repeated in lines 2 and 3 of example \ref{code:verbose}, 
-but in common languages it is impossible to simplify this.
-What a programmer would actually like to express is shown in \ref{code:Fideal}.
+%------------------------------------------------
 
-\begin{figure}[H]
-\begin{lstlisting}
-func (Var a) = code1
-func (f var val) = f var code
-func (And a b) = code2
-\end{lstlisting}
-\caption{Ideal code. $f$ is a constructor in strong head normal form.}
-\label{code:Fideal}
-\end{figure}
+\begin{frame}[fragile]
+\frametitle{Logic Version}
 
-In higher order logic programming languages like $\lambda$Prolog, this sort of simplification 
-is in fact possible to express as shown in \ref{code:lprolog}.
+Here's the logic solution
 
-\begin{figure}[H]
 \begin{lstlisting}
 defn func : term -> term -> prop 
   | f1 = func (var A) R <- [code1]
   | f2 = func (F Var Val) (f Var R) <- [code]
   | f3 = func (and A B) R <- [code2]
 \end{lstlisting}
-\caption{Expressing constructor variables in patterns}
-\label{code:lprolog}
-\end{figure}
+\end{frame}
 
-\FloatBarrier
-\subsection{Higher Order Programming}
+%------------------------------------------------
+\subsection{Type Classes}
+%------------------------------------------------
 
-Fortunately, higher order functions need not be restricted to patterns.  Macros provide even more ways to generalize code. 
+\begin{frame}[fragile]
+\frametitle{Type classes in Haskell}
 
-A great example is the function application operator from Haskell.  
-We can define this in Caledon as shown in \ref{code:macros}
+Type classes in haskell allow you to append constraints
+to paramaterized values.
 
-\begin{figure}[H]
-\begin{lstlisting}
-fixity right 0 @
-defn @ : (At -> Bt) -> At -> Bt
-  as ?\ At Bt . \ f : At -> Bt . \ a : At . f a
-
-\end{lstlisting}
-\caption{Definitions for expressive syntax}
-\label{code:macros}
-\end{figure}
-
-In many cases, allowing these definitions allows for significant simplification of syntax.
-The reader familiar with languages like Twelf, Haskell, and Agda might notice the 
-implicit abstraction of the type variables At and Bt in the type of @ in \ref{code:macros}. The rest of this
-paper is concerned with formalizing these implicit abstractions and letting them have
-as much power as possible. For example, one might make these abstractions explicit by
-instead declaring at the beginning \ref{code:expHask}
-
-\begin{figure}[H]
-\begin{lstlisting}
-infixr 0 @
-(@) :: forall At Bt . (At -> Bt) -> At -> Bt
-(@) = \ f . \ a . f a
-\end{lstlisting}
-\caption{Explicit Haskell style abstractions}
-\label{code:expHask}
-\end{figure}
-
-However, in a dependently typed language, every function type is a dependent product
-(forall).  This makes it necessary to provide a new (explicit) implicit dependent product - $?\forall$ or $?\Pi$.
-
-
-\begin{figure}[H]
-\begin{lstlisting}
-fixity right 0 @
-defn @ : {At Bt:prop} (At -> Bt) -> At -> Bt
-  as ?\ At Bt . \ f . \ a . f a
-
-\end{lstlisting}
-\caption{The (explicit) implicit equivalent of \ref{code:macros}}
-\label{code:expimp}
-\end{figure}
-
-Haskell also has type classes. For example, the type of “show” can be seen in \ref{code:showty}.
-
-\begin{figure}[H]
 \begin{lstlisting}
 show :: Show a => a -> String
 \end{lstlisting}
-\caption{The type of show}
-\label{code:showty}
-\end{figure}
+\end{frame}
 
-In Caledon, these can be written similarly as in \ref{code:cshowty}
+%------------------------------------------------
 
-\begin{figure}[H]
+\begin{frame}[fragile]
+\frametitle{Type classes in Caledon}
+
+In Caledon we do this with an implicit argument.
 \begin{lstlisting}
-defn show : showC A => A -> string
+defn show : showC A => A -> String
 defn show : {unused : showC A } A -> string
 \end{lstlisting}
-\caption{Equivalent types for show in Caledon}
-\label{code:cshowty}
-\end{figure}
-
-However, since implicit arguments are a natural extension of the dependent type
-system in Caledon, no restrictions are made on the number of arguments, or difficulty
-of computing. Unfortunately, since computation is primarily accomplished by the logic
-programming fragment of the language rather than the functional fragment of the language,
-the correspondence between these programmable implicit arguments and type
-classes is not one to one. It is possible to replicate virtually all of the functionality of
-type classes in the implicit argument system, but the syntax required to do so can become
-verbose. Rather than attempting to simulate type classes, more creative uses are
-possible, such as computing the symbolic derivative of a type for use in a (albeit, slow
-and unnecessary) generic zipper library, or writing programs that compile differently
-with different types in different environments.
-
-
-
-
-\section{Initial Examples}
-
-
-In the previous section I gave an introduction to the notion of logic programming using
-both the familiar language of Haskell and the new language of Caledon. In this section
-I will build upon these ideas by introducing logic programming with polymorphism
-through building a set of standard polymorphic type logic library.
-
-There are a few ways of defining sums in Caledon.
-
-
-\begin{figure}[H]
-\begin{lstlisting}
-defn and : type -> type -> type
-   | pair = and A B <- A <- B
-
-defn fst : and A B -> A -> type
-   | fstImp = fst (pair Av Bv) Av
-
-defn snd : and A B -> B -> type
-   | sndImp = snd (pair Av Bv) Bv
-\end{lstlisting}
-\caption{Logical conjunction}
-\label{code:lconj}
-\end{figure}
-
-
-In this first, simplest way (as seen in figure \ref{coe:lconj}, we define a predicate for “and” and
-predicates for construction and projection. This method has the advantage of doubling
-as a form of sequential predicate.
-
-\begin{figure}[H]
-\begin{lstlisting}
-
-query main = and (print ``hello ``) (print `` world!'')
-\end{lstlisting}
-\caption{Use of logical conjunction}
-\label{code:lconjuse}
-\end{figure}
-
-In the figure \ref{code:lconjuse} the query will output ``hello world!''.
-
-\begin{figure}[H]
-\begin{lstlisting}
-
-defn and : type -> type -> type
-  as \ a : type . \ b : type . 
-      [ c : type ] (a -> b -> c) -> c
-
-defn pair : A -> B -> and A B
-  as ?\ A B : type .
-      \ a b .
-      \ c : type .
-      \ proj : A -> B -> c .
-        proj a b
-
-defn fst : and A B -> A
-  as ?\ A B : type .
-      \ pair : [c : type] (A -> B -> c) -> c .
-        pair A (\ a b . a)
-
-defn snd : and A B -> A
-  as ?\ A B : type .
-      \ pair : [c : type] (A -> B -> c) -> c .
-        pair B (\ a b . b)
-
-\end{lstlisting}
-\caption{Church style conjunction}
-\label{code:cconj}
-\end{figure}
-
-In the case of figure \ref{code:cconj}, we do not add any axioms without their proofs.   
-In this example we also introduce the dependent product written in the form $[ a : t_1 ] t_2$.
-
-This case mimics the version usually seen in the Calculus of Constructions and has the advantage of
-the projections being functions rather than predicates.
-
-
-\begin{figure}[H]
-\begin{lstlisting}
-
-defn churchList : type −> type
-  as \A : type . [ lst : type] lst −> (A −> lst −> lst ) −> lst
-
-defn consCL : [ B : type ] B -> churchList B -> churchList B
-  as \ C : type .
-     \ V : C .
-     \ cl : churchList C .
-     \ lst : type .
-     \ nil : lst .
-     \ cons : C -> lst -> lst .
-     cons V (cl lst nil cons)
-
-defn nilCL : [ B : type ] churchList B
-  as \ C : type .
-     \ lst : type .
-     \ nil : lst .
-     \ cons : C -> lst -> lst .
-       nil
-
-defn mapCL : { A B } ( A -> B) -> churchList A -> churchList B
-  as ?\ A B : type .
-      \ F : A -> B.
-      \ cl : churchList A .
-      \ lst : type .
-      \ nil : lst .
-      \ cons : B -> lst -> lst .
-        cl lst nil (\ v . cons (F v))
-
-defn foldrCL : { A B } ( A -> B -> A) -> A -> churchList B -> A 
-  as ?\ A B : type . 
-      \ F : A -> B -> A .
-      \ bc : A .
-      \ cl : churchList B .
-        cl A bc (\ v : B . \ c : A . F c v)
-
-\end{lstlisting}
-\caption{Church style list}
-\label{code:clist}
-\end{figure}
-
-In the Church form of a list, folds and maps are possible to implement as functions
-rather than predicates. However, their implementation is verbose and doesn't permit
-more complex functions.
-
-
-\begin{figure}[H]
-\begin{lstlisting}
-
-defn list : type -> type
-   | nil = list A
-   | cons = A -> list A -> list A
-
-defn concatList : list A -> list A -> list A -> type
-   | concatListNil = [ L : list A ] concatList nil L L
-   | concatListCons = 
-          concatList (cons (V : T) A) B (cons V C) 
-       <- concatList A B C
-
-defn concatList : list A -> list A -> list A -> type
-   | concatListNil = [ L : list A ] concatList nil L L
-   | concatListCons = 
-          concatList (cons (V : T) A) B (cons V C) 
-       <- concatList A B C
-
-defn mapList : (A -> B -> type ) -> list A -> list B -> type
-   | mapListNil = [ F : A -> B ] mapList F nil nil
-   | mapListCons = [F : A -> B ] 
-            mapList F (cons V L) (cons (F V) L')
-            <- mapList F L L'
-
-defn pmapList : (A -> B -> type) -> list A -> list B -> type
-   | pmapListNil = [ F : A -> B -> type] pmapList F nil nil
-   | pmapListCons = [F : A -> B -> type] 
-            pmapList F (cons V L) (cons V' L')
-            <- F V V'
-            <- mapList F L L'
-\end{lstlisting}
-\caption{Logic List}
-\label{code:llist}
-\end{figure}
-
-The logic programming version can be seen in figure \ref{code:llist}. It is important to note that
-we can now map a predicate over a list rather than just mapping a function over a list.
+\end{frame}
