@@ -46,4 +46,51 @@ query printQueryNat =
 \end{lstlisting}
 
 \end{frame}
+
+
 % -------------------------------------------------------------
+\subsection[Linearity]{Putting it all Together}
+
+\begin{frame}
+\frametitle{Putting it all together}
+\begin{itemize}
+\item Can create a linearity predicate.
+\item Uses notion of typeclass
+\item acts on higher order abstract syntax
+\item works on types by employing universes
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Linearity}
+\begin{lstlisting}
+defn linear : 
+     [T] [ P : T -> type ] 
+     ( [ x : T ] P x ) -> type
+   | linear-var = 
+      linear T (\ x . T) (\ x : T . x)
+   | restrict-lam = 
+      linear T (\ x . [y : A] P x y) 
+               (\ x . \ y : A . F y x)
+      <- [ y : A ] 
+         linear T (\ x . P x y) (\ x . F y x)
+
+defn lolli : 
+      [T] ( T -> type ) -> type
+   | llam = 
+      [T]{TyF}[F : [x : T] TyF x]
+      linear T TyF F => lolli T TyF
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Uses of Linearity}
+\begin{itemize}
+\item Solves unique instance problem
+\item Could be used to automate type class instancing
+\item Application could get special syntax
+\item Subject of future research
+\end{itemize}
+\end{frame}
