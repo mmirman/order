@@ -28,9 +28,9 @@ V
 \orr S 
 \orr E\;E 
 \orr \lambda V : T. E 
-\orr ?\lambda V : T. E 
+\orr ?\lambda V,V : T. E 
 \orr \Pi V : E . E 
-\orr ?\Pi V : E . E 
+\orr ?\Pi V,V : E . E 
 \orr E \{ V : E = E \}
 \]
 
@@ -122,9 +122,9 @@ to the encoding in church numerals of a name $x$ as $\bar{x}$.  $\bar{\bar{x}}$ 
 inhabitant of the type $\m{nat_1}\;\bar{x}$.   $\m{get}$ and $\m{put}$ shall be used as 
 aliases for the definitions outlined above.
 
-Then $?\lambda x : A . B$ and $?\Pi x : A . B$ 
-becomes $\lambda y : \m{rec}\;\bar{x}\;A . [get A \bar{x} y / x ] B$
-and $?\Pi y : \m{rec}\;\bar{x}\;A . [get A \bar{x} y / x ] B$.
+Then $?\lambda nm,x : A . B$ and $?\Pi nm,x : A . B$ 
+becomes $\lambda y : \m{rec}\;\bar{nm}\;A . [get \;A \;\bar{nm}\; y / x ] B$
+and $?\Pi y : \m{rec}\;\bar{nm}\;A . [get A \bar{nm} y / x ] B$.
 
 Similarly, $N \{ x\; : \; T \; = \;A \} $
 would become $N\;( \m{put} \; T \; \bar{x} \; \bar{\bar{x}} \; A)$.
@@ -162,14 +162,14 @@ The simplest, albeit not the most constructive method of defining typeability fo
 \\
 \CICCproj{E_1 \; \{ x : T = E \}} &:= \CICCproj{E_1} \; (\m{put}\;\CICCproj{T}\;\bar{x}\; \bar{\bar{x}}; \CICCproj{E_2} )
 \\
-\CICCproj{\lambda v : T . E } &:= \lambda v : \CICCproj{T} . \CICCproj{E}
+\CICCproj{\lambda nm,v : T . E } &:= \lambda v : \CICCproj{T} . \CICCproj{E}
 \\
-\CICCproj{?\lambda v : T . E } &:= \lambda y : \m{rec}\;\bar{v}\; \CICCproj{T} . \CICCproj{ [ \m{get}\; \CICCproj{T}\; \bar{v}\; y  / v ] E}
+\CICCproj{?\lambda nm,v : T . E } &:= \lambda y : \m{rec}\;\bar{nm}\; \CICCproj{T} . \CICCproj{ [ \m{get}\; \CICCproj{T}\; \bar{nm}\; y  / v ] E}
 \;\text{ where $y$ is fresh}
 \\
 \CICCproj{\Pi v : T . E } &:= \Pi v : \CICCproj{T} . \CICCproj{E}
 \\
-\CICCproj{?\Pi v : T . E } &:= \Pi y : \m{rec}\;\bar{v}\;\CICCproj{T} . \CICCproj{ [ \m{get}\;\CICCproj{T}\; \bar{v}\; y  / v ] E}
+\CICCproj{?\Pi nm,v : T . E } &:= \Pi y : \m{rec}\;\bar{nm}\;\CICCproj{T} . \CICCproj{ [ \m{get}\;\CICCproj{T}\; \bar{nm}\; y  / v ] E}
 \;\text{ where $y$ is fresh}
 \end{align}
 
@@ -210,26 +210,26 @@ Suppose $B$ is a different variable $v$.
 $\CICCproj{[A/x] v} = v = [\CICCproj{A}/x]v = [\CICCproj{A} / x ] \CICCproj{v}$
 
 \begin{tcases}
-The most interesting case is $B = ?\lambda v : T . E$
+The most interesting case is $B = ?\lambda nm,v : T . E$
 \end{tcases}
 
 Then
 \[
-\CICCproj{A}/x ]\CICCproj{? \lambda : T . E } 
-= [ \CICCproj{A} / x ] ( \lambda v : \m{rec} \; \bar{v} \;\CICCproj{T} . 
-   \CICCproj{ [ \m{get} \; \CICCproj{T} \; \bar{v} \; y / v ] E } )
+[\CICCproj{A}/x ]\CICCproj{?\lambda nm,v : T . E } 
+= [ \CICCproj{A} / x ] ( \lambda v : \m{rec} \; \bar{nm} \;\CICCproj{T} . 
+   \CICCproj{ [ \m{get} \; \CICCproj{T} \; \bar{nm} \; y / v ] E } )
 \]
 
 where $y$ is fresh.
 
 Then 
 \[
-= ( \lambda v : \m{rec} \; \bar{v} \;([ \CICCproj{A} / x ] \CICCproj{T}) . 
-    [ \CICCproj{A} / x ] \CICCproj{ [ \m{get} \; \CICCproj{T} \; \bar{v} \; y / v ] E } )
+= ( \lambda v : \m{rec} \; \bar{nm} \;([ \CICCproj{A} / x ] \CICCproj{T}) . 
+    [ \CICCproj{A} / x ] \CICCproj{ [ \m{get} \; \CICCproj{T} \; \bar{nm} \; y / v ] E } )
 \]
 \[
-= ( \lambda v : \m{rec} \; \bar{v} \;\CICCproj{[ A / x] T} . 
-    [ \CICCproj{A} / x ] [ \m{get} \; \CICCproj{T} \; \bar{v} \; y / v ] \CICCproj{E } )
+= ( \lambda v : \m{rec} \; \bar{nm} \;\CICCproj{[ A / x] T} . 
+    [ \CICCproj{A} / x ] [ \m{get} \; \CICCproj{T} \; \bar{nm} \; y / v ] \CICCproj{E} )
 \]
 
 Then by the induction hypothesis on $T$ and $E$ and the fact that 
@@ -238,20 +238,20 @@ and $[\CICCproj{A} / x ] \m{rec} = \m{rec}$
 and $x \neq y$ since $y$ is fresh, we get: 
 
 \[
-= ( \lambda v : \m{rec} \; \bar{v} \;\CICCproj{[ A / x] T} . 
-   [ \m{get} \; \CICCproj{[A / x ]T} \; \bar{v} \; y / v ]  [ \CICCproj{A} / x ] \CICCproj{E } )
+= ( \lambda v : \m{rec} \; \bar{nm} \;\CICCproj{[ A / x] T} . 
+   [ \m{get} \; \CICCproj{[A / x ]T} \; \bar{nm} \; y / v ]  [ \CICCproj{A} / x ] \CICCproj{E } )
 \]
 since we know that $v$ isn't free in $A$ by the fact that $x$ is free for $A$ in $B$ 
 (provided $x$ is actually used anywhere in $E$) we get the following:
 \[
-= ( \lambda v : \m{rec} \; \bar{v} \;\CICCproj{[ A / x] T} . 
-   \CICCproj{ [ \m{get} \; \CICCproj{[A / x ]T} \; \bar{v} \; y / v ] [ A / x ] E } )
+= ( \lambda v : \m{rec} \; \bar{nm} \;\CICCproj{[ A / x] T} . 
+   \CICCproj{ [ \m{get} \; \CICCproj{[A / x ]T} \; \bar{nm} \; y / v ] [ A / x ] E } )
 \]
 \[
-= \CICCproj{ ?\lambda v : [ A / x] T . [ A / x ] E }
+= \CICCproj{ ?\lambda nm,v : [ A / x] T . [ A / x ] E }
 \]
 \[
-= \CICCproj{ [ A / x] (?\lambda v : T . E) }
+= \CICCproj{ [ A / x] (?\lambda nm,v : T . E) }
 \]
 
 \begin{lemma}
@@ -284,7 +284,7 @@ Then it is of the form $(\lambda x : T_a . R) E_2 \rightarrow_{beta} [ \CICCproj
 where $V = [ \CICCproj{E_2} / c ] R$ and $(\lambda x : T_a . R) E_2 = \CICCproj{E_1} E_2 = \CICCproj{E}$.
 
 Then since $\CICCproj{E_1} = (\lambda x : T_a . R)$ we know that $E_1 = \lambda x : T_a' . R'$ 
-or that $E_1 = ?\lambda v : T_a' . R'$.  We examine these two cases.
+or that $E_1 = ?\lambda nm,v : T_a' . R'$.  We examine these two cases.
 
 \setcounter{tcases}{0}
 
@@ -314,36 +314,36 @@ $\CICCproj{[E_2/x]R'} = [ \CICCproj{E_2} / x ] \CICCproj{R'} $ where $\CICCproj{
 Thus, $\CICCproj{[E_2 / x] R'} = V$
 
 \begin{tcases}
-The last case is where $E_1 = ?\lambda x : T' . R'$
+The last case is where $E_1 = ?\lambda nm,x : T' . R'$
 \end{tcases}
 
-Because $\Gamma \vdash_{ci} M : T$ and $M = (?\lambda x : T_a' . R') E_2'$
-we know that $\Gamma \vdash_{ci} (?\lambda x : T_a' . R') : ?\Pi x : T_a' . T_2$ clearly.  
+Because $\Gamma \vdash_{ci} M : T$ and $M = (?\lambda nm,x : T_a' . R') E_2'$
+we know that $\Gamma \vdash_{ci} (?\lambda x : T_a' . R') : ?\Pi nm,x : T_a' . T_2$ clearly.  
 
-Then $\CICCproj{\Gamma} \vdash_{cc} \CICCproj{?\lambda x : T_a' . R'} E_2 : \CICCproj{T}$
+Then $\CICCproj{\Gamma} \vdash_{cc} \CICCproj{?\lambda nm,x : T_a' . R'} E_2 : \CICCproj{T}$
  must be the result of the is the result of the ``app'' rule. 
 
-Thus, we know that $\CICCproj{\Gamma} \vdash_{cc} \CICCproj{?\lambda x : T_a' . R'} : \Pi y : T_3 . T_4$ for some $T_3$ and $T_4$.
+Thus, we know that $\CICCproj{\Gamma} \vdash_{cc} \CICCproj{?\lambda nm,x : T_a' . R'} : \Pi y : T_3 . T_4$ for some $T_3$ and $T_4$.
 
 By uniqueness of forms and inversions, we get that 
 \[
 \Pi y : T_3 . T_4 
-= \Pi y : \m{rec} \bar{x}\CICCproj{T_a'} . \CICCproj{[ \m{get} \CICCproj{T_a'} \bar{x} y / x ] T_2}
+= \Pi y : \m{rec} \bar{nm}\CICCproj{T_a'} . \CICCproj{[ \m{get} \CICCproj{T_a'} \bar{nm} y / x ] T_2}
 \]
 since 
 \[
-\CICCproj{?\lambda x : T_a' . R'} 
+\CICCproj{?\lambda nm,x : T_a' . R'} 
 = 
-\lambda y : \m{rec} \bar{x}\CICCproj{T_a'} . \CICCproj{[ \m{get} \CICCproj{T_a'} \bar{x} y / x ] R'}
+\lambda y : \m{rec} \bar{nm}\CICCproj{T_a'} . \CICCproj{[ \m{get} \CICCproj{T_a'} \bar{nm} y / x ] R'}
 \]
 
 Thus, we know that 
 \[
 \CICCproj{M} = 
-\CICCproj{(?\lambda x : T_a' . R')} (\m{put} \CICCproj{T'}\bar{x}\bar{\bar{x}} \CICCproj{E_2})
+\CICCproj{(?\lambda nm,x : T_a' . R')} (\m{put} \CICCproj{T'}\bar{nm}\bar{\bar{nm}} \CICCproj{E_2})
 \]
 
-Thus, $M = (?\lambda x : T_a' . R')\{ x : T_2' = E_2\} $ and $\CICCproj{T_a'} = T$ 
+Thus, $M = (?\lambda nm,x : T_a' . R')\{ nm : T_2' = E_2\} $ and $\CICCproj{T_a'} = T$ 
 and $\CICCproj{R'} = R$.  Since we are performing a $\beta$ reduction, we know that
 $x$ is free for $\CICCproj{E_2}$ in $\CICCproj{R'}$.  
 Then by the projection substitution theorem \ref{cicc:proj}, 

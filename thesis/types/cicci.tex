@@ -6,11 +6,6 @@ This is accomplished by extending the typing rules and providing
 a mapping from the extended type derivation and term to 
 an original type derivation and term. 
 
-We only have one syntactic difference in this calculus:  $E\; \{ V : A = E \}$ 
-is now simply $ E \; \{ V  = E \}$.  
-We might also include Curry-style binders in this presentation, but they shed little 
-extra light on the workings of type inference.
-
 \newcommand{\judgeCI}[0]{ \vdash_{i^-}}
 
 Let $\Gamma \vdash A : T \wedge B : T'$ stand for $\Gamma \vdash A : T$ and $\Gamma \vdash B : T'$.
@@ -227,7 +222,7 @@ and thus must be given on the typing derivation.
 }
 }
 :=
-?\Pi x : \CICCmproj{ \mathcal{D}_1 }  . \CICCmproj{ \mathcal{D}_2 }
+?\Pi x,x : \CICCmproj{ \mathcal{D}_1 }  . \CICCmproj{ \mathcal{D}_2 }
 \]
 
 %% gen %%
@@ -293,7 +288,7 @@ and thus must be given on the typing derivation.
 }
 }
 :=
-?\lambda x : \CICCmproj{ \mathcal{D}_2 }  . \CICCmproj{ \mathcal{D}_1 }
+?\lambda x,x : \CICCmproj{ \mathcal{D}_2 }  . \CICCmproj{ \mathcal{D}_1 }
 \]
 
 %% app %%
@@ -388,7 +383,7 @@ and thus must be given on the typing derivation.
 }
 }
 :=
-?\lambda x : T . \CICCmproj{\mathcal{D}}
+?\lambda x,x : T . \CICCmproj{\mathcal{D}}
 \]
 \label{cicc-:proj}
 \end{definition}
