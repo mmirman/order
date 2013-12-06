@@ -103,14 +103,14 @@ same_nat _ _ = False
 \begin{frame}[fragile]
 \frametitle{Predicates From Functions}
 
-We can turn our addition algorithm into an even test trivially.
+We can turn addition into an even test trivially.
 
 \begin{lstlisting}
 defn even : nat -> prop
   >| is_even = even B <- add A A B
 
 defn odd : nat -> prop
-  >| is_even = odd B <- even (succ B)
+  >| is_odd = odd B <- even (succ B)
 \end{lstlisting}
 \end{frame}
 
