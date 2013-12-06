@@ -24,6 +24,7 @@
 
 \input{p_fp-macros}
 \usepackage{amsmath}
+\usepackage{stmaryrd}
 
 \usepackage{subfigure}
 \usepackage{color}
@@ -106,125 +107,35 @@ School of Computer Science, Carnegie Mellon University \\
 }
 
 
-
 \part[Introduction]{Introduction} 
     \input{background/p_introduction.tex}
-
     \input{background/p_logic.tex}
      
-\part[Types]{Type System} 
-%    \input{types/p_types.tex}
-    \input{types/p_puretypes.tex} 
-%    \input{types/p_coc.tex}
-%    \input{types/p_cicc.tex}
-  
-\part[Semantics]{Operational Semantics} 
-%    \input{semantics/p_semantics.tex}
-%    \input{semantics/p_history.tex}
-%    \input{semantics/p_forms.tex}
-%    \input{semantics/p_substitution.tex}
-%    \input{semantics/p_hou.tex}
-%    \input{semantics/p_search.tex}
-          
-\part[Inference]{Type Inference}
-%    \input{types/p_implicit_coc.tex}
-%    \input{types/p_icc.tex} 
-%    \input{types/p_cicci.tex}
-%    \input{semantics/p_isem.tex}
-             
-\part[Implementation]{Implementation}
-%    \input{language/p_language.tex}
-%    \input{language/p_inference.tex}
-%    \input{language/p_families.tex} 
-%    \input{language/p_nondet.tex}
-%    \input{language/p_io.tex}
- 
-\part[Programming]{Programming with Caledon}
-%    \input{metaprogramming/p_typeclasses.tex}
-%    \input{metaprogramming/p_linear.tex}
+\part[Types]{Types} 
+     \input{types/p_types.tex}
+     \input{types/p_coc.tex}
+     \input{types/p_cicc.tex}
+
+\part[Semantics]{Runtime} 
+    \input{types/p_cicci.tex}
+    \input{semantics/p_semantics.tex}
+    \input{semantics/p_language.tex}
   
 \part[Conclusion]{Conclusion}
-%   \input{conclusion/p_results.tex}
+    \input{metaprogramming/p_typeclasses.tex}
+    \input{conclusion/p_results.tex}
 %   \input{conclusion/p_futurework.tex}
-
-
-
-%\begin{frame}
-%\frametitle{Blocks of Highlighted Text}
-%\begin{block}{Block 1}
-%Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-%\end{block}
-
-%\begin{block}{Block 2}
-%Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
-%\end{block}
-
-%\begin{block}{Block 3}
-%Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
-%\end{block}
-%\end{frame}
-
-%------------------------------------------------
-
-%\begin{frame}
-%\frametitle{Theorem}
-%\begin{theorem}[Mass--energy equivalence]
-%$E = mc^2$
-%\end{theorem}
-%\end{frame}
-
-%------------------------------------------------
-
-%\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-%\frametitle{Verbatim}
-%\begin{example}[Theorem Slide Code]
-%\begin{verbatim}
-%\begin{frame}
-%\frametitle{Theorem}
-%\begin{theorem}[Mass--energy equivalence]
-%$E = mc^2$
-%\end{theorem}
-%\end{frame}\end{verbatim}
-%\end{example}
-%\end{frame}
-
-%------------------------------------------------
-
-%\begin{frame}
-%\frametitle{Figure}
-%Uncomment the code on this slide to include your own image from the same directory as the template .TeX file.
-%\begin{figure}
-%\includegraphics[width=0.8\linewidth]{test}
-%\end{figure}
-%\end{frame}
-
-%------------------------------------------------
-
-%\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-%\frametitle{Citation}
-%An example of the \verb|\cite| command to cite within the presentation:\\~
-
-%This statement requires citation \citet{pfenning1991logic}.
-%\end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
 \frametitle{References}
 
-\bibliographystyle{plainnat}
 \nocite{*}
 \bibliography{MyBib}
 
 
 \end{frame}
 
-%------------------------------------------------
-
-\begin{frame}
-\Huge{\centerline{The End}}
-\end{frame}
-
-%----------------------------------------------------------------------------------------
 
 \end{document} 

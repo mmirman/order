@@ -1,5 +1,9 @@
 \section[Logic Primer]{Logic Programming Primer}
 
+%------------------------------------------------
+\subsection[Basics]{Learning by Addition}
+%------------------------------------------------
+
 \begin{frame}[fragile]
 \frametitle{Logic Programming Basics}
 
@@ -25,9 +29,11 @@ add (Succ a) b = Succ c
 \end{frame}
 
 %------------------------------------------------
+\subsection[Conceptualizing]{Conceptualizing Logic Programs}
+%------------------------------------------------
 
 \begin{frame}
-\frametitle{Uses for Logic programming}
+\frametitle{Conceptualizing}
 \begin{itemize}
 \item Search allows for nondeterministic programs.
 \item Finding solutions for search games - tic-tac-toe
@@ -41,15 +47,96 @@ add (Succ a) b = Succ c
 \frametitle{Procedural View}
 
 \begin{lstlisting}
-defn p : T_1 -> ... -> T_r -> prop
-  >| n1 = p T_1 ... T_r <- p_1,1 ... <- p_1,k_1
-...
-  >| nN = p T_1 ... T_r <- p_n,1 ... <- p_n,k_n
+defn actNormal : bool -> prop
+  >| truth = actNormal true 
+            <- print ``first truth''
+            <- print ``then the world''
+  >| lies = actNormal false
+            <- print ``You've failed me''
 
-query prg = p t1 ... tr
+query a = actNormal true
+query b = actNormal false
 \end{lstlisting}
 \end{frame}
 
+%------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Logical View}
+
+Can decide later on whether to match.
+
+\begin{lstlisting}
+defn failLater : prop 
+  >| c1 = failLater 
+           <- print ``prints anyway'' 
+           <- false == true
+  >| c2 = failLater
+           <- print ``then this''
+
+query prg = failLater
+\end{lstlisting}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Generalized Patterns}
+
+Enables trivial equality case
+
+\begin{lstlisting}
+defn same_nat : nat -> nat -> prop
+  >| is_same_nat = same_nat A A
+\end{lstlisting}
+
+Haskell would be: 
+
+\begin{lstlisting}
+same_nat Zero Zero = True
+same_nat (Succ a) (Succ b) = same_nat a b
+same_nat _ _ = False
+\end{lstlisting}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Predicates From Functions}
+
+We can turn our addition algorithm into an even test trivially.
+
+\begin{lstlisting}
+defn even : nat -> prop
+  >| is_even = even B <- add A A B
+
+defn odd : nat -> prop
+  >| is_even = odd B <- even (succ B)
+\end{lstlisting}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Backtracing cases}
+
+We can match on the results of predicates and backtrack accordingly.
+
+\begin{lstlisting}
+defn conv : term -> term -> prop
+  >| c_app_r = conv (app A B) R
+               <- conv A (lam F)
+               <- conv B B'
+               <- conv (F B') R
+  >| c_app_ir = conv (app A B) (app (app A1 A2) B')
+               <- conv A (app A1 A2)
+               <- conv B B'
+  >| c_lam = conv (lam F) (lam F) 
+\end{lstlisting}
+\end{frame}
+
+%------------------------------------------------
+\subsection[HOLP]{Higher order logic programming}
 %------------------------------------------------
 
 \begin{frame}[fragile]
@@ -81,6 +168,21 @@ defn func : term -> term -> prop
 \end{frame}
 
 %------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Computation with Free Variables}
+
+We can also use higher order logic programming to make computations even when 
+there are free variables.
+
+\begin{lstlisting}
+defn conv : term -> term -> prop
+   | c_lam = conv (lam F) (lam F') 
+            <- [x : term] conv (F x) (F' x)
+\end{lstlisting}
+\end{frame}
+
+%------------------------------------------------
 \subsection{Type Classes}
 %------------------------------------------------
 
@@ -104,5 +206,60 @@ In Caledon we do this with an implicit argument.
 \begin{lstlisting}
 defn show : showC A => A -> String
 defn show : {unused : showC A } A -> string
+\end{lstlisting}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Modern haskell}
+
+Modern haskell allows for logic style type class computation.
+\verb|res| will result in ``SSSZ'' despite both
+the arguments and cases for add being undefined.
+
+\begin{lstlisting}
+data Z
+data S a
+
+instance Show Z where
+   show _ = ``Zero''
+instance Show a => Show (S a) where
+   show _ = show (undefined :: a)
+
+class Add a b c | a b -> c where
+   add :: a -> b -> c
+instance Add Z a a
+instance Add a b c => Add (S a) b (S c)
+
+res = show (add (undefined :: S (S Z)) 
+                (undefined :: S Z)) 
+\end{lstlisting}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Caledon Equivalent}
+
+We can see that \verb|add| actually performs no computation.
+
+\begin{lstlisting}
+defn nat2 : nat -> prop
+   | any_nat2 = {r : nat} nat2 r
+
+defn add : {a b c : nat}{ r : add a b c } 
+           nat2 a -> nat2 b -> nat2 c
+  as ?\ a b c . ?\ adder . \ na . \ nb . 
+      any_nat2 c
+
+defn show_nat2 : nat2 A -> string -> prop
+   | show-A = show_nat2 (any_nat2 : nat2 A) St 
+           <- show_nat A St
+
+query res = findOne $ show_nat2 $ 
+      add (any_nat2 : nat2 (succ (succ zero)))
+          (any_nat2 : nat2 (succ zero))
+                                 
 \end{lstlisting}
 \end{frame}
