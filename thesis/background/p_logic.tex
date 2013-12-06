@@ -115,26 +115,6 @@ defn odd : nat -> prop
 \end{frame}
 
 %------------------------------------------------
-
-\begin{frame}[fragile]
-\frametitle{Backtracing cases}
-
-We can match on the results of predicates and backtrack accordingly.
-
-\begin{lstlisting}
-defn conv : term -> term -> prop
-  >| c_app_r = conv (app A B) R
-               <- conv A (lam F)
-               <- conv B B'
-               <- conv (F B') R
-  >| c_app_ir = conv (app A B) (app (app A1 A2) B')
-               <- conv A (app A1 A2)
-               <- conv B B'
-  >| c_lam = conv (lam F) (lam F) 
-\end{lstlisting}
-\end{frame}
-
-%------------------------------------------------
 \subsection[HOLP]{Higher order logic programming}
 %------------------------------------------------
 
