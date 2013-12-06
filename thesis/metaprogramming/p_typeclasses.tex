@@ -55,7 +55,7 @@ query printQueryNat =
 \frametitle{Putting it all together}
 \begin{itemize}
 \item Can create a linearity predicate.
-\item Uses notion of typeclass
+\item Uses implicit argument computation
 \item acts on higher order abstract syntax
 \item works on types by employing universes
 \end{itemize}
@@ -68,9 +68,9 @@ query printQueryNat =
 defn linear : 
      [T] [ P : T -> type ] 
      ( [ x : T ] P x ) -> type
-   | linear-var = 
+  >| linear-var = 
       linear T (\ x . T) (\ x : T . x)
-   | restrict-lam = 
+  >| restrict-lam = 
       linear T (\ x . [y : A] P x y) 
                (\ x . \ y : A . F y x)
       <- [ y : A ] 
