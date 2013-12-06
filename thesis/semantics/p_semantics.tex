@@ -1,0 +1,64 @@
+\section{Semantics}
+% -------------------------------------------------------------
+
+\subsection{Overview}
+% -------------------------------------------------------------
+
+\begin{frame}
+\frametitle{History}
+\begin{itemize}
+\item Notation presented is based on that given by \citet{pfenning1991logic}.
+\item Algorithm extended is based on that given by \citep{pfenning1991unification}.
+\end{itemize}
+\end{frame}
+
+
+% -------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Higher Order Unification With Search}
+\begin{itemize}
+\item Find a mapping from existential variables which makes two $CICC^-$ equivalent.
+\item Can be decidable for the pattern fragment of terms.
+\item We extend with a couple rules for cases like $inst/f$.
+\item Unification problems are a target for elaboration.
+\end{itemize}
+\end{frame}
+
+
+
+% -------------------------------------------------------------
+\subsection[$UPF$]{Unification Problem Form}
+
+\begin{frame}
+\frametitle{Syntax}
+\begin{definition}
+\textbf{Unification Problem Form}
+\[
+U ::= U \wedge U 
+ \orr \forall V : T . U
+ \orr \exists V : T . U 
+ \orr U \doteq U
+ \orr \top
+  \orr T \in T 
+  \orr T \in T >> T \in T
+\]
+
+\end{definition}
+
+Can be provided meaning with inference rules.
+
+\end{frame}
+
+
+
+% -------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Implementation}
+\begin{itemize}
+\item Finger tree zipper datastructure is used to describe the unification problem.
+\item Solvable problems are searched in a nearest neighborhood. 
+\item Subtrees are blocked until they are changed by substitution.
+\end{itemize}
+\end{frame}

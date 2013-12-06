@@ -1,0 +1,76 @@
+\section{Language}
+
+% -------------------------------------------------------------
+\subsection[Families]{Type Families}
+% -------------------------------------------------------------
+\begin{frame}
+\frametitle{Type Families}
+\begin{itemize}
+\item Permitting entirely polymorphic axioms at the top level complicates proof search.
+\item Axioms grouped by conclusion.
+\item Optimizes proof search because it is now possible to limit the search.
+\item A bit like ``freeze'' from Twelf.  
+\item Mutually recursive definitions are automatically inferred.
+\end{itemize}
+\end{frame}
+% -------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Type Families Example}
+
+Caledon:
+
+\begin{lstlisting}
+defn add : nat -> nat -> nat -> prop
+   | addZ = add zero A A
+   | addS = add (succ A) B (succ C) 
+             <- add A B C
+\end{lstlisting}
+
+Twelf:
+
+\begin{lstlisting}
+add : nat -> nat -> nat -> type.
+addZ : add zero A A.
+addS : add (succ A) B (succ C) <- add A B C.
+%freeze add.
+\end{lstlisting}
+\end{frame}
+
+
+% -------------------------------------------------------------
+\subsection[Nondeterminism]{Nondeterminism Control}
+% -------------------------------------------------------------
+\begin{frame}
+\frametitle{Nondeterminism Control}
+\begin{itemize}
+\item Would like to choose between depth first and breadth first search.
+\item Can do this by adding syntax to axioms.
+\end{itemize}
+\end{frame}
+% -------------------------------------------------------------
+\begin{frame}[fragile]
+\frametitle{Nondeterminism Control Example}
+
+“ttt vqvqvqvq jjj”
+
+\begin{lstlisting}
+
+query main = runBoth false
+
+defn runBoth : bool -> type
+  >| run0 = runBoth A
+            <- putStr ``ttt ``
+            <- A =:= true
+   | run1 = runBoth A 
+            <- putStr ``vvvv''
+            <- A =:= true
+   | run2 = runBoth A
+            <- putStr ``qqqq''
+            <- A =:= true
+  >| run3 = runBoth A
+            <- putStr `` jjj''
+            <- A =:= false
+
+\end{lstlisting}
+\end{frame}

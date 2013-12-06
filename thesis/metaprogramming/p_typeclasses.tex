@@ -1,0 +1,40 @@
+\section{Typeclasses}
+% -------------------------------------------------------------
+\begin{frame}[fragile]
+\frametitle{Serialize}
+
+\begin{lstlisting}
+
+defn serializeBool : bool -> string -> type
+  >| serializeBool-true = serializeBool true ``true''
+  >| serializeBool-false = serializeBool false ``false''
+
+
+query readQuery = exists B : bool. serializeBool B ``true''
+query printQuery = exists S : string . serializeBool false S
+
+\end{lstlisting}
+
+\end{frame}
+% -------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Type Class for Serialize}
+
+\begin{lstlisting}
+defn serialize : {T}{ serializable : T -> string -> type } T -> string -> type
+   | serializeImp = 
+       [ Serializer : T -> string -> type ]
+       [ Serializable : serializable T { serializer = Serializer }]
+       serialize { serializable = Serializable } V S
+     <- Serializer V S
+
+defn serializable : [T]{ serializer : T -> string -> type } type
+   | serialize-bool = 
+       serializable bool { serializer = serializeBool }
+   | serialize-nat = 
+       serializable nat { serializer = serializeNat }
+\end{lstlisting}
+
+\end{frame}
+% -------------------------------------------------------------

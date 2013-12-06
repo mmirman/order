@@ -1,0 +1,175 @@
+o\section[$CICC^-$]{Implicit Caledon Caledon Calculus of Constructions}
+
+\subsection{Overview}
+
+\begin{frame}
+\frametitle{Implicit Caledon Implicit Calculus of Constructions}
+\begin{itemize}
+\item $CICC^-$ is the front facing language.
+\item Can be considered vital to the ``Runtime''
+\item $CICC^- \Rightarrow UPF \Rightarrow CICC$
+\end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------
+
+\begin{frame}
+\frametitle{$CICC^-$ Types}
+\begin{itemize}
+\item $CICC^-$ is typed with traditional inference rules.
+\item Based on the the ``Implicit Calculus of Constructions'' ($ICC$) \citep{miquel2001implicit}.
+\item Borrows notion of implicit instantiation of terms from $ICC$
+\item Adds mechanisms for implicit binding of terms. 
+\item The subtyping relation needs to be an equivalence class for traditional unification.
+\item most methatheory for $CICC^-$ ignored as it is a transitional language.
+\end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------
+
+\subsection{Definition}
+
+\begin{frame}
+\frametitle{Syntax}
+
+\begin{itemize}
+\item $E\; \{ V : A = E \}$ is now simply $ E \; \{ V  = E \}$
+\item type filled in during elaboration to $CICC$
+\end{itemize}
+
+\end{frame}
+
+
+\newcommand{\judgeCI}{ \vdash_{i^-}}
+
+\begin{frame}
+\frametitle{Types}
+
+New and interesting rules.  The one shown showcases what is borrowed from $ICC$.
+
+\begin{definition}
+\textbf{($CICC^-$ Extended Typing Rules)}
+
+%% inst/f %%
+%%%%%%%%%%%%
+\[
+\infer[\m{inst/f}]
+{
+\Gamma \judgeCI M : [N/x]U 
+}
+{
+\Gamma \judgeCI M : ?\Pi x :T . U
+&
+\Gamma \judgeCI N : T
+&
+x \notin DV(\Gamma)
+}
+\]
+
+\end{definition}
+\end{frame}
+
+% -------------------------------------------------------------
+\begin{frame}
+
+\frametitle{Substitution}
+
+\begin{theorem}
+\textbf{(Substitution)}
+\[
+\infer-[\m{subst}]{ 
+\Gamma, [N/x]\Gamma' \judgeCI [N / x]M : [N/x]T_2
+}{
+\Gamma, x : T_1, \Gamma' \judgeCI M : T_2
+&
+\Gamma \judgeCI N : T_1
+}
+\]
+\label{ci:sub}
+\end{theorem}
+
+\end{frame}
+
+% -------------------------------------------------------------
+\newcommand{\CICCmproj}[1]{ \left\llbracket #1 \right\rrbracket_{ci^{-}}}
+
+\begin{frame}
+\frametitle{Projection to $CICC^-$}
+
+Only one case is presented here.
+
+\begin{definition}
+\textbf{ (Projection from $CICC^{-}$ to $CICC$) }
+
+%% inst/f %%
+%%%%%%%%%%%%
+\[
+\CICCmproj{ 
+\infer[\m{inst/f}]
+{
+\Gamma \judgeCI M : U [N/x]
+}
+{
+\overset{\mathcal{D}_1}{ \Gamma \judgeCI M : ?\Pi x : T . U }
+&
+\overset{\mathcal{D}_2}{ \Gamma \judgeCI N : T }
+&
+\cdots
+}
+}
+\]
+\[
+:=
+\CICCmproj{\mathcal{D}_1} \; \{ x = \CICCmproj{\mathcal{D}_2} \}
+\]
+
+\end{definition}
+\end{frame}
+
+
+\begin{frame}
+
+\frametitle{Soundness}
+
+\begin{theorem}
+
+\textbf{(Soundness of extraction)}  
+
+\begin{alignat}{4}
+\Gamma &\judgeCI &  & \implies & \CICCproj{\Gamma \judgeCI}^c & \judgeCI &
+\\
+\Gamma &\judgeCI & A : T & \implies & \CICCproj{\Gamma \judgeCI}^c & \judgeCI & \CICCproj{ \Gamma \judgeCI A : T }
+\end{alignat}
+
+\label{cicc-:sound}
+\end{theorem}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Subtyping %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Subtyping}
+%--------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Soundness}
+\begin{definition}
+Subtyping relation:
+$\Gamma \judgeCI T \leq T' \;\; \equiv \;\; \Gamma, x : T \judgeCI x : T'$  where $x$ is new.
+\end{definition}
+
+\begin{lemma}
+Subtyping is a preordering.
+\end{lemma}
+
+\begin{theorem}
+\textbf{(Symmetry)}
+$\Gamma \judgeCI A \leq B $ implies 
+$\Gamma \judgeCI B' \leq A' $. where $A \equiv_{\beta} A'$ and $B \equiv_{\beta} B'$
+\label{ci:sym}
+\end{theorem}
+
+\end{frame}
+
+%--------------------------------------------------------------

@@ -1,0 +1,119 @@
+\section[$CC$]{The Calculus of Constructions}
+% -----------------------------------------
+
+\subsection[Overview]{Overview}
+
+\begin{frame}
+\frametitle{The Calculus of Constructions}
+\begin{itemize}
+\item Defined by Coquand \citep{coquand1986calculus}.
+\item A pure type system
+\item When extended with universes, a good theorem proving language.
+
+\end{itemize}
+\end{frame}
+
+% -----------------------------------------
+
+\begin{frame}
+\frametitle{Pure Type Definition}
+
+\begin{definition}
+\textbf{(PTS for $CC$)}
+
+\begin{align}
+A &= \{ *, \Box \}
+\\
+S &= \{ (* : \Box) \}
+\\
+R &= \{ (*,*,*),(*,\Box,\Box),(\Box,\Box,\Box),(\Box,*,*)\}
+\end{align}  
+\end{definition}
+
+\end{frame}
+
+% -----------------------------------------
+\subsection{Properties}
+
+\begin{frame}
+\frametitle{Properties}
+
+\textbf{(PTS for $CC$)}
+
+\begin{itemize}
+\item Terms can depend on types
+\item Terms can depend on terms
+\item Types can depend on terms
+\item Types can depend on types
+\end{itemize}
+
+\end{frame}
+
+
+% -----------------------------------------
+\begin{frame}
+
+\frametitle{Notation}
+
+\begin{definition}
+If $\Gamma \vdash_{CC} P : T : K$ means $\Gamma \vdash_{CC} P : T$ and $\Gamma \vdash_{CC} T : K$
+\end{definition}
+
+
+\begin{definition}
+$ \m{Term}_{CC}  = \{ M : \exists T,\Gamma . \Gamma \vdash_{cc} M : T \}$
+\end{definition}
+
+\end{frame}
+
+% -----------------------------------------
+
+\begin{frame}
+\frametitle{Consistency}
+
+Strong normalization in the Calculus of Constructions implies consistency.
+
+\begin{theorem}
+\textbf{(Strong Normalization)} $\forall M \in \m{Term}_{CC}. SN(M)$
+\label{cc:cons}
+\end{theorem}
+
+The easiest proof is due to Geuvers \citep{Geuvers94ashort} 
+
+\end{frame}
+
+% -----------------------------------------
+
+\begin{frame}
+\frametitle{Impredicativity}
+
+\begin{itemize}
+\item Small types can be generalized over small types
+\item Useful for general logic programming libraries.
+\item Restrictive for metaprogramming (type is not a type).
+\item Extended Calculus of Constructions due to \citet{luo1989ecc} 
+\item Cumulative universe inference employed in Caledon \citep{callaghan2001implementation}.
+\end{itemize}
+
+\end{frame}
+
+
+% -----------------------------------------
+\subsection{Theorems in Caledon}
+\begin{frame}
+\frametitle{Theorems in Caledon}
+
+\begin{itemize}
+\item Caledon, programs might not terminate. 
+\item Caledon programs output consistent theorems in the Calculus of Constructions.
+\end{itemize}
+
+\begin{definition}
+In the Caledon language, $\m{prop} = *$ and $\m{type} = \Box$
+\end{definition}
+
+\begin{definition}
+If $\Gamma \vdash_{CICC} P : T : \m{prop}$ in the caledon language, then $T$ is a theorem, and $P$ is a proof.
+\end{definition}
+
+\end{frame}
