@@ -125,9 +125,9 @@ Here's some unnecessarily verbose code.
 
 \begin{lstlisting}
 func (Var a) = code1
+func (And a b) = code2
 func (Forall var val) = Exists var code
 func (Exists var val) = Forall var code
-func (And a b) = code2
 \end{lstlisting}
 \end{frame}
 
@@ -140,9 +140,9 @@ Here's the logic solution
 
 \begin{lstlisting}
 defn func : term -> term -> prop 
-  | f1 = func (var A) R <- [code1]
-  | f2 = func (F Var Val) Result <- [code]
-  | f3 = func (and A B) R <- [code2]
+ >| f1 = func (var A) R <- [code1]
+ >| f2 = func (and A B) R <- [code2]
+ >| f3 = func (F Var Val) R <- [code]
 \end{lstlisting}
 \end{frame}
 
