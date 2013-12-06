@@ -5,8 +5,10 @@
 
 \begin{lstlisting}
 defn serializeBool : bool -> string -> type
-  >| serializeBool-t = serializeBool true ``true''
-  >| serializeBool-f = serializeBool false ``false''
+  >| serializeBool-t = 
+       serializeBool true ``true''
+  >| serializeBool-f = 
+       serializeBool false ``false''
 
 query readQ = 
    exists B : bool. serializeBool B ``true''
@@ -27,7 +29,7 @@ defn serialize : {T}{serable : T -> string -> type}
    | serializeImp = 
      [ Serer : T -> string -> type ]
      [ Serable : serializable T { serer = Serer }]
-       serialize { serable = Serable } V S
+     serialize { serable = Serable } V S
      <- Serer V S
 
 defn serializable : 
