@@ -4,15 +4,15 @@
 \frametitle{Serialize}
 
 \begin{lstlisting}
-
 defn serializeBool : bool -> string -> type
-  >| serializeBool-true = serializeBool true ``true''
-  >| serializeBool-false = serializeBool false ``false''
+  >| serializeBool-t = serializeBool true ``true''
+  >| serializeBool-f = serializeBool false ``false''
 
+query readQ = 
+   exists B : bool. serializeBool B ``true''
 
-query readQuery = exists B : bool. serializeBool B ``true''
-query printQuery = exists S : string . serializeBool false S
-
+query printQ = 
+   exists S : string . serializeBool false S
 \end{lstlisting}
 
 \end{frame}
@@ -22,18 +22,25 @@ query printQuery = exists S : string . serializeBool false S
 \frametitle{Type Class for Serialize}
 
 \begin{lstlisting}
-defn serialize : {T}{ serializable : T -> string -> type } T -> string -> type
+defn serialize : {T}{serable : T -> string -> type} 
+                 T -> string -> type
    | serializeImp = 
-       [ Serializer : T -> string -> type ]
-       [ Serializable : serializable T { serializer = Serializer }]
-       serialize { serializable = Serializable } V S
-     <- Serializer V S
+     [ Serer : T -> string -> type ]
+     [ Serable : serializable T { serer = Serer }]
+       serialize { serable = Serable } V S
+     <- Serer V S
 
-defn serializable : [T]{ serializer : T -> string -> type } type
+defn serializable : 
+      [T]{serer : T -> string -> type} type
    | serialize-bool = 
-       serializable bool { serializer = serializeBool }
+      serializable bool { serer = serializeBool }
    | serialize-nat = 
-       serializable nat { serializer = serializeNat }
+      serializable nat { serer = serializeNat }
+
+query readQueryBool = 
+   exists B : bool . serialize B ``true''
+query printQueryNat = 
+   exists S . serialize (succ (succ zero)) S
 \end{lstlisting}
 
 \end{frame}
