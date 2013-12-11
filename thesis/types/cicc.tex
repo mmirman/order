@@ -38,13 +38,13 @@ V
 \label{cicc:syntax}
 \end{figure}
 
+In the rest of the thesis, $?\Pi v : E_1 . E_2$ shall refer to
+$?\Pi v,v : E_1. E_2$ and $?\lambda v : E_1 . E_2$ shall refer to 
+$?\lambda v,v : E_1 . E_2$.
+
 The \textit{dependent} explicit and implicit products are written $\Pi v : E . E $ and $?\Pi v : A . E$. 
 The \textit{non-dependent} explicit and implicit products are written $T \rightarrow T$ 
 and $T \Rightarrow T$ respectively.
-
-Note, that in $CICC$ system, $?\lambda x . A \not\equiv_\alpha ?\lambda y . [x / y] A$ 
-and $?\Pi x . A \not\equiv_\alpha ?\Pi y . [x / y] A$  if $x \neq y$.  
-This implies that the behavior of Caledon's implicit argument is something akin to a structural dependent product, in that it binds a name rather than a variable.   
 
 Before the typing rules of this system can be given, the notion of a constrained name of a term must be defined.
 
@@ -66,7 +66,7 @@ a term.  For example, in the term $\m{some_pred} \; \m{type} \; \m{nat} \{ A = n
 The generalized names for a term, written $GN(M)$ is a set defined as follows:
 
 \begin{align}
-GN(?\Pi x : T . M) &= \{ x \} \cup GN(M) \cup GN(T)
+GN(?\Pi n,x : T . M) &= \{ n \} \cup GN(M) \cup GN(T)
 \\
 GN(\m{otherwise}) &= \emptyset
 \end{align}
@@ -79,7 +79,7 @@ you may only the generalized names of the type of a term may be constrained.
 The bound names for a term, written $BN(M)$ is a set defined as follows:
 
 \begin{align} 
-BN(?\lambda x : T . M) &= \{ x \} \cup BN(M) \cup BN(T)
+BN(?\lambda n,x : T . M) &= \{ n \} \cup BN(M) \cup BN(T)
 \\
 BN(\m{otherwise}) &= \emptyset
 \end{align}

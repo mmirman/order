@@ -7,18 +7,6 @@ The formulation of hereditary substitution in the presence of
 implicit arguments is not unlike the presentation of
 heredetary substitution without implicit arguments with
 additional required checks.
-The main difficulty is the notion of an acceptable substitution. 
-Because implicit bindings are not $\alpha$ convertible, 
-certain substitutions are not permitted.  
-Because as many substitutions should be permitted as possible, 
-the situation becomes significantly more complex in the 
-hereditary case, where substitutions might not carry types.  
-The easiest way to define substitution in this case is with an ``illegal'' alpha substitution, 
-which maps implicitly bound variables to fresh names, 
-and produces a memory to map them back.
-
-In this case, we can say that a substitution $[S/x] M$ is legal if 
-$FV(S) \subseteq FV(\alpha_I^-1( [\alpha_I(S)/x] M) )$.
 
 \begin{definition}
 \textbf{(Implicit Typed Hereditary Substitution)}
