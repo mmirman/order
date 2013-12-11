@@ -121,7 +121,7 @@ s \in S
 &
 \Gamma \vdash V : A
 &
-\text{V is free for x in B}
+\text{x is free for V in B}
 }
 \]
 
@@ -159,8 +159,8 @@ s \in S
 \end{definition}
 
 
-As Barendgregt\citep{barendregt1991introduction} points out, the common type theories can be recast as pure type systems
-by choice of axioms.  
+As Barendgregt\citep{barendregt1991introduction} points out, the common type theories with only functions 
+can be recast as pure type systems by choice of axioms.  
 In the simplest example, the only axioms chosen are $(*,\Box)$ along with 
 the single relationship $(*,*,*)$. This system describes the simply typed lambda calculus, 
 where only terms can depend on terms.  We say that $A \rightarrow B \equiv \Pi x : A . B$ iff $ x \notin FV(B)$.

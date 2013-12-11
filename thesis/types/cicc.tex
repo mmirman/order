@@ -46,7 +46,8 @@ The \textit{dependent} explicit and implicit products are written $\Pi v : E . E
 The \textit{non-dependent} explicit and implicit products are written $T \rightarrow T$ 
 and $T \Rightarrow T$ respectively.
 
-Before the typing rules of this system can be given, the notion of a constrained name of a term must be defined.
+Before providing typing rules, we first supply a few definitions which clarify 
+the notion of a constrained name of a term.
 
 \begin{definition}
 The constrained names on a term, written $CN(M)$ is a set defined as follows:
@@ -72,8 +73,8 @@ GN(\m{otherwise}) &= \emptyset
 \end{align}
 \end{definition}
 
-The definition of generalized names and of constrained names are in a way complimentary, in that
-you may only the generalized names of the type of a term may be constrained.
+The definition of generalized names and of constrained names are in a way complimentary.
+Only the generalized names of the type of a term may be constrained.
 
 \begin{definition}
 The bound names for a term, written $BN(M)$ is a set defined as follows:
@@ -359,8 +360,7 @@ Thus, $\CICCproj{[E_2/x] R'} = V$
 \label{ci:sn}
 \end{theorem}
 
-Strong normalization is simply a consequence of the semantic equivalence \ref{cicc:equiv} and the 
-reduction translation lemma \ref{cicc:red}.
+Strong normalization is a consequence of the reduction translation lemma \ref{cicc:red}.
 
 That we can cleanly translate into the calculus of constructions without loss or gain of 
 semantic translation implies strong normalization for $CICC$ with $\beta$ reduction and 
