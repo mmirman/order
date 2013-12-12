@@ -1,6 +1,6 @@
 \section{Higher Order Unification}
 
-Checking for the reducibility of two full lambda terms has long been known to be only semi-decidable.
+Checking for the equivalence of two full lambda terms has long been known to be only semi-decidable.
 The matter becomes even more complicated when checking for the equality of terms with variables bound
 by both existential and universal quantifiers.  Research from the past thirty years has constrained
 the problem to a decidable subset known as the pattern fragment.
@@ -27,7 +27,8 @@ Unification problems of the form
 $\forall x : T_1 . \exists y : T_2 . U $ can be solved by solving those of the form
 $\exists y : \Pi x : T_1 . T_2 . \forall x : T_1 . [y\; x / y ]U $ 
 in the process known as raising. 
-Unification statements can always quantified over unused variables: $U \implies Q x : T . U$ (where $Q ::= \exists | \forall $).  
+Unification statements can always quantified over unused variables: $U \implies Q x : T . U$ 
+where $Q ::= \exists \;|\; \forall $.  
 
 Thus, statements can always be converted to the form
 \[
@@ -105,7 +106,7 @@ I now present an algorithm, similar to that presented in
 \citep{pfenning1991logic}, for unification in the 
 ``Calculus of Constructions''.  Because we have already 
 presented typed hereditary substitution with $\eta$-expansion, 
-the presentation here will will address itself to
+the presentation here will address itself to
  types in the substitutions.    
 
 $F \UnifiesTo F'$ shall mean that $F$ can be transformed to $F'$
@@ -161,19 +162,16 @@ in a substitutive system with explicit names rather than DeBruijn indexes,
 this helps to reduce the number of substitutions from an original name. 
 
 These reductions make the 
-assumption that no variable name is bound more than once.
-The assumption of a single binding can seem restrictive during implementation, but there are option to work
-work past this obstacle.  One can alpha convert everywhere and annotate
-new variables with their original names, then alpha convert
+assumption that no variable name is bound more than once. 
+Strange as this assumption might sound, it is equivalent to working entirely with DeBruijn indexes.
+Another option is to $\alpha$-convert everywhere and annotate
+new variables with their original names, then $\alpha$-convert
 back to the original after unification. Another option is
 to use DeBruijn indexes.  DeBruijn indexes have their own drawbacks
 here, as certain transformation such as ``Raising''
 or the ``Gvar-Uvar'' rules involve insertion of multiple
 variables into the context at an arbitrary point, 
 which requiring the lifting of many variable names.  
-It is possible to implement higher order unification
-with DeBruijn indexes safely and efficiently, 
-but such discussion is beyond the scope of this thesis.
 
 \begin{tcase}
 Uvar-Uvar
@@ -207,7 +205,7 @@ F[\exists x' : (\Pi y : A . B) . \forall y : A . [x' y / x : B]_{F, x : \Pi y : 
 
 This rule is important, as correct or 
 incorrect application of this rule can result in 
-terminating or non terminating reductions sequences.
+terminating or non terminating reduction sequences.
 
 \begin{tcase}
 Exists-And
@@ -369,8 +367,8 @@ it is the only case where the ``Raising'' rule is permitted.
 
 \subsection{Implementation}
 
-Because typed substitution is necessary, we must now keep track of existential variable's
-types.  This can significantly complicate the implementation of the unification algorithm
+Because typed substitution is necessary, we must now keep track of types for existential variables.  
+This can significantly complicate the implementation of the unification algorithm
 as the common technique of maintaining unbound existential variables with restrictions
 can no longer be blindly used, as existential variables must be maintained in the 
 formula.  If existential variables are maintained literally in the formula, 
@@ -401,4 +399,4 @@ Ideally, knowledge that type checking terminated would be convincing enough
 so it is not necessary to continue with the reconstruction.  However, reconstruction
 is necessary for implementing the multi-pass proof search described previously.  
 Furthermore, reconstruction is useful since the exposed typing rules are incoherent, 
-meaning there could be multiple coercions to demonstrate a subtyping relation.  In these cases, it is desirable to see what was infered by type inference.
+meaning there could be multiple coercions to demonstrate a subtyping relation.  In these cases, it is desirable to see what was inferred by type inference.

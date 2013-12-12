@@ -1,6 +1,6 @@
 \section{Pure Type Systems}
 
-The type system for caledon is a pure type system \citep{mckinna1993pure} 
+The type system for Caledon is a pure type system \citep{mckinna1993pure} 
 extended with explicit recursive types and implicit types.  In this section,
 I discuss what a pure type system is and what its properties are.
 
@@ -159,7 +159,7 @@ s \in S
 \end{definition}
 
 
-As Barendgregt\citep{barendregt1991introduction} points out, the common type theories with only functions 
+As \citet{barendregt1991introduction} points out, the common type theories with only functions 
 can be recast as pure type systems by choice of axioms.  
 In the simplest example, the only axioms chosen are $(*,\Box)$ along with 
 the single relationship $(*,*,*)$. This system describes the simply typed lambda calculus, 
@@ -169,9 +169,9 @@ where only terms can depend on terms.  We say that $A \rightarrow B \equiv \Pi x
 Subject Reduction: If $\Gamma \vdash A : T$ and $A \Rightarrow_\beta B$ then $\Gamma \vdash B : T$
 \end{theorem}
 
-Geuvers and Nederhof \citep{geuvers1991modular} proved subject reduction for any calculus on the $\lambda$ cube.
+\citet{geuvers1991modular} proved subject reduction for any calculus on the $\lambda$ cube.
 This property can be proved syntactically by induction on the structure of the typing derivation 
-and there exist Twelf and Agda verified proofs of this property.  
+and there exist Elf and Agda verified proofs of this property.  
 Note that this is a useful property 
 to maintain, even in the face of inconsistency of a system, because at the very least, the 
 property allows for a consistent understanding of typing terms.
@@ -182,7 +182,7 @@ Uniqueness of Types: If $\Gamma \vdash A : T$ and $\Gamma \vdash A : T'$ then $T
 
 The uniqueness of types with respect to $\beta$ reduction has also been shown for any system on the $\lambda$ cube.  
 This last property is important to showing the decidability of type inference in 
-the caledon language without implicits.
+the Caledon language without implicits.
 
 
 

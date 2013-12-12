@@ -1,13 +1,11 @@
 In this chapter, I lay out and justify an operational specification and semantics 
 for Caledon.  I first discuss the history of the technique of unification.
 
-Caledon's unification and proof search algorithm is based on the method designed for Twelf by Pfenning
-\citep{pfenning1991logic}.  This algorithm does not terminate on all inputs and in this chapter, 
-I begin by charachterizing the inputs it is desined to terminate on.  In the next section, I describe
+Caledon's unification and proof search algorithm is based on the method designed for Elf by
+\citet{pfenning1991logic}.  This algorithm does not terminate on all inputs and in this chapter, 
+I begin by characterizing the inputs it is designed to terminate on.  In the next section, I describe
 the techniques for evaluating terms to forms for unification.  I then describe the algorithm
 used for higher order unification.  
 The last sections pertain to proof search, which are the traditional semantics of the language.
 In the last section, I specify a technique for controlling of nondeterminism during proof search, 
 which allows the programmer to choose between a complete breadth first search and an imperative depth first search.
-
-

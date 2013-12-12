@@ -1,9 +1,9 @@
 \section{Substitution}
 
 The higher order unification algorithm described is only defined on the pattern form provided in the previous section.
-As the pattern fragment is a restriction on $\beta\eta$-long-normal form, it is necessary to provide a normalizing
-substitution that preserves $\beta\eta$-long-normal form.  The presentation here
-revolves around hereditary substitution, a notion first described by Pfenning et al. \citep{pfenning1991logic} for
+As the pattern fragment is a restriction on $\beta$-normal $\eta$-long form, it is necessary to provide a normalizing
+substitution that preserves $\beta$-normal $\eta$-long form.  The presentation here
+revolves around hereditary substitution as described by \citet{pfenning1991logic} for
 a calculus with only $\beta$-reduction.
 
 Other presentations are possible, such as traditional substitution followed by ``Normalization by Evaluation''
@@ -75,11 +75,11 @@ hereditary substitution $[S/x] A$ is defined.
 
 \subsection{Typed Substitution}
 
-Performing substitutions that maintain long $\beta\eta$-normal 
+Performing substitutions that maintain $\beta$-normal $\eta$-long
 form is important to ensuring decidability of unification.  
 Unfortunately this is not possible without some type information, 
 as arbitrary $\eta$ expansion has no stop condition.
-Keller \citep{keller2010normalization} gave a heredetary substitution algorithm
+Keller \citep{keller2010normalization} gave a hereditary substitution algorithm
 that results in canonical forms for simply typed lambda calculus. 
 \ref{def:tyhered} solves this by performing a typed substitution under a context, 
 generating type information.
@@ -170,7 +170,7 @@ Note, in the following theorems \ref{thm:hed-sound}\ref{thm:hed-app1}\ref{thm:he
 $\eta$-long form (ignoring types).
 
 \begin{theorem}
-\textbf{(Soundness of Heredetary Substitution)}
+\textbf{(Soundness of Hereditary Substitution)}
 If  $\Gamma \vdash S : A$ 
 and $\Gamma \vdash S \; \m{Norm}$ 
 and $\Gamma \vdash N \; \m{Norm}$ 
@@ -180,7 +180,7 @@ then $\Gamma \vdash ([S / x : A]_\Gamma^n N) \; \m{Norm}$
 \label{thm:hed-sound}
 \end{theorem}
 \begin{theorem}
-\textbf{(Soundness of Heredetary Application-1)}
+\textbf{(Soundness of Hereditary Application-1)}
 If  $\Gamma \vdash P : \Pi v' : A_1 . A_2$ 
 and $\Gamma \vdash N : A_1$ 
 and $\Gamma \vdash P \; \m{Norm}$ 
@@ -189,7 +189,7 @@ then $E(H_\Gamma(P \downarrow \Pi v' : A_1 . A_2 , N)) \; \m{Norm}$
 \label{thm:hed-app1}
 \end{theorem}
 \begin{theorem}
-\textbf{(Soundness of Heredetary Application-2)}
+\textbf{(Soundness of Hereditary Application-2)}
 If  $\Gamma \vdash (\lambda v : A_1 . N) : \Pi v' : A_1 . A_2$ 
 and $\Gamma \vdash P : A_1$ 
 and $\Gamma \vdash P \; \m{Norm}$ 

@@ -1,11 +1,11 @@
 \section{The Calculus of Constructions}
 
-The type system for Caledon is based on the ``Calculus of Constructions'' as defined by Coquand \citep{coquand1986calculus}.
+The type system for Caledon is based on the ``Calculus of Constructions'' as defined by \citet{coquand1986calculus}.
 Since Caledon might extend the ``Calculus of Constructions,'' it is important to view it as a pure type system. 
-As Barendgregt points out, the common type theories can be recast as pure type systems
+As \citet{barendregt1991introduction} points out, the common type theories can be recast as pure type systems
 by choice of axioms. 
 
-Roorda \citep{roorda2001pure} gave an implementation of a functional programming language with 
+\citet{roorda2001pure} gave an implementation of a functional programming language with 
 pure type system and demonstrated its utility.
 
 This is the pure type system where.
@@ -48,8 +48,8 @@ $ \m{Term}_{CC}  = \{ M : \exists T,\Gamma . \Gamma \vdash_{cc} M : T \}$
 \label{cc:cons}
 \end{theorem}
 
-The easiest to digest proof is also due to Geuvers \citep{Geuvers94ashort} 
-but other proofs have also been proposed.  Geuvers' proof has the convenient
+The easiest to digest proof is also due to \citet{Geuvers94ashort} 
+but other proofs have also been proposed.  This proof has the convenient
 property that it does not depend too much on the definition of the set $SN$ 
 (strongly normalizing). The only properties required are that $S \subseteq SN$ 
 where $S$ is the set of sorts in the system. In the case of $CC$ $\Box,* \in SN$.
@@ -60,11 +60,11 @@ arbitrary intersection and function space generation.
 
 This proof is restricted to normalization in the calculus where only $\beta$ reduction 
 is considered and not $\eta$ conversion.  The proof for the calculus with full reduction properties is
-in Guevers' thesis \citep{geuvers1993logics}.  While normalization of terms in Caledon without considering proof search does
+in \citet{geuvers1993logics}.  While normalization of terms in Caledon without considering proof search does
 not involve $\eta$ conversion, unification could potentially involve $\eta$ expansion and it is helpful to maintain
 the consistency of the ``Calculus of Constructions'' even when $\eta$ reduction is considered.  
 It is also important to note that in the Curry-style calculus where types are omitted from lambda abstractions, 
-the Church-Rosser theorem under $\eta$ conversion appears essentially for free\citep{miquel2001implicit}. Strong normalization 
+the Church-Rosser theorem under $\eta$ conversion appears essentially for free \citep{miquel2001implicit}. Strong normalization 
 follows, and by replacement of types, strong normalization follows for the Curry-style calculus.
 
 \subsection{Impredicativity in the Calculus of Constructions}
@@ -89,7 +89,7 @@ universes during unification and reduces the cyclic universe checking problem to
 \subsection{Theorems in Caledon}
 
 It is important to note that in the programming language Caledon, programs might not terminate.  
-The search language itself is not consistent, and is not a theorem verification language like LF.  
+The search language itself is not consistent, and is not a theorem verification language like Elf.  
 Rather, it is language for writing theorem-proving programs.  
 
 \begin{definition}
@@ -147,9 +147,9 @@ R = \{ (\m{type}_j,\m{type}_i,\m{type}_k) | j \leq k \wedge i \leq k \}
 
 While type checking with the addition of the impredicative universe is theoretically equivalently as difficult 
 as without it, in practice it turns out to not be very useful for proof or program writing, and 
-languages like CoQ, Agda and Idris now omit it for the system with only predicative universes.
+languages like Coq, Agda and Idris now omit it for the system with only predicative universes.
 
-The addition of a universe heirachy into the Caledon Language is possible without too much added difficulty. 
+The addition of a universe hierarchy into the Caledon Language is possible without too much added difficulty. 
 Experimentation shows that the omitting the predicative $\m{prop}$ allows for a simpler implementation of type inference.
 In this case, typechecking and unification are performed with the usually inconsistent assumption that
 $\m{type} : \m{type}$, and a cycle checker is later applied to ensure that there is no instance of 

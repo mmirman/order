@@ -5,7 +5,7 @@
 
 The formulation of hereditary substitution in the presence of 
 implicit arguments is not unlike the presentation of
-heredetary substitution without implicit arguments with
+hereditary substitution without implicit arguments with
 additional required checks.
 
 \begin{definition}
@@ -18,7 +18,7 @@ additional required checks.
 
 \[
 \eta^{-1}_{?\Pi x : A . B}(N) := ?\lambda x : A . N \; \{ x = \eta^{-1}_A(x) \}
-\] since $N$ being typable by $?\Pi x $ means that $x$ can not appear free in $N$
+\] since $N$ being typeable by $?\Pi x $ means that $x$ can not appear free in $N$
 
 \[
 \m{H}_{\Gamma}(P \downarrow ?\Pi y : B_1 . B_2 , \{ v := N \} ) := P\; \{ v := N \} \downarrow [N/y : B_1]^n_{\Gamma}B_2
@@ -40,4 +40,34 @@ additional required checks.
 
 \subsection{Unification With Implicits}
 
-Now we can use the convenient fact that $\Gamma \vdash A  \leq B$ implies $\Gamma \vdash B \leq A$.
+Now we can use the convenient fact that $\Gamma \vdash A  \leq B$ implies $\Gamma \vdash B \leq A$ to 
+extend the unification rules provided before to apply to $CICC^-$.
+
+\setcounter{tcase}{0}
+
+\begin{tcase}
+?Lam-?Lam-same
+\end{tcase}
+
+
+\[
+F[?\lambda n,x : A . M \doteq ?\lambda n,y : A . N ]
+\UnifiesTo
+F[ \forall x : A . M \doteq [x/y]N ]
+\]
+
+Note that in this rule, the external name on the left matches the external name on the right.
+
+
+\begin{tcase}
+?Lam-?Lam-same
+\end{tcase}
+
+
+\[
+F[?\lambda n,x : A . M \doteq ?\lambda n,y : A . N ]
+\UnifiesTo
+F[ \forall x : A . M \doteq [x/y]N ]
+\]
+
+Note that in this rule, the external name on the left matches the external name on the right.

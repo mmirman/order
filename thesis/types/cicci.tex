@@ -407,7 +407,7 @@ reverse direction is no longer sound.  For our purposes, this is not objectionab
 since $CICC$ is known to be consistent and there is no reason to convert back into $CICC^-$, as it is 
 used entirely as a pre-elaboration language.  Once terms are typechecked and type inferred in $CICC^-$,
 they are typechecked in $CICC$ and normalized in $CICC$.  
-While the reverse extraction is generally not sound, normal terms with normal types are clearly typable in $CICC^-$.
+While the reverse extraction is generally not sound, normal terms with normal types are clearly typeable in $CICC^-$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Subtyping %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -575,7 +575,7 @@ The first steps are the following few derivations:
 \begin{prooftree}
   \AxiomC{$\Gamma,\judgeCI B' : K $} 
   \AxiomC{$z \notin FV(B')\cup FV(K) $} 
-\RightLabel{streng}
+\RightLabel{stren}
 \BinaryInfC{$\Gamma,z:T',  \judgeCI B' : K $} 
 \end{prooftree}
 

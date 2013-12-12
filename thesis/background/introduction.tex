@@ -1,24 +1,30 @@
 Higher order logic programming languages such as $\lambda$Prolog represent a significant
 step toward the development of an effective self-contained language for the writing 
 of programming languages \citep{miller1988overview}. 
-LF, on the other hand,
-demonstrates the power of higher order logic programming as a meta-logical framework
-\citep{pfenning1999system}. Both of these approaches, however, have drawbacks. $\lambda$Prolog lacks a type system broad enough to express many invariants for its own code. LF’s type system
-is so conservative that it lacks polymorphism, a fundamental requirement for building
-libraries. But, if a dependently-typed logic programming language like LF is extended with polymorphism, it becomes powerful enough to use the proofs generated
+LF \citep{harper1993framework} on the other hand was designed as a meta-logical framework 
+which was later used as the basis for the higher order backtracking logic programming language Elf \citep{pfenning1991logic}.
+Both of these approaches, however, have drawbacks. 
+$\lambda$Prolog lacks a type system broad enough to express many invariants for its own code. 
+Elf’s type system is so conservative that it lacks polymorphism, a fundamental requirement for building
+libraries. But, if a dependently-typed logic programming language like Elf is extended with polymorphism, 
+it becomes powerful enough to use the proofs generated
 by its own proof search as functioning code. 
 
 In most languages, type inference is employed to generate types for type directed compilation or static 
 analysis.
-In order to take advantage of a logic programming language’s ability to generate its own code elegantly, we modify the purpose of type
-inference so that it can be conidered as the execution of the language.
+In order to take advantage of a logic programming language’s ability to generate its own code elegantly, 
+we modify the purpose of type
+inference so that it can be considered as the execution of the language.
 In this way, type inference can be worded as a translation from language terms to unification
 problems. In this paper, we consider unification problems to be the target
 language for the compilation of a correctly parsed program. Since the ``Calculus of Constructions''
 \citep{coquand1986calculus} contains polymorphism, dependent types, and type functions, it is used
-as the basis for the source language. While type inference for the ``Calculus of Constructions'' and even LF is undecidable\citep{Dowek93tlca} and thus often abandoned as a goal in its entirety. We, on the other hand, specify the 
+as the basis for the source language. 
+While type inference for the ``Calculus of Constructions'' and even LF is undecidable\citep{Dowek93tlca} 
+and thus often abandoned as a goal in its entirety. 
+We, on the other hand, specify the 
 type inference procedure with the same semantics as the language itself,
-hus making the procedure programmable.
+thus making the procedure programmable.
 
 To control the use of inference programmatically, implicit arguments similar to those
 in Agda are included. As implicit arguments may be filled by proof search in addition

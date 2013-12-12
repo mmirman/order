@@ -97,10 +97,10 @@ M \equiv_{\eta} M'
 
 \subsection{Canonical Forms}
 
-Pfenning's \citep{pfenning1991unification} unification algorithm for the 
+The unification algorithm in \citet{pfenning1991unification} for the 
 ``Calculus of Constructions'', which the meta-theory of Caledon is based on, 
 relies on expressions being presented in 
-\textit{long $\beta\eta$-normal form} (or \textit{canonical form}), 
+\textit{$\beta$-normal $\eta$-long form} (or \textit{canonical form}), 
 meaning that they are $\eta$ expanded to conform to their type signature.  
 In the initial publication of this paper, it was taken as a hypothesis that 
 every well-typed term in $CC$ has a unique $\beta$-normal $\eta$-long form.  This is now known
@@ -157,11 +157,11 @@ where $D$ is atomic
 \end{definition}
 
 It has been proven that the standard ``Calculus of Constructions'' is 
-long $\beta\eta$-normal form strongly normalizing.  
+$\beta$-normal $\eta$-long form strongly normalizing.  
 Unfortunately, normalization into this form is not possible without type 
 information.  Later, a typed substitution algorithm will be given which 
 ensures normalization into this form.  
 
 The notions of canonical form and of a higher order pattern are also trivially
-extendable into Church-style $CC^{Bi}$ (ie, ICC* from \citep{barras2008implicit}), 
-where strong normalization into long $\beta\eta$-normal form is also provable, as is shown by Bernardo.
+extensible into Church-style $CC^{Bi}$ (ie, ICC* from \citep{barras2008implicit}), 
+where strong normalization into $\beta$-normal $\eta$-long form is also provable, as is shown by \citet{barras2008implicit}.

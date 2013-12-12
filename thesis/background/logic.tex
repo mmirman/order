@@ -8,7 +8,7 @@ the automated theorem prover would halt.  These proof search procedures were
 then constrained into useful programming semantics. When performed in a backtracking
 manner, the proof-search process represented a formulation of procedural code
 with powerful pattern matching. The Caledon language is a higher-order backtracking
-logic programming language in the style of Twelf. In this section I present some basic
+logic programming language in the style of Elf \citep{pfenning1991logic}. In this section I present some basic
 intuition for logic programming, rather than explaining it technically, and demonstrate the 
 descriptive power of the system implemented in Caledon.
 
@@ -87,9 +87,9 @@ defn @ : (At -> Bt) -> At -> Bt
 \end{figure}
 
 In many cases, allowing these definitions allows for significant simplification of syntax.
-The reader familiar with languages like Twelf, Haskell, and Agda might notice the 
-implicit abstraction of the type variables At and Bt in the type of @ in \ref{code:macros}. The rest of this
-paper is concerned with formalizing these implicit abstractions and letting them have
+The reader familiar with languages like Elf, Haskell, and Agda might notice the 
+implicit abstraction of the type variables $At$ and $Bt$ in the type of $@$ in \ref{code:macros}. 
+The rest of this paper is concerned with formalizing these implicit abstractions and letting them have
 as much power as possible. For example, one might make these abstractions explicit by
 instead declaring at the beginning \ref{code:expHask}
 

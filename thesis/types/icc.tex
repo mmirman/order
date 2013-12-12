@@ -1,6 +1,6 @@
 \section{Implicit Calculus of Constructions}
 
-Miquel \citep{miquel2001implicit} provides a more general system than that seen 
+\citet{miquel2001implicit} provides a more general system than that seen 
 in Hindley-Milner, $ICC$ to allow for implicit arguments.
 Here, I  briefly explain the system and some of the relevant theoretical results that have been obtained.
 Because maintaining flexibility is important to future extensions of Caledon, 
@@ -19,8 +19,9 @@ E ::= V
 \label{icc:syntax}
 \end{figure}
 
-Miquel's presentation of $ICC$ uses Curry-style $\lambda$ bindings with types ommitted.  
-The typing rules for $ICC$ are predominently the same as those for Pure Type Systems, except that I provide an extra rule
+Miquel's presentation of $ICC$ uses Curry-style $\lambda$ bindings with types omitted.  
+The typing rules for $ICC$ are predominantly the same as those for Pure Type Systems, 
+except that I provide an extra rule
 for abstraction, application, and formation of implicitly quantification.  The abstraction rule
 also must conform to the syntax of the Curry-style $\lambda$ bindings.
 
@@ -115,7 +116,7 @@ Similarly, there is no mechanism for this in the syntax shown in \ref{icc:syntax
 In the implemented version, this is not the case, as a notion of explicit binding has been provided.
 
 In addition, in the formulation, neither the strengthening rule nor 
-the rule of extenionality are admissible. These rules are necessary to show subject reduction.
+the rule of extensionality are admissible. These rules are necessary to show subject reduction.
 
 
 \subsection{Subtyping}
@@ -202,5 +203,5 @@ Because this calculus is Curry-style, Church-Rosser is provable.
 While the internal representation and external presentation of Caledon is not necessarily Curry-style, 
 it is possible to mimic a Church-style encoding into a Curry-style encoding through the use of type ascriptions
 and evaluation-delaying terms.  Technically, the calculus will no longer have the Church-Rosser property if 
-evaluation-delaying terms are included. However, evaluation-delaying terms are innefectual when added to a strongly normalizing calculus.
+evaluation-delaying terms are included. However, evaluation-delaying terms are ineffectual when added to a strongly normalizing calculus.
 
