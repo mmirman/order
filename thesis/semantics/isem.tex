@@ -60,14 +60,91 @@ Note that in this rule, the external name on the left matches the external name 
 
 
 \begin{tcase}
+?Forall-?Forall-same
+\end{tcase}
+
+\[
+F[?\Pi n,x : A . M \doteq ?\Pi n,y : A' . N ]
+\UnifiesTo
+F[ A \doteq A' \wedge \forall x : A . M \doteq [x/y]N ]
+\]
+In this rule the external name on the left must match the external name on the right.
+
+
+\begin{tcase}
 ?Lam-?Lam-same
 \end{tcase}
 
+This case is distinct from the simple case of equality of dependent products in that an implicit abstraction could lie at the head of 
+the spine if it had not already been constrained.
 
 \[
-F[?\lambda n,x : A . M \doteq ?\lambda n,y : A . N ]
+F[(?\lambda n,x : A . M) \; R_1 \cdots R_n \doteq (?\lambda n,y : A' . N) \; R'_1 \cdots R'_m]
 \UnifiesTo
-F[ \forall x : A . M \doteq [x/y]N ]
+F[ A \doteq A' \wedge \forall x : A . H(\cdots H(M, R_1)\cdots R_n)  \doteq H(\cdots H([x/y]N, R'_1)\cdots , R'_n) ]
 \]
 
-Note that in this rule, the external name on the left matches the external name on the right.
+Again, the external name on the left must match the external name on the right.
+
+
+\begin{tcase}
+?Lam-Unbound
+\end{tcase}
+
+if $n \notin BN(N)$ then
+
+\[
+F[(?\lambda n,x : A . M) \; R_1 \cdots R_n  \doteq N ]
+\UnifiesTo
+F[ \exists x : A . H(\cdots H(M, R_1)\cdots R_n) \doteq N \wedge x \in A ]
+\]
+
+Here we perform a search for $x \in A$ to satisfy the \verb|inst/f| rule.  Rather than adding a potentially unused constriction to the right hand side, 
+we observe that such a constriction could be inferred implicitly.
+
+\begin{tcase}
+Uvar-Uvar-BothConst
+\end{tcase}
+
+Rather than simply adding a case for universal variables with the possibility of a constriction in the argument list, 
+we must modify the already existing case to ``search'' for constrictions on both sides.  
+We first have a case which matches constrictions on both sides.
+
+Suppose $n\notin CN(y \; N_1 \cdots N_n) \cup CN(y \; M_1 \cdots M_n)$
+
+\[
+F[\forall y : A . G[y \; M_1 \cdots M_{r-1} \;\{ n = A \} \; M_{r} \cdots M_n \doteq y N_1 \cdots N_{r'-1} \; \{ n = A' \} \; N_{r'} \cdots N_n  ]]
+\UnifiesTo
+F[\forall y : A . G[y M_1 \cdots M_n \doteq y N_1 \cdots N_n \wedge A \doteq A' ]]
+\]
+
+
+\begin{tcase}
+Uvar-Uvar-OneConst
+\end{tcase}
+
+This case matches when there is only a constriction on one side.
+
+Suppose $n\notin CN(y \; N_1 \cdots N_n) \cup CN(y \; M_1 \cdots M_n)$
+
+\[
+F[\forall y : A . G[y \; M_1 \cdots M_{r-1} \;\{ n = A \} \; M_{r} \cdots M_n \doteq y N_1 \cdots N_n  ]]
+\UnifiesTo
+F[\forall y : A . G[y M_1 \cdots M_n \doteq y N_1 \cdots N_n ]]
+\]
+
+In this case we have no reference point to unify $A$ against, and we do not know its type, so we can simply ignore it. 
+
+\begin{tcase}
+Uvar-Uvar-Eq
+\end{tcase}
+
+If $CN(y \; N_1 \cdots N_n) \cup CN(y \; M_1 \cdots M_n) = \emptyset$
+
+\[
+F[\forall y : A . G[y M_1 \cdots M_n \doteq y N_1 \cdots N_n  ]]
+\UnifiesTo
+F[\forall y : A . G[ M_1 \doteq \wedge N_1 \cdots \wedge M_1 \cdots N_n ]]
+\]
+
+This last case behaves exactly as the old ``Uvar-Uvar-Eq'' except that we require there to be no constrained names on either side.

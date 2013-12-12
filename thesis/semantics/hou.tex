@@ -151,9 +151,9 @@ Lam-Lam
 \end{tcase}
 
 \[
-F[\lambda x : A . M \doteq \lambda x : A . N ]
+F[\lambda x : A . M \doteq \lambda x : A' . N ]
 \UnifiesTo
-F[ \forall x : A . M \doteq N ]
+F[ A \doteq A' \wedge \forall x : A . M \doteq N ]
 \]
 
 While the ``Lam-Lam'' rule is not explicitly necessary as it is covered by the ``Lam-Any'' rule, 
