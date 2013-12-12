@@ -23,10 +23,8 @@ defn serializeBool : bool -> string -> type
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 query readQuery = exists B : bool. serializeBool B ``true''
 query printQuery = exists S : string . serializeBool false S
-
 \end{lstlisting}
 \caption{Bidirectional serializing}
 \label{prog:bidi}
@@ -42,9 +40,7 @@ We first create an open type for the type class serializable.
 
 \begin{figure}[H]
 \begin{lstlisting}
-
-
-
+open serializable : [ T ] { serializer : T -> string -> type } type
 \end{lstlisting}
 \caption{The type of the type class serializable }
 \label{prog:sty}
@@ -55,14 +51,12 @@ We then define a function ``serialize'' which unpacks the implicit dependency of
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 defn serialize : {T}{ serializable : T -> string -> type } T -> string -> type
    | serializeImp = 
        [ Serializer : T -> string -> type ]
        [ Serializable : serializable T { serializer = Serializer }]
        serialize { serializable = Serializable } V S
      <- Serializer V S
-
 \end{lstlisting}
 \caption{The implementation of the function serialize }
 \label{prog:imp}
@@ -71,10 +65,8 @@ defn serialize : {T}{ serializable : T -> string -> type } T -> string -> type
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 instance serialize-bool = serializable bool { serializer = serializeBool }
 instance serialize-nat = serializable nat { serializer = serializeNat }
-
 \end{lstlisting}
 \caption{ Instances of serializable }
 \label{prog:inst}
@@ -88,21 +80,19 @@ Use of the function then omits the implementation of the ``serializable'' argume
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 query readQueryBool = exists B . serialize B ``true''
 query printQueryBool = exists S . serialize false S
 
 query printQueryNat = exists S . serialize (succ (succ zero)) S
 query readQueryNat = exists S : nat . serialize S ``(succ (succ zero))''
-
 \end{lstlisting}
 \caption{ Instances of serializable }
 \label{prog:inst}
 \end{figure}
 
 
-This process can be extended to open type classes, as well as closed type classes, where 
-resolution involves arbitrary computation.  
+This process can be extended to open type classes which bypass the family requirement, allowing
+future instances to be declared.
 It is difficult to fully discuss uses of this capability in the confines of this paper. However,
 type class computation has been known to the Haskell community for quite some time. Moreover, it 
 has been used in applications ranging from embedding an imperative computation monad with local variable use and 

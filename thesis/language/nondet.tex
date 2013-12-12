@@ -41,7 +41,12 @@ In example \ref{nondet:ex1}, the query main prints to the screen something simil
 vqvqvqvq jjj”. This happens because, despite proof search failing on the first three axioms due
 to an incorrect match, the fail is deferred until after IO has been performed. The middle
 axioms, ``run1'' and ``run2'' are declared to be breadth first axioms, while ``run0'' and ``run3'' are
-declared to be depth first axioms.
+declared to be depth first axioms.  
+The declaration of an axiom as being depth first implies that it's entire tree must be searched for a successful
+proof before the next axiom can be attempted.  While breadth first axioms make no such guarantee, 
+it is also not guaranteed that they will run concurrently.  
+If for example they both make calls to predicates which each only have a single depth first axiom, they will not be
+any more concurrent than before.  
 
 
 \begin{figure}[H]

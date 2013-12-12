@@ -9,11 +9,9 @@ will nearly always resolve to this version.
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 defn serializeable : [T] { serializer : T −> string −> type } type
    | serializable-auto-find = [T] [ Serializer : T -> string -> type ]
       serializable T { serializer = Serializer }
-
 \end{lstlisting}
 \caption{This would be nice}
 \label{lin:nice}
@@ -24,11 +22,9 @@ resolved to a reasonable instance of serializable.
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 defn serialize : {T} { serializer : T −> string −> type } T -> string -> type
   as ?\T : type . ?\ serializer : T -> string -> type . \v : T . \s : string 
    . serializer v s
-
 \end{lstlisting}
 \caption{Nice implementation}
 \label{lin:imp}
@@ -40,7 +36,6 @@ However, this kind of implementation will fail to determine the correct instance
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 query writeBool = serialize true ``true''
 ===>
 query writeBool = 
@@ -48,7 +43,6 @@ query writeBool =
        {T = bool}
        { serializer = \ x : bool . \ y : string . type } 
        true ``true''
-
 \end{lstlisting}
 \caption{Trivial Failure}
 \label{lin:fail}
@@ -58,14 +52,12 @@ Rather, it will infer a trivial predicate, as seen in the query in figure \ref{l
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 defn show : {T}{shower : T -> string } T -> string
   as ?\T : type . ?\ shower : T -> string . \ v : T . shower v 
 
 query writeBool = print (show true)
 ===>
 query writeBool = print (show {T = bool}{shower = \ x : bool . nil })
-
 \end{lstlisting}
 \caption{Functions also fail}
 \label{lin:ffail}
@@ -78,7 +70,6 @@ functions have similar drawbacks, as is seen in the program in figure \ref{lin:f
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 defn show : {T}
             {shower : T -> string}
             {reader : string -> maybe T}
@@ -92,7 +83,6 @@ defn show : {T}
     . ?\ comp2  : _
     . \ v : T
     . shower v
-
 \end{lstlisting}
 \caption{Kind of a success using proofs}
 \label{lin:success}
@@ -109,7 +99,6 @@ this is a subject of ongoing work on my part, I have included a description of m
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 defn serializeBool : bool -o string -o type
    | serializeBool-true = serializeBool true ``true''
    | serializeBool-false = serializeBool false ``false''
@@ -120,7 +109,6 @@ defn serialize : {T}{ serializer : T -o string -o type } T -> string -> type
    .  \ v : T 
    .  \ s : string 
    . serializer v s
-
 \end{lstlisting}
 \caption{Linear types would be useful here}
 \label{lin:linideal}
@@ -134,17 +122,16 @@ The problem is solved in the figure \ref{lin:linideal} since the only function w
 consumes a single boolean and a single string in the program and outputs a type is ``serializeBool''.  
 Other functions that do this might be added later, but functions of the form 
 $(\lambda x : \m{bool}. \lambda s : \m{string} . \m{type})$ are not possible.  
-Unfortunately, something alon gthe lines of 
+Unfortunately, something along the lines of 
 $(\lambda x : \m{bool}. \lambda s : \m{string} . \m{isString} s \wedge \m{isBool} x)$ might be possible, 
 but these are significantly more manageable provided one is careful.  
 
 Fortunately, the fact that we are working with higher order abstract syntax in the ``Calculus of Constructions''
-means that linear dependent products are actually implementable withing Caledon.
+means that linear dependent products are actually implementable within Caledon.
 
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 defn restriction : type
    | linear = restriction
    | unused = restriction
@@ -174,7 +161,6 @@ defn restrict : restriction -> [ T : type ] [ P : T -> type ] ( [ x : T ] P x ) 
    | restrict-eta = 
       restrict B T (\ x : T . [y : A x] P x y) (\ x : T . \ y : A x. F x y)
    <- restrict B T (\ x : T . [y : A x] P x y) (\ x : T . F x)
-
 \end{lstlisting}
 \caption{Linearity in Caledon}
 \label{lin:linimp}
@@ -184,7 +170,6 @@ Substructural representations with higher order abstract syntax in Elf is due to
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 fixity lambda lolli
 fixity lambda llam
 
@@ -198,7 +183,6 @@ defn lapp : {A : type} { T : A -> type } [ f : lolli x : A . T x ] [ a : A ] T a
 fixity arrow -o
 defn -o : type -> type -> type
   as \t : type . \t2 : type . lolli t (\x : t . t2)
-
 \end{lstlisting}
 \caption{Linear Dependent Product}
 \label{lin:lindep}
@@ -217,7 +201,6 @@ constructor, but this is significantly more complicated to define, although cert
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 defn sum : nat -o nat -o nat -o type
    | sum-zero = [N : nat]
                 [Sum : nat -o nat -o type]
@@ -234,7 +217,6 @@ defn sum : nat -o nat -o nat -o type
     -> lapp sum (succ N) Sum2 -> 
        lapp Sum1 M Sum2' ->
        lapp Sum2' (succ R) Sum2'' -> Sum2''
-   
 \end{lstlisting}
 \caption{Use of a linear type}
 \label{lin:use}
@@ -248,7 +230,6 @@ is a type variable.
 
 \begin{figure}[H]
 \begin{lstlisting}
-
 fixity application lapp
 defn sum : nat -o nat -o nat -o type
    | sum-zero = [N : nat] *APP=lapp* sum zero N N

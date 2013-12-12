@@ -22,12 +22,13 @@ when nondeterministically proof searching.
 It is tempting to define predicates that take input as ``taking as an argument 
 a function that uses the input.''  This is in fact a valid way to define such functions 
 and permits for hints of directionality in the types.  
-However, it is still possible to escape.  
+However, it is still possible to escape from the confines of abstraction to build a predicate without 
+obvious input directionality.  
 
 \begin{lstlisting}
 builtin readLine : (string -> prop) -> prop
 
-defn readLineEscape : string -> prop
+defn readLinePredicate : string -> prop
   as \ s : string . readLine (\ t . t =:= s )
 
 \end{lstlisting}
